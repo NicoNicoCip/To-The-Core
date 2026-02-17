@@ -18,6 +18,7 @@ player.style.top = data_player.y
 let mouse_x = 0
 let mouse_y = 0
 let acc_y = 0
+let gravity = 0.7
 
 document.addEventListener("mousemove", (e) => {
     mouse_x = e.pageX
@@ -26,7 +27,7 @@ document.addEventListener("mousemove", (e) => {
 
 setInterval(() => {
         data_player.x = window.width / 2
-        acc_y++
+        acc_y += gravity
         data_player.y += acc_y
 
         if(data_player.y + data_player.height > document.height) {
@@ -36,4 +37,4 @@ setInterval(() => {
 
         player.style.left = data_player.x + "px"
         player.style.top = data_player.y + "px"
-}, 33)
+}, 10)
