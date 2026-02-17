@@ -5,17 +5,24 @@
 }
 
 body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100dvw;
     height: 100dvh;
 }
 
-#play_area {
-    
+#game_area {
+    width: 640px;
+    height: 480px;
+    border-width: 1px;
+    border-color: black;
+    border-style: solid;
 }
 
 #player {
     display: block;
-    position: absolute;
+    position: relative;
     background-color: red;
 }
 
