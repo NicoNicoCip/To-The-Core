@@ -15,6 +15,8 @@ player.style.height = data_player.height + "px"
 player.style.left = data_player.x
 player.style.top = data_player.y
 
+//hola. comentario nico
+
 let mouse_x = 0
 let mouse_y = 0
 let acc_y = 0
