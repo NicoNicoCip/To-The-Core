@@ -8,7 +8,7 @@ let data_player = {
 }
 
 const player = document.getElementById("player")
-const play_area = document,getElementById("game_area")
+const play_area = document.getElementById("game_area")
 
 player.style.width = data_player.width + "px"
 player.style.height = data_player.height + "px"
@@ -36,4 +36,4 @@ setInterval(() => {
 
         player.style.left = data_player.x + "px"
         player.style.top = data_player.y + "px"
-}, 1)
+}, 33)
