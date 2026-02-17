@@ -1,9 +1,0 @@
-{
-  "version": "0.1.0",
-  "lockVersion": false,
-  "templateBranches": {
-    "fresh": "template/fresh",
-    "platformer": "template/platformer"
-  },
-  "migrations": {}
-}

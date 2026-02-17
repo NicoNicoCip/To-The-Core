@@ -1,0 +1,343 @@
+{
+  "width": 640,
+  "height": 480,
+  "room_speed": 60,
+  "persistent": false,
+  "creation_code": "",
+  "instances": [
+    {
+      "id": 1,
+      "object_name": "o_player",
+      "x": 64,
+      "y": 64,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 2,
+      "object_name": "o_wall",
+      "x": 0,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 3,
+      "object_name": "o_wall",
+      "x": 32,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 4,
+      "object_name": "o_wall",
+      "x": 64,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 5,
+      "object_name": "o_wall",
+      "x": 96,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 6,
+      "object_name": "o_wall",
+      "x": 128,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 7,
+      "object_name": "o_wall",
+      "x": 160,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 8,
+      "object_name": "o_wall",
+      "x": 192,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 9,
+      "object_name": "o_wall",
+      "x": 224,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 10,
+      "object_name": "o_wall",
+      "x": 256,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 11,
+      "object_name": "o_wall",
+      "x": 288,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 12,
+      "object_name": "o_wall",
+      "x": 320,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 13,
+      "object_name": "o_wall",
+      "x": 352,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 14,
+      "object_name": "o_wall",
+      "x": 384,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 15,
+      "object_name": "o_wall",
+      "x": 416,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 16,
+      "object_name": "o_wall",
+      "x": 448,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 17,
+      "object_name": "o_wall",
+      "x": 480,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 18,
+      "object_name": "o_wall",
+      "x": 512,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 19,
+      "object_name": "o_wall",
+      "x": 544,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 20,
+      "object_name": "o_wall",
+      "x": 576,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 21,
+      "object_name": "o_wall",
+      "x": 608,
+      "y": 448,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 22,
+      "object_name": "o_wall",
+      "x": 200,
+      "y": 320,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 23,
+      "object_name": "o_wall",
+      "x": 232,
+      "y": 320,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 24,
+      "object_name": "o_wall",
+      "x": 264,
+      "y": 320,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 25,
+      "object_name": "o_wall",
+      "x": 400,
+      "y": 240,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 26,
+      "object_name": "o_wall",
+      "x": 432,
+      "y": 240,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 27,
+      "object_name": "o_wall",
+      "x": 464,
+      "y": 240,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 28,
+      "object_name": "o_enemy",
+      "x": 300,
+      "y": 400,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 29,
+      "object_name": "o_enemy",
+      "x": 430,
+      "y": 200,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 30,
+      "object_name": "o_coin",
+      "x": 230,
+      "y": 280,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 31,
+      "object_name": "o_coin",
+      "x": 430,
+      "y": 200,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    },
+    {
+      "id": 32,
+      "object_name": "o_coin",
+      "x": 500,
+      "y": 400,
+      "scale_x": 1,
+      "scale_y": 1,
+      "rotation": 0,
+      "creation_code": ""
+    }
+  ],
+  "backgrounds": [
+    {
+      "enabled": true,
+      "bg_name": "bg_test",
+      "tile_x": false,
+      "tile_y": false,
+      "stretch": false,
+      "visible_in_editor": true
+    }
+  ],
+  "views": [],
+  "physics_world": false,
+  "physics_gravity_x": 0,
+  "physics_gravity_y": 10
+}

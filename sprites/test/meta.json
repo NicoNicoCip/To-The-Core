@@ -1,0 +1,17 @@
+{
+  "origin_x": 0,
+  "origin_y": 0,
+  "width": 8,
+  "height": 8,
+  "anim_speed": 15,
+  "mask_type": "rectangle",
+  "mask_x": 0,
+  "mask_y": 0,
+  "mask_w": 8,
+  "mask_h": 8,
+  "frames": [
+    {
+      "name": "test_0.png"
+    }
+  ]
+}
