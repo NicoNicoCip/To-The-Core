@@ -11,56 +11,33 @@ export class jobj {
      * @param {string} name The name of the jobj
      * @param {number} x the x position of the obj
      * @param {number} y the y position of the obj
-     * @param {number} x_offset the x offset in graphic
-     * @param {number} y_offset the y offset in graphic
      * @param {number} width width of the graphic
      * @param {number} height height of the graphic
-     * @param {number} col_x the x offset from the origin of the collider
-     * @param {number} col_y the y offset from the origin
-     * @param {number} col_width width of the collider
-     * @param {number} col_height height of the collider
      */
     constructor(
         name = null,
         x = null,
         y = null,
-        x_offset = null,
-        y_offset = null,
         width = null,
-        height = null,
-        col_x = null,
-        col_y = null,
-        col_width = null,
-        col_height = null
+        height = null
     ) {
         if (name !== null) this.name = name
 
         if (x !== null) this.x = x
         if (y !== null) this.y = y
 
-        if (x_offset !== null) this.x_offset = x_offset
-        if (y_offset !== null) this.y_offset = y_offset
-
         if (width !== null) this.width = width
         if (height !== null) this.height = height
 
-        if (col_x !== null) this.col_x = col_x
-        if (col_y !== null) this.col_y = col_y
-        if (col_width !== null) this.col_width = col_width
-        if (col_height !== null) this.col_height = col_height
-
-        this.origin = document.createElement("div")
-        this.origin.style.width = "4px"
-        this.origin.style.height = "4px"
-        this.origin.x = (this.x - this.x_offset) + "px"
-        this.origin.y = (this.y - this.y_offset) + "px"
-
         this.graphic_link = document.createElement("div")
         this.graphic_link.id = name
-        this.graphic_link.style.left = this.origin.x
-        this.graphic_link.style.top = this.origin.y
+        this.graphic_link.classList.add("jobj")
+        this.graphic_link.style.left = this.x + "px"
+        this.graphic_link.style.top = this.y + "px"
         this.graphic_link.style.width = this.width + "px"
         this.graphic_link.style.height = this.height + "px"
+
+        console.log(this.x, this.y)
     }
 
     /**
@@ -72,82 +49,37 @@ export class jobj {
         if (x !== null) this.x = x
         if (y !== null) this.y = y
 
-        this.origin.x = (this.x - this.x_offset) + "px"
-        this.origin.y = (this.y - this.y_offset) + "px"
-
-        this.graphic_link.style.left = this.origin.x
-        this.graphic_link.style.top = this.origin.y
-    }
-
-    do_collide_with(other = null, action = null) {
-        const this_left = (this.x - this.x_offset) + this.col_x
-        const this_top = (this.y - this.y_offset) + this.col_y
-        const this_right = this_left + this.col_width
-        const this_botton = this_top + this.col_height
-
-        const other_left = (other.x - other.x_offset) + other.col_x
-        const other_top = (other.y - other.y_offset) + other.col_y
-        const other_right = other_left + other.col_width
-        const other_botton = other_top + other.col_height
-
-        if (this_left < other_right && this_right > other_left &&
-            this_top < other_botton && this_botton > other_top) {
-            action(other)
-        }
+        this.graphic_link.style.left = this.x + "px"
+        this.graphic_link.style.top = this.y + "px"
     }
 
     do_collide_resolve(other = null) {
-        const this_left = (this.x - this.x_offset) + this.col_x
-        const this_top = (this.y - this.y_offset) + this.col_y
-        const this_right = this_left + this.col_width
-        const this_botton = this_top + this.col_height
+        if (other === null) return
 
-        const other_left = (other.x - other.x_offset) + other.col_x
-        const other_top = (other.y - other.y_offset) + other.col_y
-        const other_right = other_left + other.col_width
-        const other_botton = other_top + other.col_height
+        const x_col = this.x + this.width > other.x && this.x < other.x + other.width
+        const y_col = this.y + this.height > other.y && this.y < other.y + other.height
 
-        if (this_left < other_right && this_right > other_left &&
-            this_top < other_botton && this_botton > other_top) {
-            return false
+        if (y_col) {
+            if (this.x + this.width > other.x) {
+                this.x = other.x 
+            }
         }
 
-        const penetrarion_left = other_right - this_left
-        const penetration_right = this_right - other_left
-        const penetration_top = other_botton - this_top
-        const penetration_botton = this_botton - other_top
 
-        const min_penetration_x = Math.min(penetrarion_left, penetration_right)
-        const min_penetration_y = Math.min(penetration_top, penetration_botton)
 
-        if (min_penetration_x < min_penetration_y) {
-            if (penetrarion_left < penetration_right) {
-                this.x = other_left - this.col_x - this.col_width + this.x_offset
-            } else {
-                this.x = other_right - this.col_x + this.x_offset
-            }
+        // if (this.y + this.height > other.y) {
+        //     this.y += this.y_speed
+        // }
 
-            this.x_speed = 0
-        } else {
-            if (penetration_top < penetration_botton) {
-                this.y = other_top - this.col_y - this.col_height + this.y_offset
-            } else {
-                this.y = other_botton - this.col_y - this.col_height + this.y_offset
-                this.grounded = true
-            }
 
-            this.y_speed = 0
-        }
 
-        return true
+        // if (this.y < other.y + other.height) {
+        //     this.y += this.y_speed
+        // }
     }
 
     to_string() {
         return JSON.stringify(this)
-    }
-
-    debug_print_origin() {
-
     }
 }
 
@@ -158,3 +90,65 @@ export function sign(value) {
 
     return 0
 }
+
+export class jloop {
+    static fps = 0
+    static fps_interval = 0
+    static start_time = 0
+    static now = 0
+    static then = 0
+    static elapsed = 0
+    static methods = Array.from(() => { })
+
+    static update() {
+        requestAnimationFrame(jloop.update)
+
+        jloop.now = performance.now()
+        jloop.elapsed = jloop.now - jloop.then
+
+        if (jloop.elapsed > jloop.fps_interval) {
+            jloop.then = jloop.now - (jloop.elapsed % jloop.fps_interval)
+            jloop.methods.forEach(m => {
+                m()
+            });
+        }
+    }
+
+    static start_update(fps) {
+        jloop.fps = fps
+        jloop.fps_interval = 1000 / jloop.fps
+        jloop.then = performance.now()
+        jloop.start_time = jloop.then
+        jloop.update()
+    }
+
+    static add(func) {
+        if (typeof (func) === "function") {
+            jloop.methods.push(func)
+            return true
+        }
+
+        return false
+    }
+
+    static remove(func_or_id) {
+        if (typeof (func_or_id) === "function") {
+            const index = jloop.methods.indexOf(func_or_id)
+            if (index !== -1) {
+                jloop.methods.splice(index, 1)
+                return true
+            }
+        }
+
+        if (typeof (func_or_id) === "number") {
+            if (func_or_id !== -1 && func_or_id >= 0 && func_or_id < jloop.methods.length) {
+                jloop.methods.splice(func_or_id, 1)
+                return true
+            }
+        }
+
+        return false
+    }
+}
+
+

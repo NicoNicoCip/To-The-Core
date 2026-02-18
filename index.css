@@ -26,17 +26,23 @@ body {
     border-width: 1px;
     border-color: black;
     border-style: solid;
+    overflow: hidden;
+}
+
+.jobj {
+    display: block;
+    position:absolute;
+    z-index: 0;
 }
 
 #player {
-    display: block;
-    position: relative;
     background-color: red;
 }
 
 #ground {
-    display: block;
-    position: relative;
     background-color: rgb(85, 137, 167);
 }
 
+.debug {
+    z-index: -1000;
+}
