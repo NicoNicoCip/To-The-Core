@@ -7,13 +7,15 @@ export function sign(value) {
 }
 
 export class jloop {
-    static fps = 0
-    static fps_interval = 0
-    static start_time = 0
+    static fps = 60
+    static fixed_delta = 1000 / jloop.fps
+    static accumulator = 0
     static now = 0
     static then = 0
-    static elapsed = 0
-    static methods = Array.from(() => { })
+    static delta = 0
+    static methods: Function[] = []
+    static deferred: Function[] = []
+    static on_resize: Function[] = []
     static graphic = null
     static world = null
 
@@ -26,29 +28,32 @@ export class jloop {
 
         window.addEventListener("resize", () => {
             jloop.world = world.getBoundingClientRect()
+            jloop.on_resize.forEach(func => func())
         })
+    }
+
+    static defer(func: () => void) {
+        jloop.deferred.push(func)
     }
 
     static update() {
         requestAnimationFrame(jloop.update)
 
         jloop.now = performance.now()
-        jloop.elapsed = jloop.now - jloop.then
+        jloop.delta = jloop.now - jloop.then
+        jloop.then = jloop.now
 
-        if (jloop.elapsed > jloop.fps_interval) {
-            jloop.then = jloop.now - (jloop.elapsed % jloop.fps_interval)
-            jloop.methods.forEach(m => {
-                m()
-            });
+        if (jloop.delta > 200) jloop.delta = 200
+
+        jloop.accumulator += jloop.delta
+
+        while (jloop.accumulator >= jloop.fixed_delta) {
+            while (jloop.deferred.length > 0) {
+                jloop.deferred.shift()() // call the shift function and run the function in the deferred stack
+            }
+            jloop.methods.forEach(m => m())
+            jloop.accumulator -= jloop.fixed_delta
         }
-    }
-
-    static start_update(fps) {
-        jloop.fps = fps
-        jloop.fps_interval = 1000 / jloop.fps
-        jloop.then = performance.now()
-        jloop.start_time = jloop.then
-        jloop.update()
     }
 
     static add(func) {
@@ -81,10 +86,18 @@ export class jloop {
 }
 
 export class jobj {
-    graphic = null
+    graphic: HTMLDivElement = null
     x_speed = 0
     y_speed = 0
     grounded = false
+    name = ""
+    x = 0
+    y = 0
+    _prev_x = -1
+    _prev_y = -1
+    width = 0
+    height = 0
+    dynamic = false
 
     /**
      * An object with all the data and special funccionalaty in one place
@@ -100,6 +113,7 @@ export class jobj {
         y = null,
         width = null,
         height = null,
+        dynamic = null
     }) {
 
         if (name !== null) this.name = name
@@ -107,16 +121,14 @@ export class jobj {
         if (y !== null) this.y = y
         if (width !== null) this.width = width
         if (height !== null) this.height = height
+        if (dynamic !== null) this.dynamic = dynamic
 
         this.graphic = document.createElement("div")
         this.graphic.id = name
         this.graphic.classList.add("jobj")
-        this.graphic.style.left = jloop.world.x + this.x + "px"
-        this.graphic.style.top = jloop.world.y + this.y + "px"
+        this.graphic.style.transform = `translate(${jloop.world.x + this.x}px, ${jloop.world.y + this.y}px)`
         this.graphic.style.width = this.width + "px"
         this.graphic.style.height = this.height + "px"
-
-        console.log(this.x, this.y)
     }
 
     copy() {
@@ -125,7 +137,8 @@ export class jobj {
             x: this.x,
             y: this.y,
             width: this.width,
-            height: this.height
+            height: this.height,
+            dynamic: this.dynamic
         })
     }
 
@@ -135,21 +148,25 @@ export class jobj {
             x: obj.x,
             y: obj.y,
             width: obj.width,
-            height: obj.height
+            height: obj.height,
+            dynamic: obj.dynamic
         })
     }
 
     /**
      * Set the position of the jobj with proper offset and string format
-     * @param {number} x 
-     * @param {number} y 
+     * @param {number} x
+     * @param {number} y
      */
     move(x = null, y = null) {
         if (x !== null) this.x = x
         if (y !== null) this.y = y
 
-        this.graphic.style.left = jloop.world.x + this.x + "px"
-        this.graphic.style.top = jloop.world.y + this.y + "px"
+        if (this.x !== this._prev_x || this.y !== this._prev_y) {
+            this.graphic.style.transform = `translate(${jloop.world.x + this.x}px, ${jloop.world.y + this.y}px)`
+            this._prev_x = this.x
+            this._prev_y = this.y
+        }
     }
 
     collide(other = null, resolve = true) {
@@ -162,6 +179,7 @@ export class jobj {
         const x_overlap = Math.min(this.x + this.width, other.x + other.width) - Math.max(this.x, other.x)
         const y_overlap = Math.min(this.y + this.height, other.y + other.height) - Math.max(this.y, other.y)
 
+        this.grounded = false
         if (col && resolve) {
             if (x_overlap < y_overlap) {
                 this.x += x_overlap * -sign(this.x_speed)
@@ -187,12 +205,78 @@ export class jobj {
     }
 }
 
+export class jinput {
+    // we register one key event per input event to the window.
+
+    // each time a new event is called we queue it in a battery of inputs. they all exist at the same time, in the same
+    // place using key value pairs of key_press (string) -> state (just pressed, held, released + [extra] typed)
+
+    // when running the function to look for a specific input and state, you return true if that specidic pair exists
+    // and false if not.
+
+    static key_pairs: Map<string, string> = new Map()
+    static KEYDOWN = "key_down"
+    static KEYHELD = "key_held"
+    static KEYUP = "key_up"
+
+    private static push(key, state) {
+        if (typeof (key) !== "string") {
+            throw new Error("Key must be string")
+        }
+
+        if (typeof (state) !== "string") {
+            throw new Error("State must be string")
+        }
+
+        jinput.key_pairs.set(key, state)
+    }
+
+    private static pull(key) {
+        jinput.key_pairs.delete(key)
+    }
+
+    public static probe(key, state): boolean {
+        if (key.toLowerCase() === "any") {
+            return jinput.key_pairs.size > 0
+        }
+
+        return jinput.key_pairs.get(key) === state
+    }
+
+    public static init() {
+        window.addEventListener("keydown", (e) => {
+            const key = e.key.toLowerCase()
+            if (!jinput.key_pairs.has(key)) {
+                jinput.push(key, jinput.KEYDOWN)
+                jloop.defer(() => jinput.push(key, jinput.KEYHELD))
+            }
+        })
+
+        window.addEventListener("keyup", (e) => {
+            const key = e.key.toLowerCase()
+            jinput.push(key, jinput.KEYUP)
+            jloop.defer(() => jinput.pull(key))
+        })
+    }
+}
+
 export class jlevel {
-    objects = []    // Array.from(Array.from(jobj))
-    keys = []       // Array.from({char: "", object: null})
-    map = []        // Array.from(String)
+    objects: jobj[][] = []
+    flat: jobj[] = null
+    dynamic_objs: jobj[] = []
+    static_objs: jobj[] = []
+    keys: [{ char: string, object: jobj }] = null
+    map: String[] = []
+    x = 0
+    y = 0
+    width = 0
+    height = 0
+    tile_width = 0
+    tile_height = 0
 
     constructor({
+        x = null,
+        y = null,
         width = null,
         height = null,
         tile_width = null,
@@ -200,7 +284,8 @@ export class jlevel {
         keys = null,
         map = null
     }) {
-
+        if (x !== null) this.x = x
+        if (y !== null) this.y = y
         if (width !== null) this.width = width
         if (height !== null) this.height = height
         if (tile_width !== null) this.tile_width = tile_width
@@ -216,8 +301,17 @@ export class jlevel {
             throw new Error("The height of the map does not match the level height")
         }
 
+        if (x === "centered") {
+            this.x = jloop.world.width / 2 - (width * tile_width) / 2
+        }
+
+        if (y === "centered") {
+            this.y = jloop.world.height / 2 - (height * tile_height) / 2
+        }
+
+
         for (let yy = 0; yy < this.height; yy++) {
-            this.objects.push([])
+            this.objects[yy] = []
             for (let xx = 0; xx < this.width; xx++) {
                 // take the char from the map
                 const char = map[yy].charAt(xx)
@@ -240,30 +334,78 @@ export class jlevel {
                 }
 
                 // put an instance copy of the mapping in the array
-                mapping.move(xx * tile_width, yy * tile_height)
+                mapping.move(xx * tile_width + this.x, yy * tile_height + this.y)
                 this.objects[yy].push(mapping)
             }
         }
-    }
 
-    batch() {
-        let obj = null
-        let start = {x: 0, y: 0}
+        // Horizontal pass
         for (let yy = 0; yy < this.height; yy++) {
+            let obj: jobj = null
+            let start = { x: 0, y: yy }
+
             for (let xx = 0; xx < this.width; xx++) {
                 const tile = this.objects[yy][xx]
-                if(tile === null && tile.name === obj.name) {
-                    obj.width += tile.width
-                    this.objects[xx][yy] = null
-                    continue
-                }
 
-                if(obj !== null) {
-                    this.objects[start.y][start.x] = obj
+                if (tile !== null && obj !== null && tile.name === obj.name) {
+                    obj.width += tile.width
+                    obj.graphic.style.width = obj.width + "px"
+                    this.objects[yy][xx] = null
+                } else {
+                    if (obj !== null) {
+                        this.objects[start.y][start.x] = obj
+                    }
+
+                    obj = tile
+                    start = { x: xx, y: yy }
                 }
             }
+            if (obj !== null) {
+                this.objects[start.y][start.x] = obj
+            }
         }
+
+        // Vertical pass
+        for (let xx = 0; xx < this.width; xx++) {
+            let obj: jobj = null
+            let start = { x: xx, y: 0 }
+
+            for (let yy = 0; yy < this.height; yy++) {
+                const tile = this.objects[yy][xx]
+
+                if (tile !== null && obj !== null && tile.name === obj.name && tile.width === obj.width) {
+                    obj.height += tile.height
+                    obj.graphic.style.height = obj.height + "px"
+                    this.objects[yy][xx] = null
+                } else {
+                    if (obj !== null) {
+                        this.objects[start.y][start.x] = obj
+                    }
+
+                    obj = tile
+                    start = { x: xx, y: yy }
+                }
+            }
+            if (obj !== null) {
+                this.objects[start.y][start.x] = obj
+            }
+        }
+
+        this.flat = this.objects.flat()
+
+        this.flat.forEach((obj) => {
+            if (obj === null) {
+                return
+            }
+
+            if (obj.dynamic) {
+                this.dynamic_objs.push(obj)
+            } else {
+                this.static_objs.push(obj)
+            }
+        })
     }
+
 
     spawn() {
         for (let yy = 0; yy < this.height; yy++) {
@@ -275,6 +417,16 @@ export class jlevel {
                 jloop.graphic.appendChild(this.objects[yy][xx].graphic)
             }
         }
+
+        jloop.on_resize.push(() => {
+            this.flat.forEach((obj) => {
+                if (obj === null) return
+
+                obj._prev_x = -1
+                obj._prev_y = -1
+                obj.move()
+            })
+        })
     }
 
     despawn() {
@@ -286,6 +438,24 @@ export class jlevel {
 
                 jloop.graphic.removeChild(this.objects[yy][xx].graphic)
             }
+        }
+    }
+
+    find(name) {
+        return this.flat.find(obj => obj !== null && obj.name == name)
+    }
+
+    move_and_collide() {
+        for (let i = 0; i < this.dynamic_objs.length; i++) {
+            for (let j = 0; j < this.static_objs.length; j++) {
+                this.dynamic_objs[i].collide(this.static_objs[j])
+            }
+
+            for (let j = i + 1; j < this.dynamic_objs.length; j++) {
+                this.dynamic_objs[i].collide(this.dynamic_objs[j])
+            }
+
+            this.dynamic_objs[i].move()
         }
     }
 }

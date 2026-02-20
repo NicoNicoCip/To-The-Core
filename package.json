@@ -1,0 +1,23 @@
+{
+  "name": "jump-clone",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/NicoNicoCip/Jump-Clone#readme",
+  "bugs": {
+    "url": "https://github.com/NicoNicoCip/Jump-Clone/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicoNicoCip/Jump-Clone.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "scripts.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "typescript": "^5.9.3"
+  }
+}
