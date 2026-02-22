@@ -1,0 +1,60 @@
+#background1 {
+    background-image: url(./assets/background1.webp);
+    background-size: cover;
+    animation: fall 1s linear infinite;
+}
+
+#to_the_core_sign {
+    background-image: url(./assets/to_the_core_sign.webp);
+    background-size: cover;
+    animation: sign 10s ease-in-out infinite;
+    transform-origin: center center;
+}
+
+#play_sign {
+    background-image: url(./assets/play_sign.webp);
+    background-size: cover;
+    animation: sign 15s ease-in-out infinite;
+    transform-origin: center center;
+}
+
+#fade {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    transition: background-color 0.5s steps(8);
+    z-index: 100;
+    pointer-events: none;
+}
+
+.play_sign_hover {
+    background-image: url(./assets/play_sign_active.webp) !important;
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: #beffe0;
+}
+
+@keyframes fall {
+    0% {
+        background-position-y: 0px;
+    }
+
+    100% {
+        background-position-y: -3600px;
+    }
+}
+
+@keyframes sign {
+    0%, 100% {
+        rotate: 3deg;
+    }
+
+    40% {
+        rotate: -3deg;
+    }
+
+    90% {
+        rotate: 5deg;
+    }
+}

@@ -1,64 +1,102 @@
-export function sign(value) {
-    if (value === 0) return 0
-    else if (value > 0) return 1
-    else if (value < 0) return -1
+export class math {
+    static sign(value) {
+        if (value === 0) return 0
+        else if (value > 0) return 1
+        else if (value < 0) return -1
 
-    return 0
+        return 0
+    }
 }
 
-export class jloop {
+export class game {
     static fps = 60
-    static fixed_delta = 1000 / jloop.fps
+    static fixed_delta = 1000 / game.fps
     static accumulator = 0
     static now = 0
     static then = 0
     static delta = 0
     static methods: Function[] = []
+    static pre_step_methods: Function[] = []
+    static render_methods: Function[] = []
     static deferred: Function[] = []
     static on_resize: Function[] = []
-    static graphic = null
+    static alpha = 0
     static world = null
+    static width = null
+    static height = null
+    static scale = null
 
-    static register_world(world) {
+    static register_world(world, width, height) {
         if (world === null || world === undefined) {
             throw new Error("World in non optional.")
         }
-        jloop.graphic = world
-        jloop.world = world.getBoundingClientRect()
+
+        if (width === null || width === undefined) {
+            throw new Error("Width in non optional.")
+        }
+
+        if (height === null || height === undefined) {
+            throw new Error("Height in non optional.")
+        }
+        game.world = world
+        game.width = width
+        game.height = height
+
+        const scale = () => Math.min(window.innerWidth / width, window.innerHeight / height)
+        game.scale = scale()
+        game.world.style.transform = `scale(${game.scale})`
+
 
         window.addEventListener("resize", () => {
-            jloop.world = world.getBoundingClientRect()
-            jloop.on_resize.forEach(func => func())
+            game.scale = scale()
+            game.world.style.transform = `scale(${game.scale})`
+            game.on_resize.forEach(func => func())
         })
     }
 
     static defer(func: () => void) {
-        jloop.deferred.push(func)
+        game.deferred.push(func)
     }
 
     static update() {
-        requestAnimationFrame(jloop.update)
-
-        jloop.now = performance.now()
-        jloop.delta = jloop.now - jloop.then
-        jloop.then = jloop.now
-
-        if (jloop.delta > 200) jloop.delta = 200
-
-        jloop.accumulator += jloop.delta
-
-        while (jloop.accumulator >= jloop.fixed_delta) {
-            while (jloop.deferred.length > 0) {
-                jloop.deferred.shift()() // call the shift function and run the function in the deferred stack
-            }
-            jloop.methods.forEach(m => m())
-            jloop.accumulator -= jloop.fixed_delta
+        if (game.world === null || game.world === undefined) {
+            throw new Error("World in non optional.")
         }
+
+        if (game.width === null || game.width === undefined) {
+            throw new Error("Width in non optional.")
+        }
+
+        if (game.height === null || game.height === undefined) {
+            throw new Error("Height in non optional.")
+        }
+
+        requestAnimationFrame(game.update)
+
+        game.now = performance.now()
+        game.delta = game.now - game.then
+        game.then = game.now
+
+        if (game.delta > 200) game.delta = 200
+
+        game.accumulator += game.delta
+
+        while (game.accumulator >= game.fixed_delta) {
+            game.pre_step_methods.forEach(m => m())
+            game.methods.forEach(m => m())
+            while (game.deferred.length > 0) {
+                game.deferred.shift()() // call the shift function and run the function in the deferred stack
+            }
+            game.accumulator -= game.fixed_delta
+        }
+
+        game.alpha = game.accumulator / game.fixed_delta
+        game.render_methods.forEach(r => r(game.alpha))
     }
 
     static add(func) {
         if (typeof (func) === "function") {
-            jloop.methods.push(func)
+            game.methods.push(func)
             return true
         }
 
@@ -67,25 +105,42 @@ export class jloop {
 
     static remove(func_or_id) {
         if (typeof (func_or_id) === "function") {
-            const index = jloop.methods.indexOf(func_or_id)
+            const index = game.methods.indexOf(func_or_id)
             if (index !== -1) {
-                jloop.methods.splice(index, 1)
+                game.methods.splice(index, 1)
                 return true
             }
         }
 
         if (typeof (func_or_id) === "number") {
-            if (func_or_id !== -1 && func_or_id >= 0 && func_or_id < jloop.methods.length) {
-                jloop.methods.splice(func_or_id, 1)
+            if (func_or_id !== -1 && func_or_id >= 0 && func_or_id < game.methods.length) {
+                game.methods.splice(func_or_id, 1)
                 return true
             }
         }
 
         return false
     }
+
+    static add_render(func) {
+        if (typeof (func) === "function") {
+            game.render_methods.push(func)
+            return true
+        }
+        return false
+    }
+
+    static remove_render(func) {
+        const index = game.render_methods.indexOf(func)
+        if (index !== -1) {
+            game.render_methods.splice(index, 1)
+            return true
+        }
+        return false
+    }
 }
 
-export class jobj {
+export class obj {
     graphic: HTMLDivElement = null
     x_speed = 0
     y_speed = 0
@@ -95,13 +150,15 @@ export class jobj {
     y = 0
     _prev_x = -1
     _prev_y = -1
+    render_x = 0
+    render_y = 0
     width = 0
     height = 0
     dynamic = false
 
     /**
      * An object with all the data and special funccionalaty in one place
-     * @param {string} name The name of the jobj
+     * @param {string} name The name of the obj
      * @param {number} x the x position of the obj
      * @param {number} y the y position of the obj
      * @param {number} width width of the graphic
@@ -123,16 +180,19 @@ export class jobj {
         if (height !== null) this.height = height
         if (dynamic !== null) this.dynamic = dynamic
 
+        this._prev_x = this.x
+        this._prev_y = this.y
+
         this.graphic = document.createElement("div")
         this.graphic.id = name
-        this.graphic.classList.add("jobj")
-        this.graphic.style.transform = `translate(${jloop.world.x + this.x}px, ${jloop.world.y + this.y}px)`
+        this.graphic.classList.add("obj")
+        this.graphic.style.transform = `translate(${this.x}px, ${this.y}px)`
         this.graphic.style.width = this.width + "px"
         this.graphic.style.height = this.height + "px"
     }
 
     copy() {
-        return new jobj({
+        return new obj({
             name: this.name,
             x: this.x,
             y: this.y,
@@ -143,7 +203,7 @@ export class jobj {
     }
 
     static copy(obj) {
-        return new jobj({
+        return new obj({
             name: obj.name,
             x: obj.x,
             y: obj.y,
@@ -154,7 +214,7 @@ export class jobj {
     }
 
     /**
-     * Set the position of the jobj with proper offset and string format
+     * Set the position of the obj with proper offset and string format
      * @param {number} x
      * @param {number} y
      */
@@ -162,42 +222,98 @@ export class jobj {
         if (x !== null) this.x = x
         if (y !== null) this.y = y
 
-        if (this.x !== this._prev_x || this.y !== this._prev_y) {
-            this.graphic.style.transform = `translate(${jloop.world.x + this.x}px, ${jloop.world.y + this.y}px)`
-            this._prev_x = this.x
-            this._prev_y = this.y
-        }
+        this.render_x = this.x
+        this.render_y = this.y
+        this._prev_x = this.x
+        this._prev_y = this.y
+    }
+
+    render(alpha: number) {
+        const rx = this.render_x + (this.x - this.render_x) * alpha
+        const ry = this.render_y + (this.y - this.render_y) * alpha
+        this.graphic.style.transform = `translate(${rx}px, ${ry}px)`
     }
 
     collide(other = null, resolve = true) {
         if (other === null) return
 
-        const x_col = this.x + this.width > other.x && this.x < other.x + other.width
-        const y_col = this.y + this.height > other.y && this.y < other.y + other.height
-        const col = x_col && y_col
+        const dx = this.x - this._prev_x
+        const dy = this.y - this._prev_y
 
-        const x_overlap = Math.min(this.x + this.width, other.x + other.width) - Math.max(this.x, other.x)
-        const y_overlap = Math.min(this.y + this.height, other.y + other.height) - Math.max(this.y, other.y)
+        let x_entry_t = Number.NEGATIVE_INFINITY
+        let x_exit_t = Infinity
 
-        this.grounded = false
+        if (dx > 0) {
+            x_entry_t = (other.x - (this._prev_x + this.width)) / dx
+            x_exit_t = (other.x + other.width - this._prev_x) / dx
+        } else if (dx < 0) {
+            x_entry_t = (other.x + other.width - this._prev_x) / dx
+            x_exit_t = (other.x - (this._prev_x + this.width)) / dx
+        } else {
+            const x_overlap = this._prev_x + this.width > other.x && this._prev_x < other.x + other.width
+            if (!x_overlap) x_entry_t = Infinity
+        }
+
+        let y_entry_t = Number.NEGATIVE_INFINITY
+        let y_exit_t = Infinity
+
+        if (dy > 0) {
+            y_entry_t = (other.y - (this._prev_y + this.height)) / dy
+            y_exit_t = (other.y + other.height - this._prev_y) / dy
+        } else if (dy < 0) {
+            y_entry_t = (other.y + other.height - this._prev_y) / dy
+            y_exit_t = (other.y - (this._prev_y + this.height)) / dy
+        } else {
+            const y_overlap = this._prev_y + this.height > other.y && this._prev_y < other.y + other.height
+            if (!y_overlap) y_entry_t = Infinity
+        }
+
+        const entry_t = Math.max(x_entry_t, y_entry_t)
+        const exit_t = Math.min(x_exit_t, y_exit_t)
+
+        const col = entry_t < exit_t && entry_t >= 0 && entry_t < 1
+
         if (col && resolve) {
-            if (x_overlap < y_overlap) {
-                this.x += x_overlap * -sign(this.x_speed)
+            if (x_entry_t > y_entry_t) {
+                this.x = this._prev_x + dx * entry_t
                 this.x_speed = 0
             } else {
-                const vert_sign = -sign(this.y_speed)
-                this.y += y_overlap * vert_sign
+                this.y = this._prev_y + dy * entry_t
                 this.y_speed = 0
 
-                if (vert_sign == -1) {
+                if (dy > 0) {
                     this.grounded = true
-                } else {
-                    this.grounded = false
                 }
             }
         }
 
-        return { x_col: x_col, y_col: y_col, col: col }
+
+
+        // const x_col = this.x + this.width > other.x && this.x < other.x + other.width
+        // const y_col = this.y + this.height > other.y && this.y < other.y + other.height
+
+        // const x_overlap = Math.min(this.x + this.width, other.x + other.width) - Math.max(this.x, other.x)
+        // const y_overlap = Math.min(this.y + this.height, other.y + other.height) - Math.max(this.y, other.y)
+
+        // const came_from_left = this._prev_x + this.width <= other.x
+        // const came_from_right = this._prev_x >= other.x + other.width
+        // const came_from_above = this._prev_y + this.height <= other.y
+        // const came_from_below = this._prev_y >= other.y + other.height
+
+        // if (x_col && y_col && resolve) {
+        //     if (came_from_left || came_from_right) {
+        //         this.x += x_overlap * -math.sign(this.x_speed)
+        //         this.x_speed = 0
+        //     } else if (came_from_above || came_from_below) {
+        //         const vert_sign = -math.sign(this.y_speed)
+        //         this.y += y_overlap * vert_sign
+        //         this.y_speed = 0
+        //         if (vert_sign == -1) this.grounded = true
+        //     }
+        // }
+
+
+        return col
     }
 
     to_string() {
@@ -205,15 +321,7 @@ export class jobj {
     }
 }
 
-export class jinput {
-    // we register one key event per input event to the window.
-
-    // each time a new event is called we queue it in a battery of inputs. they all exist at the same time, in the same
-    // place using key value pairs of key_press (string) -> state (just pressed, held, released + [extra] typed)
-
-    // when running the function to look for a specific input and state, you return true if that specidic pair exists
-    // and false if not.
-
+export class input {
     static key_pairs: Map<string, string> = new Map()
     static KEYDOWN = "key_down"
     static KEYHELD = "key_held"
@@ -228,44 +336,44 @@ export class jinput {
             throw new Error("State must be string")
         }
 
-        jinput.key_pairs.set(key, state)
+        input.key_pairs.set(key, state)
     }
 
     private static pull(key) {
-        jinput.key_pairs.delete(key)
+        input.key_pairs.delete(key)
     }
 
     public static probe(key, state): boolean {
         if (key.toLowerCase() === "any") {
-            return jinput.key_pairs.size > 0
+            return input.key_pairs.size > 0
         }
 
-        return jinput.key_pairs.get(key) === state
+        return input.key_pairs.get(key) === state
     }
 
     public static init() {
         window.addEventListener("keydown", (e) => {
             const key = e.key.toLowerCase()
-            if (!jinput.key_pairs.has(key)) {
-                jinput.push(key, jinput.KEYDOWN)
-                jloop.defer(() => jinput.push(key, jinput.KEYHELD))
+            if (!input.key_pairs.has(key)) {
+                input.push(key, input.KEYDOWN)
+                game.defer(() => input.push(key, input.KEYHELD))
             }
         })
 
         window.addEventListener("keyup", (e) => {
             const key = e.key.toLowerCase()
-            jinput.push(key, jinput.KEYUP)
-            jloop.defer(() => jinput.pull(key))
+            input.push(key, input.KEYUP)
+            game.defer(() => input.pull(key))
         })
     }
 }
 
-export class jlevel {
-    objects: jobj[][] = []
-    flat: jobj[] = null
-    dynamic_objs: jobj[] = []
-    static_objs: jobj[] = []
-    keys: [{ char: string, object: jobj }] = null
+export class level {
+    objects: obj[][] = []
+    flat: obj[] = null
+    dynamic_objs: obj[] = []
+    static_objs: obj[] = []
+    keys: [{ char: string, object: obj }] = null
     map: String[] = []
     x = 0
     y = 0
@@ -302,11 +410,11 @@ export class jlevel {
         }
 
         if (x === "centered") {
-            this.x = jloop.world.width / 2 - (width * tile_width) / 2
+            this.x = game.width / 2 - (width * tile_width) / 2
         }
 
         if (y === "centered") {
-            this.y = jloop.world.height / 2 - (height * tile_height) / 2
+            this.y = game.height / 2 - (height * tile_height) / 2
         }
 
 
@@ -341,7 +449,7 @@ export class jlevel {
 
         // Horizontal pass
         for (let yy = 0; yy < this.height; yy++) {
-            let obj: jobj = null
+            let obj: obj = null
             let start = { x: 0, y: yy }
 
             for (let xx = 0; xx < this.width; xx++) {
@@ -367,7 +475,7 @@ export class jlevel {
 
         // Vertical pass
         for (let xx = 0; xx < this.width; xx++) {
-            let obj: jobj = null
+            let obj: obj = null
             let start = { x: xx, y: 0 }
 
             for (let yy = 0; yy < this.height; yy++) {
@@ -414,17 +522,31 @@ export class jlevel {
                     continue
                 }
 
-                jloop.graphic.appendChild(this.objects[yy][xx].graphic)
+                game.world.appendChild(this.objects[yy][xx].graphic)
             }
         }
 
-        jloop.on_resize.push(() => {
+        const pre_step = () => {
+            this.dynamic_objs.forEach((obj) => {
+                obj.render_x = obj.x
+                obj.render_y = obj.y
+            })
+        }
+
+        const render = (alpha: number) => {
             this.flat.forEach((obj) => {
                 if (obj === null) return
+                obj.render(alpha)
+            })
+        }
 
-                obj._prev_x = -1
-                obj._prev_y = -1
-                obj.move()
+        game.pre_step_methods.push(pre_step)
+        game.add_render(render)
+
+        game.on_resize.push(() => {
+            this.flat.forEach((obj) => {
+                if (obj === null) return
+                obj.render(1)
             })
         })
     }
@@ -436,7 +558,7 @@ export class jlevel {
                     continue
                 }
 
-                jloop.graphic.removeChild(this.objects[yy][xx].graphic)
+                game.world.removeChild(this.objects[yy][xx].graphic)
             }
         }
     }
@@ -445,8 +567,29 @@ export class jlevel {
         return this.flat.find(obj => obj !== null && obj.name == name)
     }
 
+    replace(name, obj) {
+        const other = this.find(name)
+        if (other) this.flat[this.flat.indexOf(other)] = obj
+
+        for (let yy = 0; yy < this.height; yy++) {
+            for (let xx = 0; xx < this.width; xx++) {
+                if (this.objects[yy][xx] === other) {
+                    this.objects[yy][xx] = obj
+                }
+            }
+        }
+
+        const di = this.dynamic_objs.indexOf(other)
+        if (di !== -1) this.dynamic_objs[di] = obj
+
+
+        const si = this.static_objs.indexOf(other)
+        if (si !== -1) this.static_objs[si] = obj
+    }
+
     move_and_collide() {
         for (let i = 0; i < this.dynamic_objs.length; i++) {
+            this.dynamic_objs[i].grounded = false
             for (let j = 0; j < this.static_objs.length; j++) {
                 this.dynamic_objs[i].collide(this.static_objs[j])
             }

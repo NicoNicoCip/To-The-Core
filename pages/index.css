@@ -1,0 +1,42 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100dvw;
+    height: 100dvh;
+    flex-direction: column;
+    background-color: black;
+}
+
+#debug {
+    display: block;
+    position: absolute;
+    left: 16px;
+    top: 16px;
+}
+
+#world {
+    width: 320px;
+    height: 180px;
+    transform-origin: center center;
+    image-rendering: pixelated;
+    overflow:hidden;
+}
+
+.obj {
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    top: 0;
+    will-change: transform;
+}
+
+.debug {
+    z-index: -1000;
+}
