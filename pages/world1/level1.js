@@ -35,7 +35,9 @@ const background3 = new obj({
 
 
 const splash = new obj({
-    name: "splasg"
+    name: "splash",
+    width: 180,
+    height: 60
 })
 
 splash.graphic.innerHTML = `
@@ -43,12 +45,28 @@ splash.graphic.innerHTML = `
     MANEL <br>
     JOAN <br>
     NICO <br>
- <br>
- <br>
- <br>
- <br>
- <br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
     A Paper Windo Studio Production <br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+< DOG
 `
 
 let player = new Player(60, 50)
@@ -185,7 +203,7 @@ function intro() {
         if (timr < 600) {
 
             splash.move(
-                220,
+                180,
                 200 - acc
             )
         }
