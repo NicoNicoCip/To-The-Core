@@ -12,6 +12,7 @@ body {
     height: 100dvh;
     flex-direction: column;
     background-color: black;
+    overflow: hidden;
 }
 
 #debug {

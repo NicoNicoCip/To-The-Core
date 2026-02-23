@@ -63,7 +63,7 @@ splash.graphic.innerHTML = `
 <br>
 <br>
 <br>
-    A Paper Windo Studio Production <br>
+    A Paper Wing Studio Production <br>
 <br>
 <br>
 <br>
