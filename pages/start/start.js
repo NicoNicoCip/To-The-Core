@@ -61,7 +61,7 @@ function wooble() {
     )
 }
 
-game.add(wooble)
+game.add_render(wooble)
 
 let triggered = false
 play_sign.graphic.addEventListener("mouseenter", () => {
@@ -75,12 +75,12 @@ play_sign.graphic.addEventListener("mouseleave", () => {
         play_sign.graphic.classList.remove("play_sign_hover")
     }
 })
-let acc = 0
+let acc = 1
 play_sign.graphic.addEventListener("mouseup", () => {
     let timr = 0
 
     function play_ani() {
-        if (timr == 0 || timr == 16 || timr == 32 || timr == 48) {
+        if (timr == 16 || timr == 32 || timr == 48) {
             play_sign.graphic.classList.remove("play_sign_hover")
         }
 
@@ -89,21 +89,22 @@ play_sign.graphic.addEventListener("mouseup", () => {
         }
 
         if (timr > 48 && timr < 95) {
-            acc = (acc + 1) * 1.15
+            acc *= 1.15
             ttc_sign.move(
                 tcc_x,
                 tcc_y - acc
             )
+            ttc_sign.render(1)
 
             play_sign.move(
                 play_x,
                 play_y - acc
             )
+
+            play_sign.render(1)
         }
 
         if (timr == 95) {
-
-            game.remove(wooble)
             game.world.removeChild(ttc_sign.graphic)
             game.world.removeChild(play_sign.graphic)
             document.getElementById("fade").style.backgroundColor = "black"
@@ -116,7 +117,9 @@ play_sign.graphic.addEventListener("mouseup", () => {
     }
 
     if (!triggered) {
-        game.add(play_ani)
+        triggered = true
+        game.remove_render(wooble)
+        game.add_render(play_ani)
     }
 })
 

@@ -85,7 +85,7 @@ export class game {
             game.pre_step_methods.forEach(m => m())
             game.methods.forEach(m => m())
             while (game.deferred.length > 0) {
-                game.deferred.shift()() // call the shift function and run the function in the deferred stack
+                game.deferred.shift()()
             }
             game.accumulator -= game.fixed_delta
         }
