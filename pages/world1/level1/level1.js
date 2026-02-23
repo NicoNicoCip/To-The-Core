@@ -1,5 +1,5 @@
-import { Player } from "../../src/prefabs.js"
-import { game, input, level, math, obj } from "../../src/system.js"
+import { Player } from "../../../src/prefabs.js"
+import { game, input, level, math, obj } from "../../../src/system.js"
 
 
 const world = document.getElementById("world")
@@ -122,11 +122,11 @@ const lvl = new level({
         "x                              x",
         "x                              x",
         "xxxxxxxxxxxxxxxxxxxxx          x",
-        "x                   x          x",
-        "x                   x          x",
-        "x                   x          x",
-        "x                   x          x",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxx          x",
+        "xxxxxxxxxxxxxxxxxxxxx          x",
+        "xxxxxxxxxxxxxxxxxxxxx          x",
+        "xxxxxxxxxxxxxxxxxxxxx          x",
+        "xxxxxxxxxxxxxxxxxxxxx          x",
     ]
 })
 
@@ -280,6 +280,10 @@ function player_move() {
 
     tick_shake()
     lvl.move_and_collide()
+
+    if(player.y > 180) {
+        window.location.href = "../level2/level2.html"
+    }
 }
 
 

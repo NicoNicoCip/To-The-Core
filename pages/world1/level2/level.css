@@ -1,0 +1,65 @@
+#player {
+    background-image: url(../../assets/dog.webp);
+}
+
+.moving {
+    background-image: url(../../assets/dog_walking.webp) !important;
+}
+
+.falling {
+    background-image: url(../../assets/dog_falling.webp) !important;
+}
+
+#wall {
+    background-image: url(../../assets/ground.webp);
+}
+
+#background1 {
+    background-image: url(../../assets/background1.webp);
+    background-size: cover;
+    animation: fall 1s linear infinite;
+}
+
+#background2 {
+    background-image: url(../../assets/background2.webp);
+    background-size: cover;
+    animation: slow_raise 1800s linear;
+}
+
+#background2_transit {
+    background-image: url(../../assets/background0.webp);
+    background-size: cover;
+    z-index: -100;
+    animation: fall 1s linear infinite;
+}
+
+#background3 {
+    background-image: url(../../assets/background3.webp);
+    background-size: cover;
+}
+
+#foreground0 {
+    background-image: url(../../assets/world1/level1.webp);
+    background-size: cover;
+}
+
+@keyframes fall {
+    0% {
+        background-position-y: 0px;
+    }
+
+    100% {
+        background-position-y: -3600px;
+    }
+}
+
+@keyframes slow_raise {
+    0% {
+        background-position-y: 0px;
+    }
+
+    100% {
+        background-position-y: -3600px;
+    }
+}
+

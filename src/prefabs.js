@@ -13,8 +13,10 @@ export class Player extends obj {
     friction = 0.4;
     jump_force = 4; // 7 good
     movedir = null;
-    constructor(x, y) {
+    shake = true;
+    constructor(x, y, shake) {
         super({ name: "player", x, y, width: 10, height: 10, dynamic: true });
+        this.shake = shake;
     }
     update() {
         this.just_landed = this.grounded && !this.was_grounded;
@@ -23,8 +25,9 @@ export class Player extends obj {
             this.landed_once = true;
             this.landing = true;
             this.landing_timer = 192;
-            this.graphic.classList.add("falling_in");
-            this.graphic.style.backgroundImage = `url(../assets/dog_falling_in.webp?t=${performance.now()})`;
+            if (this.shake)
+                this.graphic.classList.add("falling_in");
+            this.graphic.style.backgroundImage = `url(../../assets/dog_falling_in.webp?t=${performance.now()})`;
         }
         if (this.landing) {
             this.landing_timer--;

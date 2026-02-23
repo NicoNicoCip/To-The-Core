@@ -104,7 +104,7 @@ play_sign.graphic.addEventListener("mouseup", () => {
         }
 
         if (timr == 180) {
-            window.location.href = "../world1/level1.html"
+            window.location.href = "../world1/level1/level1.html"
         }
         timr++
     }
