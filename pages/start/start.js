@@ -90,17 +90,10 @@ play_sign.graphic.addEventListener("mouseup", () => {
 
         if (timr > 48 && timr < 95) {
             acc *= 1.15
-            ttc_sign.move(
-                tcc_x,
-                tcc_y - acc
-            )
+            ttc_sign.move(tcc_x, tcc_y - acc)
             ttc_sign.render(1)
 
-            play_sign.move(
-                play_x,
-                play_y - acc
-            )
-
+            play_sign.move(play_x, play_y - acc)
             play_sign.render(1)
         }
 

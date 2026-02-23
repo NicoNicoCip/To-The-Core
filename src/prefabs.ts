@@ -27,9 +27,9 @@ export class Player extends obj {
         if (this.just_landed && !this.landed_once) {
             this.landed_once = true
             this.landing = true
-            this.landing_timer = 192
+            this.landing_timer = 185
             this.graphic.classList.add("falling_in")
-            this.graphic.style.backgroundImage = `url(./assets/dog_falling_in.webp?t=${performance.now()})`
+            this.graphic.style.backgroundImage = `url(../assets/dog_falling_in.webp?t=${performance.now()})`
         }
 
         if (this.landing) {
