@@ -1,4 +1,4 @@
-import { obj, input, math } from "./system.js";
+import { input, math, obj } from "./system.js";
 export class Player extends obj {
     facing = 1;
     was_grounded = false;
@@ -6,12 +6,12 @@ export class Player extends obj {
     landed_once = false;
     landing = false;
     landing_timer = 0;
-    max_acc = 3;
+    max_acc = 2;
     max_gravity = 12;
-    acc_modifier = 2.5;
-    gravity = 0.6;
+    acc_modifier = 0.4;
+    gravity = 0.2; // 0.6 good
     friction = 0.4;
-    jump_force = 10;
+    jump_force = 4; // 7 good
     movedir = null;
     constructor(x, y) {
         super({ name: "player", x, y, width: 10, height: 10, dynamic: true });
@@ -22,7 +22,7 @@ export class Player extends obj {
         if (this.just_landed && !this.landed_once) {
             this.landed_once = true;
             this.landing = true;
-            this.landing_timer = 185;
+            this.landing_timer = 192;
             this.graphic.classList.add("falling_in");
             this.graphic.style.backgroundImage = `url(../assets/dog_falling_in.webp?t=${performance.now()})`;
         }

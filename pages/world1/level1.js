@@ -33,6 +33,12 @@ const background3 = new obj({
     height: game.height
 })
 
+const foreground0 = new obj({
+    name: "foreground0",
+    width: game.width,
+    height: game.height
+})
+
 
 const splash = new obj({
     name: "splash",
@@ -97,30 +103,30 @@ const lvl = new level({
         {
             char: "x", object: new obj({
                 name: "inviz_wall",
-                width: 4,
+                width: 10,
                 height: 10,
             })
         }
     ],
     map: [
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "x     P                        #",
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "x                    ###########",
-        "x                              #",
-        "x                              #",
-        "x                              #",
-        "################################",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x     P                        x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "xxxxxxxxxxxxxxxxxxxxx          x",
+        "x                   x          x",
+        "x                   x          x",
+        "x                   x          x",
+        "x                   x          x",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     ]
 })
 
@@ -178,6 +184,8 @@ function intro() {
         player.name = "player"
 
         lvl.spawn()
+
+        game.world.appendChild(foreground0.graphic)
         player.y_speed = player.max_gravity
 
         game.remove(intro)
@@ -240,6 +248,7 @@ function intro() {
         player.name = "player"
 
         lvl.spawn()
+        game.world.appendChild(foreground0.graphic)
         player.y_speed = player.max_gravity
     }
 

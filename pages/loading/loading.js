@@ -26,7 +26,8 @@ const assets = [
     "../assets/ground.webp",
     "../assets/play_sign.webp",
     "../assets/play_sign_active.webp",
-    "../assets/to_the_core_sign.webp"
+    "../assets/to_the_core_sign.webp",
+    "../assets/world1/level1.webp"
 ]
 
 game.world.appendChild(loading.graphic)
