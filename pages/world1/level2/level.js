@@ -75,27 +75,25 @@ const lvl = new level({
     ]
 })
 
-game.world.appendChild(background2.graphic)
-game.world.appendChild(background1.graphic)
-game.world.appendChild(splash.graphic)
+game.world.appendChild(background0.graphic)
 game.world.appendChild(player.graphic)
 
 
 let shake_intensity = 0
 let shake_timer = 0
 
-game.add_render(intro_render)
-game.add(intro)
+function start() {
+    lvl.replace("player", player)
+
+    lvl.spawn()
+}
 
 function player_move() {
     player.update()
 
     lvl.move_and_collide()
-
-    if(player.y > 180) {
-        window.location.href = "../level2/level2.html"
-    }
 }
 
-
+game.add(player_move)
+start()
 game.update()

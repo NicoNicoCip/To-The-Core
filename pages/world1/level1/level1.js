@@ -75,7 +75,7 @@ splash.graphic.innerHTML = `
 < DOG
 `
 
-let player = new Player(60, 50)
+let player = new Player(60, 50, true)
 
 const lvl = new level({
     x: 0,

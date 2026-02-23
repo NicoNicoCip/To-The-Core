@@ -2,6 +2,7 @@ import { input, math, obj } from "./system.js"
 
 export class Player extends obj {
     facing = 1
+    falldir = 1
     was_grounded = false
     just_landed = false
     landed_once = false
@@ -31,7 +32,6 @@ export class Player extends obj {
             this.landing = true
             this.landing_timer = 192
 
-            if (this.shake)
             this.graphic.classList.add("falling_in")
             this.graphic.style.backgroundImage = `url(../../assets/dog_falling_in.webp?t=${performance.now()})`
         }
@@ -86,6 +86,8 @@ export class Player extends obj {
             this.graphic.classList.add("moving")
         }
 
+        this.falldir = -math.sign(this.y_speed)
+
         this.x += this.x_speed
         this.y_speed += this.gravity
         this.y += this.y_speed
@@ -104,6 +106,6 @@ export class Player extends obj {
     render(alpha: number) {
         const rx = this.render_x + (this.x - this.render_x) * alpha
         const ry = this.render_y + (this.y - this.render_y) * alpha
-        this.graphic.style.transform = `translate(${rx}px, ${ry}px) scaleX(${this.facing})`
+        this.graphic.style.transform = `translate(${rx}px, ${ry}px) scaleX(${this.facing} scaleY(${this.falldir}))`
     }
 }
