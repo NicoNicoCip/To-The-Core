@@ -1,11 +1,12 @@
-import { Player } from "../../../src/prefabs.js"
-import { game, input, level, math, obj } from "../../../src/system.js"
+import { Player } from "../../src/prefabs.js"
+import { game, input, level, obj } from "../../src/system.js"
 
 
 const world = document.getElementById("world")
 const debug = document.getElementById("debug")
-
+game.savetransport()
 game.register_world(world, 320, 180)
+
 input.init()
 
 const background1 = new obj({
@@ -13,7 +14,6 @@ const background1 = new obj({
     width: game.width,
     height: game.height
 })
-
 
 const background2 = new obj({
     name: "background2",
@@ -46,32 +46,10 @@ const splash = new obj({
     height: 60
 })
 
-splash.graphic.innerHTML = `
-    MADE BY: <br>
-    MANEL <br>
-    JOAN <br>
-    NICO <br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-    A Paper Wing Studio Production <br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+splash.graphic.innerHTML = `MADE BY:<br>MANEL<br>JOAN<br>NICO<br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+A Paper Wing Studio Production <br>
+<br><br><br><br><br><br><br><br>
 < DOG
 `
 
@@ -180,16 +158,14 @@ function intro() {
             game.world.removeChild(background2_transit.graphic)
         }
         game.world.appendChild(background3.graphic)
-        lvl.replace("player", player)
-        player.name = "player"
 
+        lvl.substitute("player", player)
         lvl.spawn()
 
         game.world.appendChild(foreground0.graphic)
         player.y_speed = player.max_gravity
 
         game.remove(intro)
-        game.remove_render(intro_render)
         game.add(player_move)
         timr = -1
         acc = 0
@@ -244,9 +220,7 @@ function intro() {
 
     if (timr == 778) {
         game.world.appendChild(background3.graphic)
-        lvl.replace("player", player)
-        player.name = "player"
-
+        lvl.substitute("player", player)
         lvl.spawn()
         game.world.appendChild(foreground0.graphic)
         player.y_speed = player.max_gravity
@@ -255,7 +229,6 @@ function intro() {
     if (timr == 780) {
         game.world.removeChild(background2_transit.graphic)
         game.remove(intro)
-        game.remove_render(intro_render)
         game.add(player_move)
         timr = -1
         acc = 0
@@ -263,12 +236,6 @@ function intro() {
     timr++
 }
 
-function intro_render(alpha) {
-    player.render(alpha)
-    splash.render(alpha)
-}
-
-game.add_render(intro_render)
 game.add(intro)
 
 function player_move() {
@@ -282,7 +249,7 @@ function player_move() {
     lvl.move_and_collide()
 
     if(player.y > 180) {
-        window.location.href = "../level2/level2.html"
+        window.location.href = "./level2.html"
     }
 }
 

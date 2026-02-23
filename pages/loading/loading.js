@@ -16,20 +16,24 @@ const loading = new obj({
 
 // Fallback list used on GitHub Pages (no server-side API available)
 const assets_fallback = [
+    "../assets/world1/level1_midground.webp",
+    "../assets/world1/level1.webp",
+    "../assets/world1/level2_EXT.webp",
+    "../assets/world1/level2.webp",
+    "../assets/world1/level3.webp",
     "../assets/background0.webp",
     "../assets/background1.webp",
     "../assets/background2.webp",
     "../assets/background3.webp",
-    "../assets/dog.webp",
-    "../assets/dog_falling.webp",
     "../assets/dog_falling_in.webp",
+    "../assets/dog_falling.webp",
     "../assets/dog_walking.webp",
+    "../assets/dog.webp",
     "../assets/ground.webp",
-    "../assets/play_sign.webp",
+    "../assets/loading.webp",
     "../assets/play_sign_active.webp",
-    "../assets/to_the_core_sign.webp",
-    "../assets/world1/level1.webp",
-    "../assets/loading.webp"
+    "../assets/play_sign.webp",
+    "../assets/to_the_core_sign.webp"
 ]
 
 game.world.appendChild(loading.graphic)
@@ -93,14 +97,14 @@ async function check_assets() {
     const on_disk = found.map(f => f.replace(base, "../"))
 
     const missing = on_disk.filter(f => !assets_fallback.includes(f))
-    const extra   = assets_fallback.filter(f => !on_disk.includes(f))
+    const extra = assets_fallback.filter(f => !on_disk.includes(f))
 
     if (missing.length === 0 && extra.length === 0) return
 
     const updated = `const assets_fallback = [\n${on_disk.map(f => `    "${f}"`).join(",\n")}\n]`
 
     if (missing.length) console.error("[dev] assets not in list:", missing)
-    if (extra.length)   console.error("[dev] list has files not on disk:", extra)
+    if (extra.length) console.error("[dev] list has files not on disk:", extra)
     console.error(`[dev] update assets_fallback in loading.js to:\n\n${updated}`)
     return true // mismatch found
 }

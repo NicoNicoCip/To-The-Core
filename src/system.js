@@ -17,11 +17,8 @@ export class game {
     static then = 0;
     static delta = 0;
     static methods = [];
-    static pre_step_methods = [];
-    static render_methods = [];
     static deferred = [];
     static on_resize = [];
-    static alpha = 0;
     static world = null;
     static width = null;
     static height = null;
@@ -69,15 +66,12 @@ export class game {
             game.delta = 200;
         game.accumulator += game.delta;
         while (game.accumulator >= game.fixed_delta) {
-            game.pre_step_methods.forEach(m => m());
             game.methods.forEach(m => m());
             while (game.deferred.length > 0) {
                 game.deferred.shift()();
             }
             game.accumulator -= game.fixed_delta;
         }
-        game.alpha = game.accumulator / game.fixed_delta;
-        game.render_methods.forEach(r => r(game.alpha));
     }
     static add(func) {
         if (typeof (func) === "function") {
@@ -102,20 +96,16 @@ export class game {
         }
         return false;
     }
-    static add_render(func) {
-        if (typeof (func) === "function") {
-            game.render_methods.push(func);
-            return true;
-        }
-        return false;
+    static savetransport() {
+        localStorage.setItem("last_level", window.location.pathname);
     }
-    static remove_render(func) {
-        const index = game.render_methods.indexOf(func);
-        if (index !== -1) {
-            game.render_methods.splice(index, 1);
-            return true;
+    static loadtransport() {
+        if (localStorage.getItem("last_level") === null) {
+            window.location.href = "/pages/world1/level1.html";
         }
-        return false;
+        else {
+            window.location.href = localStorage.getItem("last_level");
+        }
     }
 }
 export class obj {
@@ -128,11 +118,10 @@ export class obj {
     y = 0;
     _prev_x = -1;
     _prev_y = -1;
-    render_x = 0;
-    render_y = 0;
     width = 0;
     height = 0;
     dynamic = false;
+    collides = true;
     /**
      * An object with all the data and special funccionalaty in one place
      * @param {string} name The name of the obj
@@ -141,7 +130,7 @@ export class obj {
      * @param {number} width width of the graphic
      * @param {number} height height of the graphic
      */
-    constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null }) {
+    constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null, collides = null }) {
         if (name !== null)
             this.name = name;
         if (x !== null)
@@ -154,6 +143,8 @@ export class obj {
             this.height = height;
         if (dynamic !== null)
             this.dynamic = dynamic;
+        if (collides !== null)
+            this.collides = collides;
         this._prev_x = this.x;
         this._prev_y = this.y;
         this.graphic = document.createElement("div");
@@ -170,7 +161,8 @@ export class obj {
             y: this.y,
             width: this.width,
             height: this.height,
-            dynamic: this.dynamic
+            dynamic: this.dynamic,
+            collides: this.collides
         });
     }
     static copy(obj) {
@@ -180,7 +172,8 @@ export class obj {
             y: obj.y,
             width: obj.width,
             height: obj.height,
-            dynamic: obj.dynamic
+            dynamic: obj.dynamic,
+            collides: obj.collides
         });
     }
     /**
@@ -193,15 +186,9 @@ export class obj {
             this.x = x;
         if (y !== null)
             this.y = y;
-        this.render_x = this.x;
-        this.render_y = this.y;
         this._prev_x = this.x;
         this._prev_y = this.y;
-    }
-    render(alpha) {
-        const rx = this.render_x + (this.x - this.render_x) * alpha;
-        const ry = this.render_y + (this.y - this.render_y) * alpha;
-        this.graphic.style.transform = `translate(${rx}px, ${ry}px)`;
+        this.graphic.style.transform = `translate(${this.x}px, ${this.y}px)`;
     }
     collide(other = null, resolve = true) {
         if (other === null)
@@ -434,10 +421,10 @@ export class level {
             if (obj === null) {
                 return;
             }
-            if (obj.dynamic) {
+            if (obj.dynamic && obj.collides) {
                 this.dynamic_objs.push(obj);
             }
-            else {
+            else if (obj.collides) {
                 this.static_objs.push(obj);
             }
         });
@@ -451,28 +438,6 @@ export class level {
                 game.world.appendChild(this.objects[yy][xx].graphic);
             }
         }
-        const pre_step = () => {
-            this.dynamic_objs.forEach((obj) => {
-                obj.render_x = obj.x;
-                obj.render_y = obj.y;
-            });
-        };
-        const render = (alpha) => {
-            this.flat.forEach((obj) => {
-                if (obj === null)
-                    return;
-                obj.render(alpha);
-            });
-        };
-        game.pre_step_methods.push(pre_step);
-        game.add_render(render);
-        game.on_resize.push(() => {
-            this.flat.forEach((obj) => {
-                if (obj === null)
-                    return;
-                obj.render(1);
-            });
-        });
     }
     despawn() {
         for (let yy = 0; yy < this.height; yy++) {
@@ -487,8 +452,11 @@ export class level {
     find(name) {
         return this.flat.find(obj => obj !== null && obj.name == name);
     }
-    replace(name, obj) {
-        const other = this.find(name);
+    find_all(name) {
+        return this.flat.filter(obj => obj !== null && obj.name == name);
+    }
+    replace(name_or_obj, obj) {
+        const other = typeof name_or_obj === "string" ? this.find(name_or_obj) : name_or_obj;
         if (other)
             this.flat[this.flat.indexOf(other)] = obj;
         for (let yy = 0; yy < this.height; yy++) {
@@ -499,11 +467,19 @@ export class level {
             }
         }
         const di = this.dynamic_objs.indexOf(other);
-        if (di !== -1)
-            this.dynamic_objs[di] = obj;
         const si = this.static_objs.indexOf(other);
+        // Remove old from whichever list it was in
+        if (di !== -1)
+            this.dynamic_objs.splice(di, 1);
         if (si !== -1)
-            this.static_objs[si] = obj;
+            this.static_objs.splice(si, 1);
+        // Add new to the appropriate list based on its own properties
+        if (obj.dynamic && obj.collides) {
+            this.dynamic_objs.push(obj);
+        }
+        else if (obj.collides) {
+            this.static_objs.push(obj);
+        }
     }
     move_and_collide() {
         for (let i = 0; i < this.dynamic_objs.length; i++) {
@@ -515,6 +491,17 @@ export class level {
                 this.dynamic_objs[i].collide(this.dynamic_objs[j]);
             }
             this.dynamic_objs[i].move();
+        }
+    }
+    substitute(from, to) {
+        if (typeof (from) === "string") {
+            const spawnpoint = this.find(from);
+            this.replace(from, to);
+            to.move(spawnpoint.x, spawnpoint.y);
+        }
+        else {
+            this.replace(from, to);
+            to.move(from.x, from.y);
         }
     }
 }
