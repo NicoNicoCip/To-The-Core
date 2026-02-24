@@ -16,7 +16,7 @@ const background0 = new obj({
 })
 
 const foreground0 = new obj({
-    name: "foreground3",
+    name: "",
     width: game.width,
     height: game.height
 })
@@ -69,23 +69,23 @@ const lvl = new level({
     ],
     map: [
         "                                ",
+        "     S                          ",
+        "                                ",
+        "    xxx                         ",
+        "                                ",
+        "                                ",
+        " xxxx                           ",
+        "                                ",
+        "                                ",
+        "xxxxxxxxxx         jjj          ",
+        "xxxxxx                       S  ",
+        "xx                        xxxxxx",
+        "                          xxxxxx",
+        "                          xxxxxx",
+        "                            xxxx",
         "                                ",
         "                                ",
         "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "  S                             ",
-        "xxxxx    jjj                    ",
-        "xxxxx                        S  ",
-        "xxxxx                     xxxxxx",
-        "xxxxx         xxxx        xxxxxx",
-        "xxxxx                     xxxxxx",
-        "xxxxx                   xxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     ]
 })
 
@@ -95,7 +95,7 @@ game.world.appendChild(player.graphic)
 function start() {
     const spawns = lvl.find_all("spawn")
 
-    if (localStorage.getItem("last_level").endsWith("level4.html")) {
+    if (localStorage.getItem("last_level").endsWith("level5.html")) {
         lvl.substitute(spawns[0], player)
     } else {
         lvl.substitute(spawns[1], player)
@@ -129,7 +129,7 @@ function player_move() {
     if (player.collide(jumper, false)) {
 
         if (input.probe("s", input.KEYHELD)) {
-            player.y_speed = -jumper_force * 1.3
+            player.y_speed = -jumper_force * 1.4
         } else {
             player.y_speed = -jumper_force
         }
@@ -137,12 +137,12 @@ function player_move() {
 
     lvl.move_and_collide()
 
-    if (player.x + player.width < 0) {
-        window.location.href = "./level4.html"
+    if (player.y + player.height < 0) {
+        window.location.href = "./level5.html"
     }
 
     if (player.x > game.width) {
-        window.location.href = "./level2.html"
+        window.location.href = "./level3.html"
     }
 }
 
