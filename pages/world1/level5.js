@@ -68,37 +68,41 @@ const lvl = new level({
     ],
     map: [
         "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                               x",
+        "                               x",
+        "                               x",
+        "                               x",
+        "                               x",
+        "                               x",
+        " S                             x",
+        "xxxx   xxxxxxxxxxxxxxxxxxxxxxxxx",
         "     S                          ",
-        "                                ",
-        "    xxx                         ",
-        "                                ",
-        "                                ",
-        " xxxx                           ",
-        "                                ",
-        "                                ",
-        "xxxxxxxxxx         jjj          ",
-        "xxxxxx                       S  ",
-        "xx                        xxxxxx",
-        "                          xxxxxx",
-        "                          xxxxxx",
-        "                            xxxx",
-        "                                ",
-        "                                ",
-        "                                ",
     ]
 })
 
 game.world.appendChild(background0.graphic)
 game.world.appendChild(player.graphic)
 
+let boll = false
 function start() {
     const spawns = lvl.find_all("spawn")
 
-    if (localStorage.getItem("last_level").endsWith("level5.html")) {
+    if (localStorage.getItem("last_level").endsWith("level6.html")) {
         lvl.substitute(spawns[0], player)
+        player.facing = -1
     } else {
         lvl.substitute(spawns[1], player)
         player.facing = -1
+        boll = true
+
     }
 
     game.savetransport()
@@ -110,9 +114,10 @@ function start() {
     game.world.appendChild(foreground0.graphic)
 }
 
-const jumper = lvl.find("jumper")
+/*const jumper = lvl.find("jumper")
 jumper.move(null, jumper.y + 7)
-const jumper_force = 4
+const jumper_force = 4*/
+
 let debug_col_visible = false
 
 function player_move() {
@@ -127,23 +132,28 @@ function player_move() {
         })
     }
 
-    if (player.collide(jumper, false)) {
+    if (boll == true){
+        boll = false
+        player.y_speed = -5
+    }
+
+    /*if (player.collide(jumper, false)) {
 
         if (input.probe("s", input.KEYHELD)) {
             player.y_speed = -jumper_force * 1.4
         } else {
             player.y_speed = -jumper_force
         }
-    }
+    }*/
 
     lvl.move_and_collide()
 
-    if (player.y + player.height < 0) {
-        window.location.href = "./level5.html"
+    if (player.y > game.height) {
+        window.location.href = "./level4.html"
     }
 
-    if (player.x > game.width) {
-        window.location.href = "./level3.html"
+    if (player.x + player.width < 0) {
+        window.location.href = "./level6.html"
     }
 }
 
