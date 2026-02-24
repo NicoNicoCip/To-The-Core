@@ -35,7 +35,8 @@ const lvl = new level({
                 width: 10,
                 height: 10,
                 dynamic: true,
-                collides: false
+                collides: false,
+                shows_debug_col: true
             })
         },
         {
@@ -43,6 +44,8 @@ const lvl = new level({
                 name: "wall",
                 width: 10,
                 height: 10,
+                shows_debug_col: true
+
             })
         },
         {
@@ -50,6 +53,7 @@ const lvl = new level({
                 name: "inviz_wall",
                 width: 10,
                 height: 10,
+                shows_debug_col: true
             })
         }
     ],
@@ -99,8 +103,19 @@ function start() {
     game.savetransport()
 }
 
+let debug_col_visible = false
+
 function player_move() {
     player.update()
+
+    if (input.probe("p", input.KEYDOWN)) {
+        debug_col_visible = !debug_col_visible
+        const visibility = debug_col_visible ? "visible" : "hidden"
+        player.collider.style.visibility = visibility
+        lvl.flat.forEach(o => {
+            if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
+        })
+    }
 
     lvl.move_and_collide()
 

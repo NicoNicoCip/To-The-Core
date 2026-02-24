@@ -36,6 +36,7 @@ const lvl = new level({
                 name: "wall",
                 width: 10,
                 height: 10,
+                shows_debug_col: true
             })
         },
         {
@@ -44,7 +45,8 @@ const lvl = new level({
                 width: 10,
                 height: 10,
                 dynamic: true,
-                collides: false
+                collides: false,
+                shows_debug_col: true
             })
         },
         {
@@ -52,14 +54,16 @@ const lvl = new level({
                 name: "inviz_wall",
                 width: 10,
                 height: 10,
+                shows_debug_col: true
             })
         },
         {
             char: "j", object: new obj({
                 name: "jumper",
                 width: 10,
-                height: 1,
-                collides: false
+                height: 3,
+                collides: false,
+                shows_debug_col: true
             })
         }
     ],
@@ -108,12 +112,27 @@ function start() {
 const jumper = lvl.find("jumper")
 jumper.move(null, jumper.y + 7)
 const jumper_force = 4
+let debug_col_visible = false
 
 function player_move() {
     player.update()
 
+    if (input.probe("p", input.KEYDOWN)) {
+        debug_col_visible = !debug_col_visible
+        const visibility = debug_col_visible ? "visible" : "hidden"
+        player.collider.style.visibility = visibility
+        lvl.flat.forEach(o => {
+            if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
+        })
+    }
+
     if (player.collide(jumper, false)) {
-        player.y_speed = -jumper_force
+
+        if (input.probe("s", input.KEYHELD)) {
+            player.y_speed = -jumper_force * 1.3
+        } else {
+            player.y_speed = -jumper_force
+        }
     }
 
     lvl.move_and_collide()

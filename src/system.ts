@@ -142,6 +142,8 @@ export class obj {
     height = 0
     dynamic = false
     collides = true
+    shows_debug_col = false
+    collider: HTMLDivElement = null
 
     /**
      * An object with all the data and special funccionalaty in one place
@@ -158,9 +160,9 @@ export class obj {
         width = null,
         height = null,
         dynamic = null,
-        collides = null
+        collides = null,
+        shows_debug_col = null
     }) {
-
         if (name !== null) this.name = name
         if (x !== null) this.x = x
         if (y !== null) this.y = y
@@ -168,9 +170,18 @@ export class obj {
         if (height !== null) this.height = height
         if (dynamic !== null) this.dynamic = dynamic
         if (collides !== null) this.collides = collides
+        if (shows_debug_col !== null) this.shows_debug_col = shows_debug_col
 
         this._prev_x = this.x
         this._prev_y = this.y
+
+        this.collider = document.createElement("div")
+        this.collider.style.border = "solid 1px #FF0000"
+        this.collider.style.width = this.width + "px"
+        this.collider.style.height = this.height + "px"
+        this.collider.style.zIndex = "2000"
+        this.collider.style.position = "absolute"
+        this.collider.style.visibility = "hidden"
 
         this.graphic = document.createElement("div")
         this.graphic.id = name
@@ -178,29 +189,23 @@ export class obj {
         this.graphic.style.transform = `translate(${this.x}px, ${this.y}px)`
         this.graphic.style.width = this.width + "px"
         this.graphic.style.height = this.height + "px"
+
     }
 
     copy() {
-        return new obj({
-            name: this.name,
-            x: this.x,
-            y: this.y,
-            width: this.width,
-            height: this.height,
-            dynamic: this.dynamic,
-            collides: this.collides
-        })
+        return obj.copy(this)
     }
 
-    static copy(obj) {
+    static copy(other) {
         return new obj({
-            name: obj.name,
-            x: obj.x,
-            y: obj.y,
-            width: obj.width,
-            height: obj.height,
-            dynamic: obj.dynamic,
-            collides: obj.collides
+            name: other.name,
+            x: other.x,
+            y: other.y,
+            width: other.width,
+            height: other.height,
+            dynamic: other.dynamic,
+            collides: other.collides,
+            shows_debug_col: other.shows_debug_col
         })
     }
 
@@ -216,6 +221,7 @@ export class obj {
         this._prev_x = this.x
         this._prev_y = this.y
         this.graphic.style.transform = `translate(${this.x}px, ${this.y}px)`
+        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`
     }
 
     collide(other = null, resolve = true) {
@@ -442,6 +448,7 @@ export class level {
                 if (tile !== null && obj !== null && tile.name === obj.name) {
                     obj.width += tile.width
                     obj.graphic.style.width = obj.width + "px"
+                    obj.collider.style.width = obj.width + "px"
                     this.objects[yy][xx] = null
                 } else {
                     if (obj !== null) {
@@ -468,6 +475,7 @@ export class level {
                 if (tile !== null && obj !== null && tile.name === obj.name && tile.width === obj.width) {
                     obj.height += tile.height
                     obj.graphic.style.height = obj.height + "px"
+                    obj.collider.style.height = obj.height + "px"
                     this.objects[yy][xx] = null
                 } else {
                     if (obj !== null) {
@@ -507,6 +515,9 @@ export class level {
                 }
 
                 game.world.appendChild(this.objects[yy][xx].graphic)
+                if (this.objects[yy][xx].shows_debug_col) {
+                    game.world.appendChild(this.objects[yy][xx].collider)
+                }
             }
         }
     }
@@ -519,6 +530,9 @@ export class level {
                 }
 
                 game.world.removeChild(this.objects[yy][xx].graphic)
+                if (this.objects[yy][xx].shows_debug_col) {
+                    game.world.removeChild(this.objects[yy][xx].collider)
+                }
             }
         }
     }

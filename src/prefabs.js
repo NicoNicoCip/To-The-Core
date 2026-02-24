@@ -15,7 +15,7 @@ export class Player extends obj {
     movedir = null;
     shake = true;
     constructor(x, y, shake = null) {
-        super({ name: "player", x, y, width: 10, height: 10, dynamic: true });
+        super({ name: "player", x, y, width: 10, height: 10, dynamic: true, shows_debug_col: true });
         if (shake !== null)
             this.shake = shake;
     }
@@ -102,5 +102,6 @@ export class Player extends obj {
             ? (math.sign(this.y_speed) || 1)
             : 1;
         this.graphic.style.transform = `translate(${this.x}px, ${this.y}px) scaleX(${this.facing}) scaleY(${fall_flip})`;
+        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
     }
 }

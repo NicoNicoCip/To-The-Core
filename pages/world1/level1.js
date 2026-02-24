@@ -68,6 +68,7 @@ const lvl = new level({
                 name: "wall",
                 width: 10,
                 height: 10,
+                shows_debug_col: true
             })
         },
         {
@@ -75,7 +76,8 @@ const lvl = new level({
                 name: "player",
                 width: 10,
                 height: 10,
-                dynamic: true
+                dynamic: true,
+                shows_debug_col: true
             })
         },
         {
@@ -83,6 +85,7 @@ const lvl = new level({
                 name: "inviz_wall",
                 width: 10,
                 height: 10,
+                shows_debug_col: true
             })
         }
     ],
@@ -112,6 +115,7 @@ game.world.appendChild(background2.graphic)
 game.world.appendChild(background1.graphic)
 game.world.appendChild(splash.graphic)
 game.world.appendChild(player.graphic)
+game.world.appendChild(player.collider)
 
 
 let shake_intensity = 0
@@ -238,8 +242,19 @@ function intro() {
 
 game.add(intro)
 
+let debug_col_visible = false
+
 function player_move() {
     player.update()
+
+    if (input.probe("p", input.KEYDOWN)) {
+        debug_col_visible = !debug_col_visible
+        const visibility = debug_col_visible ? "visible" : "hidden"
+        player.collider.style.visibility = visibility
+        lvl.flat.forEach(o => {
+            if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
+        })
+    }
 
     if (player.just_landed && player.landing && player.landed_once) {
         shake(1, 20)
