@@ -73,7 +73,7 @@ async function scan_dir(url) {
     try {
         const res = await fetch(url, { signal: AbortSignal.timeout(500) })
         if (!res.ok) return null
-        const text = await res.text()
+        const text = await res.text() 
         if (!text.includes("<a")) return null
 
         const origin = new URL(url).origin
