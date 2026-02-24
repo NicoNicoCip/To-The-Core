@@ -25,7 +25,7 @@ let player = new Player(60, 50, false)
 const lvl = new level({
     x: 0,
     y: 0,
-    width: 32,
+    width: 32, 
     height: 18,
     tile_width: 10,
     tile_height: 10,
