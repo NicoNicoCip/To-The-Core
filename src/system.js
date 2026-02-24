@@ -44,6 +44,7 @@ export class game {
             game.world.style.transform = `scale(${game.scale})`;
             game.on_resize.forEach(func => func());
         });
+        game.check_version();
     }
     static defer(func) {
         game.deferred.push(func);
@@ -101,11 +102,35 @@ export class game {
     }
     static loadtransport() {
         if (localStorage.getItem("last_level") === null) {
-            window.location.href = "/pages/world1/level1.html";
+            window.location.href = "/pages/world1/level1s1.html";
         }
         else {
             window.location.href = localStorage.getItem("last_level");
         }
+    }
+    // Fetches the latest commit version from GitHub and redirects to the loading
+    // page if it differs from the cached version. Runs silently in the background.
+    // Called automatically by register_world() on production.
+    static async check_version() {
+        const is_local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+        if (is_local)
+            return;
+        try {
+            const res = await fetch("https://api.github.com/repos/NicoNicoCip/To-The-Core/commits?per_page=1", { cache: "no-store", signal: AbortSignal.timeout(5000) });
+            if (!res.ok)
+                return;
+            const [commit] = await res.json();
+            const match = (commit?.commit?.message ?? "").match(/^(\d+\.\d+\.\d+)\s*\//);
+            if (!match)
+                return;
+            const server_version = match[1];
+            const cached_version = localStorage.getItem("jump_clone_version");
+            if (server_version !== cached_version) {
+                localStorage.removeItem("jump_clone_version");
+                window.location.href = "/pages/loading/loading.html";
+            }
+        }
+        catch { }
     }
 }
 export class obj {
