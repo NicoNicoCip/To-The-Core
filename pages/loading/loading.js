@@ -1,6 +1,7 @@
 import { game, obj } from "../../src/system.js"
 
 const IS_LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+sessionStorage.setItem("loading_in_progress", "1")
 
 // Single source of truth for everything to cache (absolute paths).
 // On dev: check_files() scans disk and warns if this list is out of sync.
@@ -181,6 +182,7 @@ async function boot() {
     // Fast path: versions match, or offline but we have a prior cache
     if ((server_version !== null && cached_version === server_version) ||
         (server_version === null && cached_version !== null)) {
+        sessionStorage.removeItem("loading_in_progress")
         window.location.href = "../start/start.html"
         return
     }
@@ -191,6 +193,7 @@ async function boot() {
     await Promise.all(IMAGES.map(preload))
     await populate_cache(version)
     if (server_version !== null) localStorage.setItem("jump_clone_version", server_version)
+    sessionStorage.removeItem("loading_in_progress")
     window.location.href = "../start/start.html"
 }
 
