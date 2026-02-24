@@ -5,7 +5,7 @@ import { game, input, level, obj } from "../../src/system.js"
 const world = document.getElementById("world")
 const debug = document.getElementById("debug")
 
-game.savetransport()
+
 game.register_world(world, 320, 180)
 input.init()
 
@@ -76,7 +76,7 @@ const lvl = new level({
         "                                ",
         "                                ",
         "                                ",
-        "  S                             ",
+        "   S                            ",
         "xxxxx    jjj                    ",
         "xxxxx                        S  ",
         "xxxxx                     xxxxxx",
@@ -101,6 +101,8 @@ function start() {
         lvl.substitute(spawns[1], player)
         player.facing = -1
     }
+
+    game.savetransport()
 
     player.y_speed = player.max_gravity
     player.graphic.classList.add("falling")
@@ -145,7 +147,6 @@ function player_move() {
         window.location.href = "./level2.html"
     }
 }
-
 game.add(player_move)
 start()
 game.update()
