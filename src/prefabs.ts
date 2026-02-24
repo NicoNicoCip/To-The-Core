@@ -17,8 +17,16 @@ export class Player extends obj {
     movedir = null
     shake = true
 
+    _force_x = 0
+    _force_y = 0
+    _force_x_time = 0
+    _force_y_time = 0
+
+    coyote = 0
+    coyote_time = 4
+
     constructor(x, y, shake = null) {
-        super({ name: "player", x, y, width: 10, height: 10, dynamic: true, shows_debug_col: true})
+        super({ name: "player", x, y, width: 10, height: 10, dynamic: true, shows_debug_col: true })
         if (shake !== null) this.shake = shake
     }
 
@@ -52,7 +60,7 @@ export class Player extends obj {
             if (input.probe("d", input.KEYHELD)) {
                 this.movedir = 1
             }
-            
+
             if (input.probe("a", input.KEYHELD)) {
                 this.movedir = -1
             }
@@ -78,7 +86,7 @@ export class Player extends obj {
 
         } else {
             this.x_speed += (this.acc_modifier * -math.sign(this.x_speed)) * this.friction
-            
+
             if (this.x_speed < 0.2 && this.x_speed > -0.2) {
                 this.x_speed = 0
             }
@@ -90,8 +98,15 @@ export class Player extends obj {
             this.graphic.classList.add("falling")
         }
 
-        if (!this.landing && input.probe(" ", input.KEYHELD) && this.grounded) {
+        if (this.grounded) {
+            this.coyote = this.coyote_time
+        } else if (this.coyote > 0){
+            this.coyote--
+        }
+
+        if (!this.landing && input.probe(" ", input.KEYHELD) && this.coyote > 0) {
             this.y_speed = -this.jump_force
+            this.coyote = 0
         }
 
         if (this.y_speed > this.max_gravity) this.y_speed = this.max_gravity
@@ -102,9 +117,13 @@ export class Player extends obj {
             this.graphic.classList.add("moving")
         }
 
+
+
         this.x += this.x_speed
         this.y_speed += this.gravity
         this.y += this.y_speed
+
+
     }
 
     move(x = null, y = null) {
@@ -119,5 +138,40 @@ export class Player extends obj {
             : 1
         this.graphic.style.transform = `translate(${this.x}px, ${this.y}px) scaleX(${this.facing}) scaleY(${fall_flip})`
         this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`
+    }
+
+    call_force({ x = null, y = null, x_time = null, y_time = null }) {
+        if (x !== null && x_time !== null) {
+            this._force_x = x
+            this._force_x_time = x_time
+        }
+
+        if (y !== null && y_time !== null) {
+            this._force_y = y
+            this._force_y_time = y_time
+        }
+    }
+
+    apply_force() {
+        let res = {x_end: false, y_end: false}
+        if (this._force_x_time > 0) {
+            this.x_speed = this._force_x
+            this._force_x_time--
+        } else {
+            this._force_x = 0
+            res.x_end = true
+        }
+
+        if (this._force_y_time > 0) {
+            this.y_speed = this._force_y
+            this._force_y_time--
+        } else {
+            this._force_y = 0
+            res.y_end = true
+        }
+
+        return res.x_end && res.y_end 
+            ? true
+            : res
     }
 }

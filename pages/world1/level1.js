@@ -173,19 +173,15 @@ function intro() {
 
         lvl.substitute("player", player)
         lvl.spawn()
+        player.y_speed = player.max_gravity
+        player.move(60,-17)
 
         game.world.appendChild(foreground0.graphic)
-        player.y_speed = player.max_gravity
-
+        
         game.remove(intro)
         game.add(player_move)
         timr = -1
         acc = 0
-
-        player.move(
-            60,
-            -17
-        )
     }
 
     if (timr == 0) {
@@ -233,10 +229,12 @@ function intro() {
     if (timr == 778) {
         game.world.appendChild(background3.graphic)
         game.world.appendChild(midground0.graphic)
+
         lvl.substitute("player", player)
         lvl.spawn()
-        game.world.appendChild(foreground0.graphic)
         player.y_speed = player.max_gravity
+
+        game.world.appendChild(foreground0.graphic)
     }
 
     if (timr == 780) {
@@ -251,19 +249,10 @@ function intro() {
 
 game.add(intro)
 
-let debug_col_visible = false
-
 function player_move() {
     player.update()
 
-    if (input.probe("p", input.KEYDOWN)) {
-        debug_col_visible = !debug_col_visible
-        const visibility = debug_col_visible ? "visible" : "hidden"
-        player.collider.style.visibility = visibility
-        lvl.flat.forEach(o => {
-            if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
-        })
-    }
+    lvl.toggle_debug(player)
 
     if (player.just_landed && player.landing && player.landed_once) {
         shake(1, 20)

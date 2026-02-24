@@ -14,8 +14,14 @@ const background0 = new obj({
     height: game.height
 })
 
+const midground0 = new obj({
+    name: "midground1",
+    width: game.width,
+    height: game.height
+})
+
 const foreground0 = new obj({
-    name: "",
+    name: "foreground4",
     width: game.width,
     height: game.height
 })
@@ -57,6 +63,14 @@ const lvl = new level({
             })
         },
         {
+            char: "v", object: new obj({
+                name: "moved",
+                width: 10,
+                height: 6,
+                shows_debug_col: true
+            })
+        },
+        {
             char: "j", object: new obj({
                 name: "jumper",
                 width: 10,
@@ -70,10 +84,10 @@ const lvl = new level({
         "                                ",
         "     S                          ",
         "                                ",
-        "    xxx                         ",
+        "    vvv                         ",
         "                                ",
         "                                ",
-        " xxxx                           ",
+        " vvvv                           ",
         "                                ",
         "                                ",
         "xxxxxxxxxx         jjj          ",
@@ -89,6 +103,7 @@ const lvl = new level({
 })
 
 game.world.appendChild(background0.graphic)
+game.world.appendChild(midground0.graphic)
 game.world.appendChild(player.graphic)
 
 function start() {
@@ -100,6 +115,12 @@ function start() {
         lvl.substitute(spawns[1], player)
         player.facing = -1
     }
+
+    const moved_platforms = lvl.find_all("moved")
+
+    moved_platforms.forEach((platform) => {
+        platform.move(platform.x + 5, platform.y + 3)
+    })
 
     game.savetransport()
 
@@ -113,33 +134,30 @@ function start() {
 const jumper = lvl.find("jumper")
 jumper.move(null, jumper.y + 7)
 const jumper_force = 4
-let debug_col_visible = false
-
 function player_move() {
     player.update()
 
-    if (input.probe("p", input.KEYDOWN)) {
-        debug_col_visible = !debug_col_visible
-        const visibility = debug_col_visible ? "visible" : "hidden"
-        player.collider.style.visibility = visibility
-        lvl.flat.forEach(o => {
-            if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
-        })
-    }
+    lvl.toggle_debug(player)
 
     if (player.collide(jumper, false)) {
 
         if (input.probe("s", input.KEYHELD)) {
-            player.y_speed = -jumper_force * 1.4
+            player.call_force({y: -jumper_force * 1.4, y_time: 1})
         } else {
-            player.y_speed = -jumper_force
+            player.call_force({y: -jumper_force, y_time: 1})
         }
     }
+
+    player.apply_force()
 
     lvl.move_and_collide()
 
     if (player.y + player.height < 0) {
         window.location.href = "./level5.html"
+    }
+
+    if (player.y > game.height) {
+        window.location.href = "./level4.html"
     }
 
     if (player.x > game.width) {

@@ -25,7 +25,7 @@ let player = new Player(60, 50, false)
 const lvl = new level({
     x: 0,
     y: 0,
-    width: 32, 
+    width: 32,
     height: 18,
     tile_width: 10,
     tile_height: 10,
@@ -84,7 +84,7 @@ const lvl = new level({
         "                               x",
         " S                             x",
         "xxxx   xxxxxxxxxxxxxxxxxxxxxxxxx",
-        "     S                          ",
+        "   x S x                        ",
     ]
 })
 
@@ -97,12 +97,11 @@ function start() {
 
     if (localStorage.getItem("last_level").endsWith("level6.html")) {
         lvl.substitute(spawns[0], player)
-        player.facing = -1
+        player.facing = 1
     } else {
         lvl.substitute(spawns[1], player)
-        player.facing = -1
+        player.facing = 1
         boll = true
-
     }
 
     game.savetransport()
@@ -118,24 +117,22 @@ function start() {
 jumper.move(null, jumper.y + 7)
 const jumper_force = 4*/
 
-let debug_col_visible = false
-
 function player_move() {
     player.update()
 
-    if (input.probe("p", input.KEYDOWN)) {
-        debug_col_visible = !debug_col_visible
-        const visibility = debug_col_visible ? "visible" : "hidden"
-        player.collider.style.visibility = visibility
-        lvl.flat.forEach(o => {
-            if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
+    lvl.toggle_debug(player)
+
+    if(boll == true) {
+        player.call_force({
+            x: 1,
+            y: -5,
+            x_time: 30,
+            y_time: 1
         })
+        boll = false
     }
 
-    if (boll == true){
-        boll = false
-        player.y_speed = -5
-    }
+    player.apply_force()
 
     /*if (player.collide(jumper, false)) {
 

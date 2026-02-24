@@ -114,28 +114,21 @@ function start() {
 const jumper = lvl.find("jumper")
 jumper.move(null, jumper.y + 7)
 const jumper_force = 4
-let debug_col_visible = false
-
 function player_move() {
     player.update()
 
-    if (input.probe("p", input.KEYDOWN)) {
-        debug_col_visible = !debug_col_visible
-        const visibility = debug_col_visible ? "visible" : "hidden"
-        player.collider.style.visibility = visibility
-        lvl.flat.forEach(o => {
-            if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
-        })
-    }
+    lvl.toggle_debug(player)
 
     if (player.collide(jumper, false)) {
 
         if (input.probe("s", input.KEYHELD)) {
-            player.y_speed = -jumper_force * 1.3
+            player.call_force({y: -jumper_force * 1.2, y_time: 1})
         } else {
-            player.y_speed = -jumper_force
+            player.call_force({y: -jumper_force, y_time: 1})
         }
     }
+
+    player.apply_force()
 
     lvl.move_and_collide()
 

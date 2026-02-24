@@ -38,6 +38,10 @@
     background-image: url("../assets/world1/level1_midground.webp");
 }
 
+#midground1 {
+    background-image: url("../assets/world1/level4_midground.webp");
+}
+
 #foreground0 {
     background-image: url("../assets/world1/level1.webp");
 }
