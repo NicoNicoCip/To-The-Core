@@ -42,6 +42,10 @@
     background-image: url("../assets/world1/level4_midground.webp");
 }
 
+#midground2 {
+    background-image: url("../assets/world1/level5_midground.webp");
+}
+
 #foreground0 {
     background-image: url("../assets/world1/level1.webp");
 }
@@ -61,6 +65,11 @@
 #foreground4 {
     background-image: url("../assets/world1/level4.webp");
 }
+
+#foreground5 {
+    background-image: url("../assets/world1/level5.webp");
+}
+
 
 
 #splash {

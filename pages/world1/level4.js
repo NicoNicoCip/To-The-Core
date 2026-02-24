@@ -64,11 +64,19 @@ const lvl = new level({
         },
         {
             char: "v", object: new obj({
-                name: "moved",
+                name: "vert_moved",
                 width: 10,
                 height: 6,
                 shows_debug_col: true
-            })
+           })
+        },
+        {
+            char: "h", object: new obj({
+                name: "hor_moved",
+                width: 2,
+                height: 10,
+                shows_debug_col: true
+           })
         },
         {
             char: "j", object: new obj({
@@ -81,21 +89,21 @@ const lvl = new level({
         }
     ],
     map: [
-        "                                ",
-        "     S                          ",
-        "                                ",
-        "    vvv                         ",
-        "                                ",
-        "                                ",
-        " vvvv                           ",
-        "                                ",
-        "                                ",
+        "h                               ",
+        "h    S                          ",
+        "h                               ",
+        "h   vvv                         ",
+        "h                               ",
+        "h                               ",
+        "hvvvv                           ",
+        "h                               ",
+        "h                               ",
         "xxxxxxxxxx         jjj          ",
-        "xxxxxx                       S  ",
-        "xx                        xxxxxx",
+        "                             S  ",
         "                          xxxxxx",
         "                          xxxxxx",
-        "                            xxxx",
+        "                          xxxxxx",
+        "                          xxxxxx",
         "                                ",
         "                                ",
         "                                ",
@@ -116,7 +124,7 @@ function start() {
         player.facing = -1
     }
 
-    const moved_platforms = lvl.find_all("moved")
+    const moved_platforms = lvl.find_all("vert_moved")
 
     moved_platforms.forEach((platform) => {
         platform.move(platform.x + 5, platform.y + 3)
@@ -134,6 +142,7 @@ function start() {
 const jumper = lvl.find("jumper")
 jumper.move(null, jumper.y + 7)
 const jumper_force = 4
+
 function player_move() {
     player.update()
 

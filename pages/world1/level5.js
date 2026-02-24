@@ -15,7 +15,13 @@ const background0 = new obj({
 })
 
 const foreground0 = new obj({
-    name: "",
+    name: "foreground5",
+    width: game.width,
+    height: game.height
+})
+
+const midground0 = new obj({
+    name: "midground2",
     width: game.width,
     height: game.height
 })
@@ -57,11 +63,10 @@ const lvl = new level({
             })
         },
         {
-            char: "j", object: new obj({
-                name: "jumper",
+            char: "v", object: new obj({
+                name: "half_wall",
                 width: 10,
-                height: 3,
-                collides: false,
+                height: 1,
                 shows_debug_col: true
             })
         }
@@ -78,20 +83,27 @@ const lvl = new level({
         "                                ",
         "                               x",
         "                               x",
+        "                 vvvvvvvv      x",
         "                               x",
-        "                               x",
-        "                               x",
+        "            vvv     vvvv       x",
         "                               x",
         " S                             x",
         "xxxx   xxxxxxxxxxxxxxxxxxxxxxxxx",
-        "   x S x                        ",
+        "xxxx S xxxxxxxxxxxxxxxxxxxxxxxxx",
     ]
 })
 
 game.world.appendChild(background0.graphic)
+game.world.appendChild(midground0.graphic)
 game.world.appendChild(player.graphic)
 
 let boll = false
+
+
+const halfs = lvl.find_all("half_wall")
+halfs[0].move(null, halfs[0].y + 1)
+halfs[1].move(null, halfs[1].y + 6)
+halfs[2].move(halfs[2].x + 3, halfs[2].y + 5)
 function start() {
     const spawns = lvl.find_all("spawn")
 
@@ -113,16 +125,14 @@ function start() {
     game.world.appendChild(foreground0.graphic)
 }
 
-/*const jumper = lvl.find("jumper")
-jumper.move(null, jumper.y + 7)
-const jumper_force = 4*/
+let timr = 0
 
 function player_move() {
     player.update()
 
     lvl.toggle_debug(player)
 
-    if(boll == true) {
+    if (boll == true) {
         player.call_force({
             x: 1,
             y: -5,
@@ -133,6 +143,17 @@ function player_move() {
     }
 
     player.apply_force()
+
+    // TODO: Make this work
+    // if(player.collide(halfs[2])) {
+    //     timr = 10
+    //     player.grounded = true
+    // }
+
+    // if(timr > 0) {
+    //     timr--
+    //     player.collide(halfs[0], false)
+    // }
 
     /*if (player.collide(jumper, false)) {
 
