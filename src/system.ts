@@ -137,6 +137,7 @@ export class game {
     static check_version() {
         const is_local = location.hostname === "localhost" || location.hostname === "127.0.0.1"
         if (is_local) return
+        if (window.location.pathname === "/pages/loading/loading.html") return
 
         if (localStorage.getItem("jump_clone_version") === null) {
             window.location.href = "/pages/loading/loading.html"
