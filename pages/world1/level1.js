@@ -33,6 +33,13 @@ const background3 = new obj({
     height: game.height
 })
 
+
+const midground0 = new obj({
+    name: "midground0",
+    width: game.width,
+    height: game.height
+})
+
 const foreground0 = new obj({
     name: "foreground0",
     width: game.width,
@@ -162,6 +169,7 @@ function intro() {
             game.world.removeChild(background2_transit.graphic)
         }
         game.world.appendChild(background3.graphic)
+        game.world.appendChild(midground0.graphic)
 
         lvl.substitute("player", player)
         lvl.spawn()
@@ -224,6 +232,7 @@ function intro() {
 
     if (timr == 778) {
         game.world.appendChild(background3.graphic)
+        game.world.appendChild(midground0.graphic)
         lvl.substitute("player", player)
         lvl.spawn()
         game.world.appendChild(foreground0.graphic)
@@ -263,7 +272,7 @@ function player_move() {
     tick_shake()
     lvl.move_and_collide()
 
-    if(player.y > 180) {
+    if (player.y > 180) {
         window.location.href = "./level2.html"
     }
 }

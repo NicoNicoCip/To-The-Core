@@ -16,51 +16,46 @@
 
 #background1 {
     background-image: url("../assets/background1.webp");
-    background-size: cover;
     animation: fall 1s linear infinite;
 }
 
 #background2 {
     background-image: url("../assets/background2.webp");
-    background-size: cover;
     animation: slow_raise 1800s linear;
 }
 
 #background2_transit {
     background-image: url("../assets/background0.webp");
-    background-size: cover;
     z-index: -100;
     animation: fall 1s linear infinite;
 }
 
 #background3 {
     background-image: url("../assets/background3.webp");
-    background-size: cover;
+}
+
+#midground0 {
+    background-image: url("../assets/world1/level1_midground.webp");
 }
 
 #foreground0 {
     background-image: url("../assets/world1/level1.webp");
-    background-size: cover;
 }
 
 #foreground1 {
     background-image: url("../assets/world1/level2.webp");
-    background-size: cover;
 }
 
 #foreground2 {
     background-image: url("../assets/world1/level2_EXT.webp");
-    background-size: cover;
 }
 
 #foreground3 {
     background-image: url("../assets/world1/level3.webp");
-    background-size: cover;
 }
 
 #foreground4 {
     background-image: url("../assets/world1/level4.webp");
-    background-size: cover;
 }
 
 
