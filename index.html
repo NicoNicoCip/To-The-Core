@@ -8,7 +8,8 @@
 </head>
 <body>
     <script>
-        if ("serviceWorker" in navigator) {
+        const _is_local = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+        if (!_is_local && "serviceWorker" in navigator) {
             navigator.serviceWorker.register("/service-worker.js")
                 .catch(err => console.warn("[SW] Registration failed:", err))
         }

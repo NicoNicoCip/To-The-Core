@@ -76,10 +76,9 @@ const lvl = new level({
         "                                ",
         "                                ",
         "                                ",
-        "                                ",
-        "  S                         S   ",
-        "xxxxx                     xxxxxx",
-        "xxxxx                     xxxxxx",
+        "  S                             ",
+        "xxxxx    jjj                    ",
+        "xxxxx                        S  ",
         "xxxxx                     xxxxxx",
         "xxxxx         xxxx        xxxxxx",
         "xxxxx                     xxxxxx",
@@ -137,6 +136,10 @@ function player_move() {
     }
 
     lvl.move_and_collide()
+
+    if (player.x + player.width < 0) {
+        window.location.href = "./level4.html"
+    }
 
     if (player.x > game.width) {
         window.location.href = "./level2.html"
