@@ -153,12 +153,13 @@ async function fetch_server_version() {
 }
 
 // Caches all assets into the SW cache so they are served instantly on next visit.
-// Writes into the same cache name the SW uses, so Cache-First hits immediately.
+// Uses cache: "no-store" so the SW's own Cache-First handler cannot intercept
+// these fetches and return stale content — we always want fresh network bytes here.
 async function populate_cache() {
     const cache = await caches.open(SW_CACHE)
     await Promise.all(ALL_ASSETS.map(async url => {
         try {
-            const r = await fetch(url)
+            const r = await fetch(url, { cache: "no-store" })
             if (r.ok) await cache.put(url, r)
         } catch { console.warn("[cache] failed:", url) }
     }))
@@ -193,7 +194,9 @@ async function boot() {
     // Slow path: first install or new version — download and cache everything
     // If server_version is null (network down) AND no cached version exists,
     // skip caching and just navigate — the SW will cache opportunistically.
+    // We still write a sentinel so check_version() on game pages doesn't loop.
     if (server_version === null) {
+        localStorage.setItem("jump_clone_version", "offline")
         navigate_to_start()
         return
     }

@@ -17,12 +17,16 @@ self.addEventListener("activate", (event) => {
     )
 })
 
-// Cache-First for all requests except GitHub API and the loading entry-points.
+// Cache-First for all requests except GitHub API, the loading entry-points,
+// and requests that explicitly opt out of caching (cache: "no-store").
+// The loading page uses no-store when populating the cache so it always fetches
+// fresh network bytes rather than getting old cached content back from us.
 self.addEventListener("fetch", (event) => {
     const url = new URL(event.request.url)
 
     if (url.hostname === "api.github.com") return
     if (BYPASS_CACHE.some(p => url.pathname === p)) return
+    if (event.request.cache === "no-store") return
 
     event.respondWith(
         caches.open(CACHE_NAME).then(cache =>
