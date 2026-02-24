@@ -121,7 +121,7 @@ export class game {
 
     static loadtransport() {
         if (localStorage.getItem("last_level") === null) {
-            window.location.href = "/pages/world1/level1.html"
+            window.location.href = "/pages/world1/level1s1.html"
         } else {
             window.location.href = localStorage.getItem("last_level")
         }
@@ -599,3 +599,9 @@ export class level {
     }
 }
 
+export class particle {
+    x = 0
+    y = 0
+    x_speed = 0
+    y_speed = 0
+}

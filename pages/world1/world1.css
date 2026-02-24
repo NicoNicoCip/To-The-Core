@@ -58,6 +58,11 @@
     background-size: cover;
 }
 
+#foreground4 {
+    background-image: url("../assets/world1/level4.webp");
+    background-size: cover;
+}
+
 
 #splash {
     font-size: 8px;

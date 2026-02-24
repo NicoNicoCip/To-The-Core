@@ -1,5 +1,7 @@
 import { game, obj } from "../../src/system.js"
 
+const CACHE_NAME = "jump-clone-v0.2.10" // keep in sync with service-worker.js
+const IS_LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1"
 
 const world = document.getElementById("world")
 const debug = document.getElementById("debug")
@@ -21,6 +23,7 @@ const assets_fallback = [
     "../assets/world1/level2_EXT.webp",
     "../assets/world1/level2.webp",
     "../assets/world1/level3.webp",
+    "../assets/world1/level4.webp",
     "../assets/background0.webp",
     "../assets/background1.webp",
     "../assets/background2.webp",
@@ -33,7 +36,53 @@ const assets_fallback = [
     "../assets/loading.webp",
     "../assets/play_sign_active.webp",
     "../assets/play_sign.webp",
-    "../assets/to_the_core_sign.webp"
+    "../assets/to_the_core_sign.webp",
+    "../assets/undefined.webp"
+]
+
+// Absolute paths for the full production cache — includes all HTML, CSS, JS, and assets.
+const ALL_ASSETS = [
+    "/index.html",
+    "/pages/loading/loading.html",
+    "/pages/loading/loading.css",
+    "/pages/loading/loading.js",
+    "/pages/start/start.html",
+    "/pages/start/start.css",
+    "/pages/start/start.js",
+    "/pages/world1/level1.html",
+    "/pages/world1/level1.js",
+    "/pages/world1/level2.html",
+    "/pages/world1/level2.js",
+    "/pages/world1/level2_EXT.html",
+    "/pages/world1/level2_EXT.js",
+    "/pages/world1/level3.html",
+    "/pages/world1/level3.js",
+    "/pages/world1/level4.html",
+    "/pages/world1/level4.js",
+    "/pages/world1/world1.css",
+    "/pages/index.css",
+    "/src/system.js",
+    "/src/prefabs.js",
+    "/pages/assets/world1/level1_midground.webp",
+    "/pages/assets/world1/level1.webp",
+    "/pages/assets/world1/level2_EXT.webp",
+    "/pages/assets/world1/level2.webp",
+    "/pages/assets/world1/level3.webp",
+    "/pages/assets/world1/level4.webp",
+    "/pages/assets/background0.webp",
+    "/pages/assets/background1.webp",
+    "/pages/assets/background2.webp",
+    "/pages/assets/background3.webp",
+    "/pages/assets/dog_falling_in.webp",
+    "/pages/assets/dog_falling.webp",
+    "/pages/assets/dog_walking.webp",
+    "/pages/assets/dog.webp",
+    "/pages/assets/ground.webp",
+    "/pages/assets/loading.webp",
+    "/pages/assets/play_sign_active.webp",
+    "/pages/assets/play_sign.webp",
+    "/pages/assets/to_the_core_sign.webp",
+    "/pages/assets/undefined.webp"
 ]
 
 game.world.appendChild(loading.graphic)
@@ -109,9 +158,79 @@ async function check_assets() {
     return true // mismatch found
 }
 
-check_assets().then(mismatch => {
-    if (mismatch) return // hang on loading screen
-    Promise.all(assets_fallback.map(preload)).then(() => {
+// Fetches /version.json directly from the network, bypassing all caches.
+async function fetch_server_version() {
+    try {
+        const res = await fetch("/version.json", {
+            cache: "no-store",
+            signal: AbortSignal.timeout(5000)
+        })
+        if (!res.ok) return null
+        const data = await res.json()
+        return data.version ?? null
+    } catch {
+        return null
+    }
+}
+
+// Stores all HTML, CSS, JS, and asset files into the named cache.
+async function populate_cache() {
+    const cache = await caches.open(CACHE_NAME)
+    await Promise.all(
+        ALL_ASSETS.map(async (url) => {
+            try {
+                const response = await fetch(url)
+                if (response.ok) await cache.put(url, response)
+            } catch {
+                console.warn("[cache] Failed to pre-cache:", url)
+            }
+        })
+    )
+}
+
+// Deletes any stale jump-clone-v* caches from previous versions.
+async function clear_old_caches() {
+    const keys = await caches.keys()
+    await Promise.all(
+        keys
+            .filter((k) => k.startsWith("jump-clone-v") && k !== CACHE_NAME)
+            .map((k) => caches.delete(k))
+    )
+}
+
+async function boot() {
+    if (IS_LOCAL) {
+        // Development: use existing behavior unchanged
+        const mismatch = await check_assets()
+        if (mismatch) return
+        await Promise.all(assets_fallback.map(preload))
         window.location.href = "../start/start.html"
-    })
-})
+        return
+    }
+
+    // Production: check version against server
+    const cached_version = localStorage.getItem("jump_clone_version")
+    const server_version = await fetch_server_version()
+
+    // Fast path: versions match, or network failed but we have a prior cache
+    if (
+        (server_version !== null && cached_version === server_version) ||
+        (server_version === null && cached_version !== null)
+    ) {
+        window.location.href = "../start/start.html"
+        return
+    }
+
+    // Slow path: first install or version mismatch — download and cache everything
+    await clear_old_caches()
+    await Promise.all(assets_fallback.map(preload)) // visual progress during download
+    await populate_cache()
+
+    if (server_version !== null) {
+        localStorage.setItem("jump_clone_version", server_version)
+    }
+
+    window.location.href = "../start/start.html"
+}
+
+boot()
