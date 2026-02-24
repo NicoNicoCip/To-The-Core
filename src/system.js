@@ -102,7 +102,7 @@ export class game {
     }
     static loadtransport() {
         if (localStorage.getItem("last_level") === null) {
-            window.location.href = "/pages/world1/level1s1.html";
+            window.location.href = "/pages/world1/level1.html";
         }
         else {
             window.location.href = localStorage.getItem("last_level");
