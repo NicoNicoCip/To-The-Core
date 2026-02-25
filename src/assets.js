@@ -7,6 +7,7 @@ export const ASSETS = [
     "/pages/assets/dog.webp",
     "/pages/assets/dog.ico",
     "/pages/assets/dog_falling.webp",
+    "/pages/assets/dog_rising.webp",
     "/pages/assets/dog_falling_in.webp",
     "/pages/assets/dog_walking.webp",
     "/pages/assets/golden_bone.webp",

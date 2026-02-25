@@ -10,6 +10,10 @@
     background-image: url("../assets/dog_falling.webp") !important;
 }
 
+.rising {
+    background-image: url("../assets/dog_rising.webp") !important;
+}
+
 #wall {
     background-image: url("../assets/ground.webp");
 }

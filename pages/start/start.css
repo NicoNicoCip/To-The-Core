@@ -16,6 +16,7 @@
     background-size: cover;
     animation: sign 15s ease-in-out infinite;
     transform-origin: center center;
+    transition: scale 0.2s;
 }
 
 #fade {
@@ -30,9 +31,10 @@
 
 .play_sign_hover {
     background-image: url("../assets/play_sign_active.webp") !important;
-    outline-width: 2px;
-    outline-style: solid;
-    outline-color: #beffe0;
+    
+    /* outline-width: 2px; */
+    /* outline-style: solid; */
+    /* outline-color: #beffe0; */
 }
 
 @keyframes fall {

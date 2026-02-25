@@ -1,5 +1,5 @@
-import { Player } from "../../src/prefabs.js"
-import { game, input, level, obj , savecollectables} from "../../src/system.js"
+import { come_from, Player, send_to } from "../../src/prefabs.js"
+import { cobj, game, input, level, obj } from "../../src/system.js"
 
 
 const world = document.getElementById("world")
@@ -37,7 +37,7 @@ const lvl = new level({
     tile_height: 10,
     keys: [
         {
-            char: "#", object: new obj({
+            char: "#", object: new cobj({
                 name: "wall",
                 width: 10,
                 height: 10,
@@ -45,7 +45,7 @@ const lvl = new level({
             })
         },
         {
-            char: "S", object: new obj({
+            char: "S", object: new cobj({
                 name: "spawn",
                 width: 10,
                 height: 10,
@@ -55,7 +55,7 @@ const lvl = new level({
             })
         },
         {
-            char: "x", object: new obj({
+            char: "x", object: new cobj({
                 name: "inviz_wall",
                 width: 10,
                 height: 10,
@@ -63,16 +63,16 @@ const lvl = new level({
             })
         },
         {
-            char: "v", object: new obj({
+            char: "v", object: new cobj({
                 name: "half_wall",
                 width: 10,
                 height: 1,
                 shows_debug_col: true,
-                one_way:true
+                one_way: true
             })
         },
         {
-            char: "B", object: new obj({
+            char: "B", object: new cobj({
                 name: "bone",
                 width: 10,
                 height: 10,
@@ -104,22 +104,22 @@ const lvl = new level({
     ]
 })
 
-game.world.appendChild(background0.graphic)
-game.world.appendChild(midground0.graphic)
-game.world.appendChild(player.graphic)
-
 let boll = false
 const bone = lvl.find("bone")
 
-
-const halfs = lvl.find_all("half_wall")
-halfs[0].move(null, halfs[0].y + 1)
-halfs[1].move(null, halfs[1].y + 6)
-halfs[2].move(halfs[2].x + 3, halfs[2].y + 5)
 function start() {
+    game.world.appendChild(background0.graphic)
+    game.world.appendChild(midground0.graphic)
+    game.world.appendChild(player.graphic)
+
+    const halfs = lvl.find_all("half_wall")
+    halfs[0].move(null, halfs[0].y + 1)
+    halfs[1].move(null, halfs[1].y + 6)
+    halfs[2].move(halfs[2].x + 3, halfs[2].y + 5)
+
     const spawns = lvl.find_all("spawn")
 
-    if (localStorage.getItem("last_level").endsWith("level6.html")) {
+    if (come_from("s6.html")) {
         lvl.substitute(spawns[0], player)
         player.facing = 1
     } else {
@@ -128,16 +128,16 @@ function start() {
         boll = true
     }
 
-    game.savetransport()
+    game.save_transport()
 
     player.y_speed = player.max_gravity
     player.graphic.classList.add("falling")
 
     lvl.spawn()
     game.world.appendChild(foreground0.graphic)
-}
 
-let timr = 0
+    game.add(player_move)
+}
 
 function player_move() {
     player.update()
@@ -156,42 +156,24 @@ function player_move() {
 
     player.apply_force()
 
-    // TODO: Make this work
-    // if(player.collide(halfs[2])) {
-    //     timr = 10
-    //     player.grounded = true
-    // }
-
-    // if(timr > 0) {
-    //     timr--
-    //     player.collide(halfs[0], false)
-    // }
-
-    /*if (player.collide(jumper, false)) {
-
-        if (input.probe("s", input.KEYHELD)) {
-            player.y_speed = -jumper_force * 1.4
-        } else {
-            player.y_speed = -jumper_force
-        }
-    }*/
     if (player.collide(bone, false)) {
-        bone.move(0,100)
+        bone.move(0, 100)
         game.world.removeChild(bone.graphic)
         game.world.removeChild(bone.collider)
-        savecollectables(0,0,1)
+        game.save_collectable("world0", "bone_s5")
     }
+
     lvl.move_and_collide()
 
     if (player.y > game.height) {
-        window.location.href = "./s4.html"
+        send_to("./s4.html")
     }
 
     if (player.x + player.width < 0) {
-        window.location.href = "./s6.html"
+        send_to("./s6.html")
     }
 }
 
-game.add(player_move)
+
 start()
 game.update()

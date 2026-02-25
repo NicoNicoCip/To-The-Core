@@ -102,7 +102,7 @@ play_sign.graphic.addEventListener("mouseup", () => {
         }
 
         if (timr == 180) {
-            game.loadtransport()
+            game.load_transport()
         }
         timr++
     }

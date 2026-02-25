@@ -1,27 +1,63 @@
-import { input, math, obj } from "./system.js";
-export class Player extends obj {
-    facing = 1;
-    was_grounded = false;
-    just_landed = false;
-    landed_once = false;
-    landing = false;
-    landing_timer = 0;
-    max_acc = 2;
-    max_gravity = 6;
-    acc_modifier = 0.4;
-    gravity = 0.2; // 0.6 good
-    friction = 0.4;
-    jump_force = 4; // 7 good
-    movedir = null;
-    shake = true;
-    _force_x = 0;
-    _force_y = 0;
-    _force_x_time = 0;
-    _force_y_time = 0;
-    coyote = 0;
-    coyote_time = 4;
+import { cobj, game, input, pobj } from "./system.js";
+export function boil_the_plate() {
+    game.register_world(document.getElementById("world"), 320, 180);
+    input.init();
+}
+export function send_to(url) {
+    game.save_transport();
+    window.location.href = url;
+}
+export function come_from(html) {
+    return localStorage.getItem("last_level").endsWith(html);
+}
+export class Shaker {
+    shake_intensity = 0;
+    shake_timer = 0;
+    tick_shake() {
+        if (this.shake_timer > 0) {
+            const ox = (Math.random() - 0.5) * 2 * this.shake_intensity;
+            const oy = (Math.random() - 0.5) * 2 * this.shake_intensity;
+            game.world.style.transform = `scale(${game.scale}) translate(${ox}px, ${oy}px)`;
+            this.shake_timer--;
+            return true;
+        }
+        else {
+            game.world.style.transform = `scale(${game.scale})`;
+            return false;
+        }
+    }
+    shake(intensity, duration_frames) {
+        this.shake_intensity = intensity;
+        this.shake_timer = duration_frames;
+    }
+}
+export class Collectable extends cobj {
+    level = null;
+    constructor({ name = null, width = null, height = null, level = null, }) {
+        super({
+            name: name,
+            width: width,
+            height: height,
+            dynamic: true,
+            shows_debug_col: true,
+        });
+        if (this.level !== null) {
+            this.level.substitute(name, this);
+            return;
+        }
+        game.world.appendChild(this.graphic);
+        game.world.appendChild(this.collider);
+    }
+}
+export class Player extends pobj {
     constructor(x, y, shake = null) {
-        super({ name: "player", x, y, width: 10, height: 10, dynamic: true, shows_debug_col: true });
+        super({
+            name: "player", x, y,
+            width: 10,
+            height: 10,
+            dynamic: true,
+            shows_debug_col: true
+        });
         if (shake !== null)
             this.shake = shake;
     }
@@ -47,40 +83,10 @@ export class Player extends obj {
         }
         this.movedir = null;
         if (!this.landing) {
-            if (input.probe("d", input.KEYHELD)) {
+            if (input.probe("d", input.KEYHELD))
                 this.movedir = 1;
-            }
-            if (input.probe("a", input.KEYHELD)) {
+            if (input.probe("a", input.KEYHELD))
                 this.movedir = -1;
-            }
-        }
-        if (this.movedir === 1) {
-            this.x_speed += this.acc_modifier;
-            this.facing = 1;
-        }
-        if (this.movedir === -1) {
-            this.x_speed -= this.acc_modifier;
-            this.facing = -1;
-        }
-        if (this.movedir !== null) {
-            if (this.x_speed > this.max_acc) {
-                this.x_speed = this.max_acc;
-            }
-            if (this.x_speed < -this.max_acc) {
-                this.x_speed = -this.max_acc;
-            }
-        }
-        else {
-            this.x_speed += (this.acc_modifier * -math.sign(this.x_speed)) * this.friction;
-            if (this.x_speed < 0.2 && this.x_speed > -0.2) {
-                this.x_speed = 0;
-            }
-        }
-        if (this.grounded) {
-            this.graphic.classList.remove("falling");
-        }
-        else {
-            this.graphic.classList.add("falling");
         }
         if (this.grounded) {
             this.coyote = this.coyote_time;
@@ -92,61 +98,24 @@ export class Player extends obj {
             this.y_speed = -this.jump_force;
             this.coyote = 0;
         }
-        if (this.y_speed > this.max_gravity)
-            this.y_speed = this.max_gravity;
+        super.update();
+        if (this.grounded) {
+            this.graphic.classList.remove("falling");
+        }
+        else {
+            this.graphic.classList.add("falling");
+        }
+        if (this.y_speed < 0) {
+            this.graphic.classList.add("rising");
+        }
+        else {
+            this.graphic.classList.remove("rising");
+        }
         if (this.movedir === null) {
             this.graphic.classList.remove("moving");
         }
         else {
             this.graphic.classList.add("moving");
         }
-        this.x += this.x_speed;
-        this.y_speed += this.gravity;
-        this.y += this.y_speed;
-    }
-    move(x = null, y = null) {
-        if (x !== null)
-            this.x = x;
-        if (y !== null)
-            this.y = y;
-        this._prev_x = this.x;
-        this._prev_y = this.y;
-        const fall_flip = this.graphic.classList.contains("falling")
-            ? (math.sign(this.y_speed) || 1)
-            : 1;
-        this.graphic.style.transform = `translate(${this.x}px, ${this.y}px) scaleX(${this.facing}) scaleY(${fall_flip})`;
-        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
-    }
-    call_force({ x = null, y = null, x_time = null, y_time = null }) {
-        if (x !== null && x_time !== null) {
-            this._force_x = x;
-            this._force_x_time = x_time;
-        }
-        if (y !== null && y_time !== null) {
-            this._force_y = y;
-            this._force_y_time = y_time;
-        }
-    }
-    apply_force() {
-        let res = { x_end: false, y_end: false };
-        if (this._force_x_time > 0) {
-            this.x_speed = this._force_x;
-            this._force_x_time--;
-        }
-        else {
-            this._force_x = 0;
-            res.x_end = true;
-        }
-        if (this._force_y_time > 0) {
-            this.y_speed = this._force_y;
-            this._force_y_time--;
-        }
-        else {
-            this._force_y = 0;
-            res.y_end = true;
-        }
-        return res.x_end && res.y_end
-            ? true
-            : res;
     }
 }

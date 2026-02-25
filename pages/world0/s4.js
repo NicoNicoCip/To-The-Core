@@ -1,30 +1,13 @@
-import { Player } from "../../src/prefabs.js"
-import { game, input, level, obj } from "../../src/system.js"
+import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
+import { bobj, cobj, game, input, level, obj } from "../../src/system.js"
 
+boil_the_plate()
 
-const world = document.getElementById("world")
-const debug = document.getElementById("debug")
+const background0 = new bobj({ name: "background3" })
 
-game.register_world(world, 320, 180)
-input.init()
+const midground0 = new bobj({ name: "midground1" })
 
-const background0 = new obj({
-    name: "background3",
-    width: game.width,
-    height: game.height
-})
-
-const midground0 = new obj({
-    name: "midground1",
-    width: game.width,
-    height: game.height
-})
-
-const foreground0 = new obj({
-    name: "foreground4",
-    width: game.width,
-    height: game.height
-})
+const foreground0 = new bobj({ name: "foreground4" })
 
 let player = new Player(60, 50, false)
 
@@ -37,7 +20,7 @@ const lvl = new level({
     tile_height: 10,
     keys: [
         {
-            char: "S", object: new obj({
+            char: "S", object: new cobj({
                 name: "spawn",
                 width: 10,
                 height: 10,
@@ -47,7 +30,7 @@ const lvl = new level({
             })
         },
         {
-            char: "x", object: new obj({
+            char: "x", object: new cobj({
                 name: "inviz_wall",
                 width: 10,
                 height: 10,
@@ -55,7 +38,7 @@ const lvl = new level({
             })
         },
         {
-            char: "v", object: new obj({
+            char: "v", object: new cobj({
                 name: "moved_wall",
                 width: 10,
                 height: 10,
@@ -63,7 +46,7 @@ const lvl = new level({
             })
         },
         {
-            char: "h", object: new obj({
+            char: "h", object: new cobj({
                 name: "height_wall",
                 width: 1,
                 height: 10,
@@ -71,7 +54,7 @@ const lvl = new level({
             })
         },
         {
-            char: "j", object: new obj({
+            char: "j", object: new cobj({
                 name: "jumper",
                 width: 10,
                 height: 3,
@@ -102,24 +85,17 @@ const lvl = new level({
     ]
 })
 
-game.world.appendChild(background0.graphic)
-game.world.appendChild(midground0.graphic)
-game.world.appendChild(player.graphic)
-
-const jumper = lvl.find("jumper")
-jumper.shift(-5, 7)
-const jumper_force = 4
-
-const spawns = lvl.find_all("spawn")
-
-const moved = lvl.find_all("moved_wall")
-moved[0].shift(6, 0)
-moved[1].shift(-5, 0)
-
 function start() {
+    game.world.appendChild(background0.graphic)
+    game.world.appendChild(midground0.graphic)
+    game.world.appendChild(player.graphic)
 
+    const moved = lvl.find_all("moved_wall")
+    moved[0].shift(6, 0)
+    moved[1].shift(-5, 0)
 
-    if (localStorage.getItem("last_level").endsWith("s5.html")) {
+    const spawns = lvl.find_all("spawn")
+    if (come_from("s5.html")) {
         lvl.substitute(spawns[0], player)
     } else {
         lvl.substitute(spawns[1], player)
@@ -131,8 +107,12 @@ function start() {
 
     lvl.spawn()
     game.world.appendChild(foreground0.graphic)
+    game.add(player_move)
 }
 
+const jumper_force = 4
+const jumper = lvl.find("jumper")
+jumper.shift(-5, 7)
 
 function player_move() {
     player.update()
@@ -153,8 +133,7 @@ function player_move() {
     lvl.move_and_collide()
 
     if (player.y + player.height < 0) {
-        game.savetransport()
-        window.location.href = "./s5.html"
+        send_to("./s5.html")
     }
 
     if (player.y > game.height) {
@@ -162,11 +141,9 @@ function player_move() {
     }
 
     if (player.x > game.width) {
-        game.savetransport()
-        window.location.href = "./s3.html"
+        send_to("./s3.html")
     }
 }
 
-game.add(player_move)
 start()
 game.update()

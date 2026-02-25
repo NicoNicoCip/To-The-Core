@@ -1,25 +1,11 @@
-import { Player } from "../../src/prefabs.js"
-import { game, input, level, obj, savecollectables} from "../../src/system.js"
+import { boil_the_plate, Player, send_to } from "../../src/prefabs.js"
+import { bobj, cobj, game, input, level, obj } from "../../src/system.js"
 
+boil_the_plate()
 
-const world = document.getElementById("world")
-const debug = document.getElementById("debug")
+const background0 = new bobj({ name: "background3" })
 
-
-game.register_world(world, 320, 180)
-input.init()
-
-const background0 = new obj({
-    name: "background3",
-    width: game.width,
-    height: game.height
-})
-
-const foreground0 = new obj({
-    name: "foreground2",
-    width: game.width,
-    height: game.height
-})
+const foreground0 = new bobj({ name: "foreground2" })
 
 const lvl = new level({
     x: 0,
@@ -30,7 +16,7 @@ const lvl = new level({
     tile_height: 10,
     keys: [
         {
-            char: "S", object: new obj({
+            char: "S", object: new cobj({
                 name: "spawn",
                 width: 10,
                 height: 10,
@@ -39,7 +25,7 @@ const lvl = new level({
             })
         },
         {
-            char: "#", object: new obj({
+            char: "#", object: new cobj({
                 name: "wall",
                 width: 10,
                 height: 10,
@@ -47,7 +33,7 @@ const lvl = new level({
             })
         },
         {
-            char: "x", object: new obj({
+            char: "x", object: new cobj({
                 name: "inviz_wall",
                 width: 10,
                 height: 10,
@@ -55,7 +41,7 @@ const lvl = new level({
             })
         },
         {
-            char: "B", object: new obj({
+            char: "B", object: new cobj({
                 name: "bone",
                 width: 10,
                 height: 10,
@@ -86,20 +72,19 @@ const lvl = new level({
         "xxxxxxxxxxxxxxxxxxxxxxxxxx      ",
     ]
 })
+
 const player = new Player(10, 10, false)
 
 function start() {
-    lvl.substitute("spawn", player)
-
     game.world.appendChild(background0.graphic)
-    lvl.spawn()
 
-    game.savetransport()
+    lvl.substitute("spawn", player)
+    lvl.spawn()
 
     player.graphic.classList.add("falling")
 
-
     game.world.appendChild(foreground0.graphic)
+    game.add(player_move)
 }
 
 const bone = lvl.find("bone")
@@ -109,24 +94,23 @@ function player_move() {
 
     lvl.toggle_debug(player)
 
-    if(player.collide(bone, false)){
-        bone.move(0,100)
+    if (player.collide(bone, false)) {
+        bone.move(0, 100)
         game.world.removeChild(bone.graphic)
         game.world.removeChild(bone.collider)
-        savecollectables(0,0,0)
+        game.save_collectable("world0", "bone_s2_EXT")
     }
 
     lvl.move_and_collide()
 
     if (player.x + player.width < 0) {
-        window.location.href = "./s2.html"
+        send_to("./s2.html")
     }
 
     if (input.probe("s", input.KEYHELD)) {
-            bone.shift(0 , 0.2)
+        bone.shift(0, 1)
     }
 }
 
-game.add(player_move)
 start()
 game.update()

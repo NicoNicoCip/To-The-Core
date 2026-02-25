@@ -1,58 +1,18 @@
-import { Player } from "../../src/prefabs.js"
-import { game, input, level, obj } from "../../src/system.js"
+import { boil_the_plate, Player, send_to, Shaker } from "../../src/prefabs.js"
+import { bobj, cobj, game, input, level, obj } from "../../src/system.js"
 
+boil_the_plate()
 
-const world = document.getElementById("world")
-const debug = document.getElementById("debug")
-game.savetransport()
-game.register_world(world, 320, 180)
+const background1 = new bobj({name:"background1"})
+const background2 = new bobj({name:"background2"})
+const background2_transit = new bobj({name: "background2_transit"})
+const background3 = new bobj({name: "background3"})
 
-input.init()
+const midground0 = new bobj({name: "midground0"})
 
-const background1 = new obj({
-    name: "background1",
-    width: game.width,
-    height: game.height
-})
+const foreground0 = new bobj({name: "foreground0"})
 
-const background2 = new obj({
-    name: "background2",
-    width: game.width,
-    height: game.height
-})
-
-const background2_transit = new obj({
-    name: "background2_transit",
-    width: game.width,
-    height: game.height
-})
-
-const background3 = new obj({
-    name: "background3",
-    width: game.width,
-    height: game.height
-})
-
-
-const midground0 = new obj({
-    name: "midground0",
-    width: game.width,
-    height: game.height
-})
-
-const foreground0 = new obj({
-    name: "foreground0",
-    width: game.width,
-    height: game.height
-})
-
-
-const splash = new obj({
-    name: "splash",
-    width: 180,
-    height: 60
-})
-
+const splash = new obj({name: "splash",width: 180,height: 60})
 splash.graphic.innerHTML = `MADE BY:<br>MANEL<br>JOAN<br>NICO<br>
 <br><br><br><br><br><br><br><br><br><br><br><br>
 A Paper Wing Studio Production <br>
@@ -71,7 +31,7 @@ const lvl = new level({
     tile_height: 10,
     keys: [
         {
-            char: "#", object: new obj({
+            char: "#", object: new cobj({
                 name: "wall",
                 width: 10,
                 height: 10,
@@ -79,7 +39,7 @@ const lvl = new level({
             })
         },
         {
-            char: "P", object: new obj({
+            char: "P", object: new cobj({
                 name: "player",
                 width: 10,
                 height: 10,
@@ -88,7 +48,7 @@ const lvl = new level({
             })
         },
         {
-            char: "x", object: new obj({
+            char: "x", object: new cobj({
                 name: "inviz_wall",
                 width: 10,
                 height: 10,
@@ -124,28 +84,7 @@ game.world.appendChild(splash.graphic)
 game.world.appendChild(player.graphic)
 game.world.appendChild(player.collider)
 
-
-let shake_intensity = 0
-let shake_timer = 0
-
-// called each frame, e.g. at the end of player_move
-function tick_shake() {
-    if (shake_timer > 0) {
-        const ox = (Math.random() - 0.5) * 2 * shake_intensity
-        const oy = (Math.random() - 0.5) * 2 * shake_intensity
-        game.world.style.transform = `scale(${game.scale}) translate(${ox}px, ${oy}px)`
-        shake_timer--
-        return true
-    } else {
-        game.world.style.transform = `scale(${game.scale})`
-        return false
-    }
-}
-
-function shake(intensity, duration_frames) {
-    shake_intensity = intensity
-    shake_timer = duration_frames
-}
+const shaker = new Shaker()
 
 let timr = 0
 
@@ -235,24 +174,22 @@ function intro() {
     timr++
 }
 
-game.add(intro)
-
 function player_move() {
     player.update()
 
     lvl.toggle_debug(player)
 
     if (player.just_landed && player.landing && player.landed_once) {
-        shake(1, 20)
+        shaker.shake(1, 20)
     }
 
-    tick_shake()
+    shaker.tick_shake()
     lvl.move_and_collide()
 
     if (player.y > 180) {
-        window.location.href = "./s2.html"
+        send_to("./s2.html")
     }
 }
 
-
+game.add(intro)
 game.update()

@@ -97,10 +97,10 @@ export class game {
         }
         return false;
     }
-    static savetransport() {
+    static save_transport() {
         localStorage.setItem("last_level", window.location.pathname);
     }
-    static loadtransport() {
+    static load_transport() {
         if (localStorage.getItem("last_level") === null) {
             window.location.href = "/pages/world0/s1.html";
         }
@@ -143,12 +143,27 @@ export class game {
         })
             .catch(() => { });
     }
+    static save_collectable(world, item) {
+        const local_data = window.localStorage.getItem("collectables");
+        const collect = local_data === null
+            ? { [world]: {} }
+            : JSON.parse(local_data);
+        if (!collect[world]) {
+            collect[world] = {};
+        }
+        collect[world][item] = true;
+        window.localStorage.setItem("collectables", JSON.stringify(collect));
+    }
+    static check_collectable(world, item) {
+        const local_data = window.localStorage.getItem("collectables");
+        const collect = local_data === null
+            ? null
+            : JSON.parse(local_data);
+        return collect !== null && collect[world] === undefined && collect[world][item] === true;
+    }
 }
 export class obj {
     graphic = null;
-    x_speed = 0;
-    y_speed = 0;
-    grounded = false;
     name = "";
     x = 0;
     y = 0;
@@ -156,21 +171,7 @@ export class obj {
     _prev_y = -1;
     width = 0;
     height = 0;
-    dynamic = false;
-    collides = true;
-    shows_debug_col = false;
-    collider = null;
-    one_way = false;
-    drop_through = false;
-    /**
-     * An object with all the data and special funccionalaty in one place
-     * @param {string} name The name of the obj
-     * @param {number} x the x position of the obj
-     * @param {number} y the y position of the obj
-     * @param {number} width width of the graphic
-     * @param {number} height height of the graphic
-     */
-    constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null, collides = null, shows_debug_col = null, one_way = null }) {
+    constructor({ name = null, x = null, y = null, width = null, height = null, }) {
         if (name !== null)
             this.name = name;
         if (x !== null)
@@ -181,23 +182,8 @@ export class obj {
             this.width = width;
         if (height !== null)
             this.height = height;
-        if (dynamic !== null)
-            this.dynamic = dynamic;
-        if (collides !== null)
-            this.collides = collides;
-        if (shows_debug_col !== null)
-            this.shows_debug_col = shows_debug_col;
-        if (one_way !== null)
-            this.one_way = one_way;
         this._prev_x = this.x;
         this._prev_y = this.y;
-        this.collider = document.createElement("div");
-        this.collider.style.border = "solid 1px #FF0000";
-        this.collider.style.width = this.width + "px";
-        this.collider.style.height = this.height + "px";
-        this.collider.style.zIndex = "2000";
-        this.collider.style.position = "absolute";
-        this.collider.style.visibility = "hidden";
         this.graphic = document.createElement("div");
         this.graphic.id = name;
         this.graphic.classList.add("obj");
@@ -215,17 +201,8 @@ export class obj {
             y: other.y,
             width: other.width,
             height: other.height,
-            dynamic: other.dynamic,
-            collides: other.collides,
-            shows_debug_col: other.shows_debug_col,
-            one_way: other.one_way
         });
     }
-    /**
-     * Set the position of the obj with proper offset and string format
-     * @param {number} x
-     * @param {number} y
-     */
     move(x = null, y = null) {
         if (x !== null)
             this.x = x;
@@ -234,7 +211,6 @@ export class obj {
         this._prev_x = this.x;
         this._prev_y = this.y;
         this.graphic.style.transform = `translate(${this.x}px, ${this.y}px)`;
-        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
     }
     shift(x = null, y = null) {
         if (x !== null)
@@ -244,7 +220,51 @@ export class obj {
         this._prev_x = this.x;
         this._prev_y = this.y;
         this.graphic.style.transform = `translate(${this.x}px, ${this.y}px)`;
-        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    }
+    to_string() {
+        return JSON.stringify(this);
+    }
+}
+export class bobj extends obj {
+    constructor({ name = null, x = null, y = null, width = null, height = null, }) {
+        super({
+            name, x, y,
+            width: width == null ? game.width : width,
+            height: height == null ? game.height : height
+        });
+    }
+}
+export class cobj extends obj {
+    collider = null;
+    x_speed = 0;
+    y_speed = 0;
+    grounded = false;
+    dynamic = false;
+    collides = true;
+    shows_debug_col = false;
+    one_way = false;
+    drop_through = false;
+    constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null, collides = null, shows_debug_col = null, one_way = null }) {
+        super({ name, x, y, width, height });
+        if (width !== null)
+            this.width = width;
+        if (height !== null)
+            this.height = height;
+        if (dynamic !== null)
+            this.dynamic = dynamic;
+        if (collides !== null)
+            this.collides = collides;
+        if (shows_debug_col !== null)
+            this.shows_debug_col = shows_debug_col;
+        if (one_way !== null)
+            this.one_way = one_way;
+        this.collider = document.createElement("div");
+        this.collider.style.border = "solid 1px #FF0000";
+        this.collider.style.width = this.width + "px";
+        this.collider.style.height = this.height + "px";
+        this.collider.style.zIndex = "2000";
+        this.collider.style.position = "absolute";
+        this.collider.style.visibility = "hidden";
     }
     collide(other = null, resolve = true) {
         if (other === null)
@@ -255,7 +275,7 @@ export class obj {
             if (!was_above)
                 return false;
             if (this.drop_through)
-                return false; // player wants to drop
+                return false;
         }
         const dx = this.x - this._prev_x;
         const dy = this.y - this._prev_y;
@@ -305,33 +325,135 @@ export class obj {
                 }
             }
         }
-        // const x_col = this.x + this.width > other.x && this.x < other.x + other.width
-        // const y_col = this.y + this.height > other.y && this.y < other.y + other.height
-        // const x_overlap = Math.min(this.x + this.width, other.x + other.width) - Math.max(this.x, other.x)
-        // const y_overlap = Math.min(this.y + this.height, other.y + other.height) - Math.max(this.y, other.y)
-        // const came_from_left = this._prev_x + this.width <= other.x
-        // const came_from_right = this._prev_x >= other.x + other.width
-        // const came_from_above = this._prev_y + this.height <= other.y
-        // const came_from_below = this._prev_y >= other.y + other.height
-        // if (x_col && y_col && resolve) {
-        //     if (came_from_left || came_from_right) {
-        //         this.x += x_overlap * -math.sign(this.x_speed)
-        //         this.x_speed = 0
-        //     } else if (came_from_above || came_from_below) {
-        //         const vert_sign = -math.sign(this.y_speed)
-        //         this.y += y_overlap * vert_sign
-        //         this.y_speed = 0
-        //         if (vert_sign == -1) this.grounded = true
-        //     }
-        // }
         return col;
     }
-    to_string() {
-        return JSON.stringify(this);
+    copy() {
+        return cobj.copy(this);
+    }
+    static copy(other) {
+        return new cobj({
+            name: other.name,
+            x: other.x,
+            y: other.y,
+            width: other.width,
+            height: other.height,
+            dynamic: other.dynamic,
+            collides: other.collides,
+            shows_debug_col: other.shows_debug_col,
+            one_way: other.one_way
+        });
+    }
+    move(x = null, y = null) {
+        super.move(x, y);
+        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    }
+    shift(x = null, y = null) {
+        super.shift(x, y);
+        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    }
+}
+export class pobj extends cobj {
+    facing = 1;
+    was_grounded = false;
+    just_landed = false;
+    landed_once = false;
+    landing = false;
+    landing_timer = 0;
+    max_acc = 2;
+    max_gravity = 6;
+    acc_modifier = 0.4;
+    gravity = 0.2;
+    friction = 0.4;
+    jump_force = 4;
+    movedir = null;
+    shake = true;
+    _force_x = 0;
+    _force_y = 0;
+    _force_x_time = 0;
+    _force_y_time = 0;
+    coyote = 0;
+    coyote_time = 4;
+    constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null, collides = null, shows_debug_col = null, one_way = null }) {
+        super({ name, x, y, width, height, dynamic, collides, shows_debug_col, one_way });
+    }
+    update() {
+        if (this.movedir === 1) {
+            this.x_speed += this.acc_modifier;
+            this.facing = 1;
+        }
+        if (this.movedir === -1) {
+            this.x_speed -= this.acc_modifier;
+            this.facing = -1;
+        }
+        if (this.movedir !== null) {
+            if (this.x_speed > this.max_acc) {
+                this.x_speed = this.max_acc;
+            }
+            if (this.x_speed < -this.max_acc) {
+                this.x_speed = -this.max_acc;
+            }
+        }
+        else {
+            this.x_speed += (this.acc_modifier * -math.sign(this.x_speed)) * this.friction;
+            if (this.x_speed < 0.2 && this.x_speed > -0.2) {
+                this.x_speed = 0;
+            }
+        }
+        this.y_speed += this.gravity;
+        if (this.y_speed > this.max_gravity) {
+            this.y_speed = this.max_gravity;
+        }
+        // Move position without updating _prev or DOM.
+        // Collision detection needs the delta (x - _prev_x).
+        // move_and_collide() will call move() afterward to sync everything.
+        this.x += this.x_speed;
+        this.y += this.y_speed;
+    }
+    move(x = null, y = null) {
+        super.move(x, y);
+        this.graphic.style.transform = `translate(${this.x}px, ${this.y}px) scaleX(${this.facing})`;
+        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    }
+    shift(x = null, y = null) {
+        super.shift(x, y);
+        this.graphic.style.transform = `translate(${this.x}px, ${this.y}px) scaleX(${this.facing})`;
+        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    }
+    call_force({ x = null, y = null, x_time = null, y_time = null }) {
+        if (x !== null && x_time !== null) {
+            this._force_x = x;
+            this._force_x_time = x_time;
+        }
+        if (y !== null && y_time !== null) {
+            this._force_y = y;
+            this._force_y_time = y_time;
+        }
+    }
+    apply_force() {
+        let res = { x_end: false, y_end: false };
+        if (this._force_x_time > 0) {
+            this.x_speed = this._force_x;
+            this._force_x_time--;
+        }
+        else {
+            this._force_x = 0;
+            res.x_end = true;
+        }
+        if (this._force_y_time > 0) {
+            this.y_speed = this._force_y;
+            this._force_y_time--;
+        }
+        else {
+            this._force_y = 0;
+            res.y_end = true;
+        }
+        return res.x_end && res.y_end
+            ? true
+            : res;
     }
 }
 export class input {
-    static key_pairs = new Map();
+    static key_pairs = {};
     static KEYDOWN = "key_down";
     static KEYHELD = "key_held";
     static KEYUP = "key_up";
@@ -342,21 +464,21 @@ export class input {
         if (typeof (state) !== "string") {
             throw new Error("State must be string");
         }
-        input.key_pairs.set(key, state);
+        input.key_pairs[key] = state;
     }
     static pull(key) {
-        input.key_pairs.delete(key);
+        delete input.key_pairs[key];
     }
     static probe(key, state) {
         if (key.toLowerCase() === "any") {
-            return input.key_pairs.size > 0;
+            return Object.keys(input.key_pairs).length > 0;
         }
-        return input.key_pairs.get(key) === state;
+        return input.key_pairs[key] === state;
     }
     static init() {
         window.addEventListener("keydown", (e) => {
             const key = e.key.toLowerCase();
-            if (!input.key_pairs.has(key)) {
+            if (!(key in input.key_pairs)) {
                 input.push(key, input.KEYDOWN);
                 game.defer(() => input.push(key, input.KEYHELD));
             }
@@ -443,7 +565,8 @@ export class level {
                 if (tile !== null && obj !== null && tile.name === obj.name) {
                     obj.width += tile.width;
                     obj.graphic.style.width = obj.width + "px";
-                    obj.collider.style.width = obj.width + "px";
+                    if (obj.collider)
+                        obj.collider.style.width = obj.width + "px";
                     this.objects[yy][xx] = null;
                 }
                 else {
@@ -467,7 +590,8 @@ export class level {
                 if (tile !== null && obj !== null && tile.name === obj.name && tile.width === obj.width) {
                     obj.height += tile.height;
                     obj.graphic.style.height = obj.height + "px";
-                    obj.collider.style.height = obj.height + "px";
+                    if (obj.collider)
+                        obj.collider.style.height = obj.height + "px";
                     this.objects[yy][xx] = null;
                 }
                 else {
@@ -588,11 +712,6 @@ export class level {
             });
         }
     }
-}
-export function savecollectables(wold, lev, uni) {
-    const collect = JSON.parse(window.localStorage.getItem("collectables")) || [];
-    collect[wold][lev][uni] = 1;
-    window.localStorage.setItem("collectables", JSON.stringify(collect));
 }
 export class particle {
     x = 0;
