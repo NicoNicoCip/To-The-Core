@@ -216,6 +216,16 @@ export class obj {
         this.graphic.style.transform = `translate(${this.x}px, ${this.y}px)`;
         this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
     }
+    shift(x = null, y = null) {
+        if (x !== null)
+            this.x += x;
+        if (y !== null)
+            this.y += y;
+        this._prev_x = this.x;
+        this._prev_y = this.y;
+        this.graphic.style.transform = `translate(${this.x}px, ${this.y}px)`;
+        this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    }
     collide(other = null, resolve = true) {
         if (other === null)
             return;

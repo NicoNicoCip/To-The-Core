@@ -37,14 +37,6 @@ const lvl = new level({
     tile_height: 10,
     keys: [
         {
-            char: "#", object: new obj({
-                name: "wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
-        {
             char: "S", object: new obj({
                 name: "spawn",
                 width: 10,
@@ -63,6 +55,22 @@ const lvl = new level({
             })
         },
         {
+            char: "v", object: new obj({
+                name: "moved_wall",
+                width: 10,
+                height: 10,
+                shows_debug_col: true
+            })
+        },
+        {
+            char: "h", object: new obj({
+                name: "height_wall",
+                width: 1,
+                height: 10,
+                shows_debug_col: true
+            })
+        },
+        {
             char: "j", object: new obj({
                 name: "jumper",
                 width: 10,
@@ -73,15 +81,15 @@ const lvl = new level({
         }
     ],
     map: [
-        "x                               ",
-        "x    S                          ",
-        "x                               ",
-        "x  xxxx                         ",
-        "x                               ",
-        "x                               ",
-        "xxxxx                           ",
-        "x                               ",
-        "x                               ",
+        "h                               ",
+        "h    S                          ",
+        "h                               ",
+        "h  vvv                          ",
+        "h                               ",
+        "h                               ",
+        "hvvvv                           ",
+        "h                               ",
+        "h                               ",
         "xxxxxxxxxx         jjj          ",
         "                             S  ",
         "                          xxxxxx",
@@ -98,8 +106,18 @@ game.world.appendChild(background0.graphic)
 game.world.appendChild(midground0.graphic)
 game.world.appendChild(player.graphic)
 
+const jumper = lvl.find("jumper")
+jumper.shift(-5, 7)
+const jumper_force = 4
+
+const spawns = lvl.find_all("spawn")
+
+const moved = lvl.find_all("moved_wall")
+moved[0].shift(6, 0)
+moved[1].shift(-2, 0)
+
 function start() {
-    const spawns = lvl.find_all("spawn")
+
 
     if (localStorage.getItem("last_level").endsWith("s5.html")) {
         lvl.substitute(spawns[0], player)
@@ -117,9 +135,6 @@ function start() {
     game.world.appendChild(foreground0.graphic)
 }
 
-const jumper = lvl.find("jumper")
-jumper.move(jumper.x - 5, jumper.y + 7)
-const jumper_force = 4
 
 function player_move() {
     player.update()
@@ -129,9 +144,9 @@ function player_move() {
     if (player.collide(jumper, false)) {
 
         if (input.probe("s", input.KEYHELD)) {
-            player.call_force({y: -jumper_force * 1.4, y_time: 1})
+            player.call_force({ y: -jumper_force * 1.4, y_time: 1 })
         } else {
-            player.call_force({y: -jumper_force, y_time: 1})
+            player.call_force({ y: -jumper_force, y_time: 1 })
         }
     }
 

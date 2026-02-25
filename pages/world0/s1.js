@@ -148,7 +148,9 @@ function shake(intensity, duration_frames) {
 }
 
 let timr = 0
-let acc = 0
+
+splash.move(180, 200)
+player.move(60, 449)
 
 function intro() {
 
@@ -174,10 +176,10 @@ function intro() {
         lvl.substitute("player", player)
         lvl.spawn()
         player.y_speed = player.max_gravity
-        player.move(60,-17)
+        player.move(60, -17)
 
         game.world.appendChild(foreground0.graphic)
-        
+
         game.remove(intro)
         game.add(player_move)
         timr = -1
@@ -190,21 +192,13 @@ function intro() {
     }
 
     if (timr > 0 && timr < 600) {
-        acc += 1
 
         if (timr < 600) {
-
-            splash.move(
-                180,
-                200 - acc
-            )
+            splash.shift(0, -1)
         }
 
         if (timr < 400) {
-            player.move(
-                60,
-                449 - acc
-            )
+            player.shift(0, -1)
         }
     }
 
