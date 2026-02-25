@@ -108,8 +108,6 @@ function start() {
         player.facing = -1
     }
 
-    game.savetransport()
-
     player.y_speed = player.max_gravity
     player.graphic.classList.add("falling")
 
@@ -140,6 +138,7 @@ function player_move() {
     lvl.move_and_collide()
 
     if (player.y + player.height < 0) {
+        game.savetransport()
         window.location.href = "./s5.html"
     }
 
@@ -148,6 +147,7 @@ function player_move() {
     }
 
     if (player.x > game.width) {
+        game.savetransport()
         window.location.href = "./s3.html"
     }
 }

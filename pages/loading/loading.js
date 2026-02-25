@@ -12,7 +12,7 @@ const CACHE = "jump-clone-cache"
 // Dev: check_files() warns if this list drifts from what's on disk.
 // Production: all entries are deleted from cache and re-downloaded on version change.
 const ALL_ASSETS = [
-    "/index.html",
+       "/index.html",
     "/pages/loading/loading.css",
     "/pages/loading/loading.html",
     "/pages/loading/loading.js",

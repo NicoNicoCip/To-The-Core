@@ -53,13 +53,22 @@ const lvl = new level({
                 height: 10,
                 shows_debug_col: true
             })
+        },
+        {
+            char: "B", object: new obj({
+                name: "bone",
+                width: 10,
+                height: 10,
+                shows_debug_col: true,
+                collides: false
+            })
         }
     ],
     map: [
         "                                ",
         "                                ",
         "                                ",
-        "                                ",
+        "              B                 ",
         "                                ",
         "                                ",
         "                                ",
