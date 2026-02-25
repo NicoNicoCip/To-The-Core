@@ -183,7 +183,6 @@ function intro() {
         game.remove(intro)
         game.add(player_move)
         timr = -1
-        acc = 0
     }
 
     if (timr == 0) {
@@ -213,11 +212,7 @@ function intro() {
     }
 
     if (timr > 600 && timr < 778) {
-        acc += 0.4
-        player.move(
-            60,
-            650 - acc
-        )
+        player.shift(0, - 0.4)
     }
 
     if (timr == 778) {
@@ -236,7 +231,6 @@ function intro() {
         game.remove(intro)
         game.add(player_move)
         timr = -1
-        acc = 0
     }
     timr++
 }

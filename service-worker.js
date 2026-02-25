@@ -2,7 +2,7 @@ const CACHE = "jump-clone-cache"
 
 // loading.html and loading.js must always come from the network so the boot
 // logic is never stale — the loading page is responsible for managing the cache.
-const BYPASS = ["/pages/loading/loading.html", "/pages/loading/loading.js", "/index.html"]
+const BYPASS = ["/pages/loading/loading.html", "/pages/loading/loading.js", "/index.html", "/src/assets.js"]
 
 self.addEventListener("install", () => self.skipWaiting())
 

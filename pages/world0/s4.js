@@ -114,7 +114,7 @@ const spawns = lvl.find_all("spawn")
 
 const moved = lvl.find_all("moved_wall")
 moved[0].shift(6, 0)
-moved[1].shift(-2, 0)
+moved[1].shift(-5, 0)
 
 function start() {
 

@@ -121,7 +121,27 @@ export class game {
             return;
         if (localStorage.getItem("jump_clone_version") === null) {
             window.location.href = "/pages/loading/loading.html";
+            return;
         }
+        if (sessionStorage.getItem("update_pending") === "1") {
+            window.location.href = "/pages/loading/loading.html";
+            return;
+        }
+        // Background check: detect new deploys via GitHub API.
+        // Non-blocking — player keeps playing. If a new version is found,
+        // sets a flag so the next page navigation triggers the loading screen.
+        fetch("https://api.github.com/repos/NicoNicoCip/To-The-Core/commits/main")
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+            if (!data)
+                return;
+            const remote = data.sha;
+            const local = localStorage.getItem("jump_clone_version");
+            if (remote && local && remote !== local) {
+                sessionStorage.setItem("update_pending", "1");
+            }
+        })
+            .catch(() => { });
     }
 }
 export class obj {
@@ -228,7 +248,7 @@ export class obj {
     }
     collide(other = null, resolve = true) {
         if (other === null)
-            return;
+            return false;
         this.drop_through = input.probe("s", input.KEYHELD);
         if (other.one_way) {
             const was_above = this._prev_y + this.height <= other.y;
