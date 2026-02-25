@@ -2,18 +2,18 @@ import { game, obj } from "../../src/system.js"
 
 const IS_LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1"
 
-// Tell check_version() in system.js not to redirect while we are still loading.
-// Must be set before game.register_world() is called below.
+// Set before register_world() so check_version() inside it doesn't redirect us.
 sessionStorage.setItem("loading_in_progress", "1")
 
-// Must match CACHE_NAME in service-worker.js.
-const SW_CACHE = "jump-clone-sw-v1"
+// Must match CACHE in service-worker.js.
+const CACHE = "jump-clone-cache"
 
-// Single source of truth for everything to cache (absolute paths).
-// On dev: check_files() scans disk and warns if this list is out of sync.
-// Images are preloaded visually; all entries are cached on production.
+// Single source of truth for every file the game needs.
+// Dev: check_files() warns if this list drifts from what's on disk.
+// Production: all entries are deleted from cache and re-downloaded on version change.
 const ALL_ASSETS = [
     "/index.html",
+    "/pages/index.css",
     "/pages/loading/loading.css",
     "/pages/loading/loading.html",
     "/pages/loading/loading.js",
@@ -33,6 +33,8 @@ const ALL_ASSETS = [
     "/pages/world1/level5.html",
     "/pages/world1/level5.js",
     "/pages/world1/world1.css",
+    "/src/system.js",
+    "/src/prefabs.js",
     "/pages/assets/world1/level1_midground.webp",
     "/pages/assets/world1/level1.webp",
     "/pages/assets/world1/level2_EXT.webp",
@@ -40,6 +42,8 @@ const ALL_ASSETS = [
     "/pages/assets/world1/level3.webp",
     "/pages/assets/world1/level4_midground.webp",
     "/pages/assets/world1/level4.webp",
+    "/pages/assets/world1/level5_midground.webp",
+    "/pages/assets/world1/level5.webp",
     "/pages/assets/background0.webp",
     "/pages/assets/background1.webp",
     "/pages/assets/background2.webp",
@@ -71,13 +75,11 @@ function preload(abs_path) {
     return new Promise((resolve) => {
         const img = new Image()
         img.onload = resolve
-        img.onerror = resolve  // never reject — a missing image shouldn't block navigation
+        img.onerror = resolve
         img.src = new URL(abs_path, location.origin).href
     })
 }
 
-// Recursively fetches a Live Server directory listing and extracts file hrefs.
-// Returns null on GitHub Pages (no directory listing available).
 async function scan_dir(url) {
     try {
         const res = await fetch(url, { signal: AbortSignal.timeout(500) })
@@ -118,7 +120,7 @@ async function check_files() {
         scan_dir(`${o}/src/`),
     ])
 
-    if (scans.every(s => s === null)) return // not on a dev server
+    if (scans.every(s => s === null)) return
 
     const on_disk = [
         "/index.html",
@@ -138,7 +140,6 @@ async function check_files() {
 
 // ── Version (production) ───────────────────────────────────────────────────────
 
-// Parses version from the latest commit message (format: "R.M.mm / Description").
 async function fetch_server_version() {
     try {
         const res = await fetch(
@@ -152,14 +153,14 @@ async function fetch_server_version() {
     } catch { return null }
 }
 
-// Caches all assets into the SW cache so they are served instantly on next visit.
-// Uses cache: "no-store" so the SW's own Cache-First handler cannot intercept
-// these fetches and return stale content — we always want fresh network bytes here.
-async function populate_cache() {
-    const cache = await caches.open(SW_CACHE)
+// Wipes the old cache entirely then refills it with fresh network content.
+// Deleting first guarantees no stale file from a previous version survives.
+async function repopulate_cache() {
+    await caches.delete(CACHE)
+    const cache = await caches.open(CACHE)
     await Promise.all(ALL_ASSETS.map(async url => {
         try {
-            const r = await fetch(url, { cache: "no-store" })
+            const r = await fetch(url)
             if (r.ok) await cache.put(url, r)
         } catch { console.warn("[cache] failed:", url) }
     }))
@@ -184,25 +185,25 @@ async function boot() {
     const cached_version = localStorage.getItem("jump_clone_version")
     const server_version = await fetch_server_version()
 
-    // Fast path: versions match, or network failed but we have a prior cache
-    if ((server_version !== null && cached_version === server_version) ||
-        (server_version === null && cached_version !== null)) {
+    // Fast path: we have a cache and the version matches (or we can't reach the
+    // server to know better — trust the existing cache).
+    if (cached_version !== null && (server_version === null || server_version === cached_version)) {
         navigate_to_start()
         return
     }
 
-    // Slow path: first install or new version — download and cache everything
-    // If server_version is null (network down) AND no cached version exists,
-    // skip caching and just navigate — the SW will cache opportunistically.
-    // We still write a sentinel so check_version() on game pages doesn't loop.
+    // Slow path: new version detected, or first install.
+    // If we truly have no network and no prior cache, write a sentinel so
+    // check_version() on game pages doesn't redirect us into a loop.
     if (server_version === null) {
         localStorage.setItem("jump_clone_version", "offline")
         navigate_to_start()
         return
     }
 
+    // We have a real server version — delete the old cache and rebuild fresh.
     await Promise.all(IMAGES.map(preload))
-    await populate_cache()
+    await repopulate_cache()
     localStorage.setItem("jump_clone_version", server_version)
     navigate_to_start()
 }

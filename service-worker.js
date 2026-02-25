@@ -1,43 +1,36 @@
-// SW version — bump this when deploying breaking changes to the SW itself.
-const SW_VERSION = "1"
-const CACHE_NAME = `jump-clone-sw-v${SW_VERSION}`
+const CACHE = "jump-clone-cache"
 
-// These files must always be fetched fresh — serving them from cache would
-// mean stale boot logic runs on new deploys before the cache is cleared.
-const BYPASS_CACHE = ["/pages/loading/loading.js", "/pages/loading/loading.html"]
+// loading.html and loading.js must always come from the network so the boot
+// logic is never stale — the loading page is responsible for managing the cache.
+const BYPASS = ["/pages/loading/loading.html", "/pages/loading/loading.js", "/index.html"]
 
 self.addEventListener("install", () => self.skipWaiting())
 
-// On activate, delete ALL old caches (from any previous SW version or naming scheme).
 self.addEventListener("activate", (event) => {
-    event.waitUntil(
-        caches.keys()
-            .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
-            .then(() => self.clients.claim())
-    )
+    event.waitUntil(self.clients.claim())
 })
 
-// Cache-First for all requests except GitHub API, the loading entry-points,
-// and requests that explicitly opt out of caching (cache: "no-store").
-// The loading page uses no-store when populating the cache so it always fetches
-// fresh network bytes rather than getting old cached content back from us.
+// Pure serve-only Cache-First. The SW never writes to the cache on its own —
+// only serves what loading.js has explicitly put there. This prevents stale
+// opportunistic writes from shadowing a version update.
 self.addEventListener("fetch", (event) => {
     const url = new URL(event.request.url)
 
-    if (url.hostname === "api.github.com") return
-    if (BYPASS_CACHE.some(p => url.pathname === p)) return
-    if (event.request.cache === "no-store") return
+    // Let the browser handle cross-origin requests (GitHub API, etc.) natively.
+    if (url.origin !== self.location.origin) return
+
+    // Always fetch bypass paths from the network so boot logic is always current.
+    if (BYPASS.some(p => url.pathname === p)) return
+
+    // Only handle GET — ignore POST, etc.
+    if (event.request.method !== "GET") return
 
     event.respondWith(
-        caches.open(CACHE_NAME).then(cache =>
+        caches.open(CACHE).then(cache =>
             cache.match(event.request).then(cached => {
                 if (cached) return cached
-                return fetch(event.request).then(response => {
-                    if (response?.status === 200 && response.type === "basic") {
-                        cache.put(event.request, response.clone())
-                    }
-                    return response
-                })
+                // Cache miss: fetch from network (don't store — loading.js owns writes).
+                return fetch(event.request)
             })
         )
     )
