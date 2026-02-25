@@ -59,6 +59,7 @@ const lvl = new level({
                 name: "bone",
                 width: 10,
                 height: 10,
+                dynamic: true,
                 shows_debug_col: true,
                 collides: false
             })
@@ -68,7 +69,7 @@ const lvl = new level({
         "                                ",
         "                                ",
         "                                ",
-        "              B                 ",
+        "               B                ",
         "                                ",
         "                                ",
         "                                ",
@@ -101,6 +102,8 @@ function start() {
     game.world.appendChild(foreground0.graphic)
 }
 
+const bone = lvl.find("bone")
+
 function player_move() {
     player.update()
 
@@ -110,6 +113,10 @@ function player_move() {
 
     if (player.x + player.width < 0) {
         window.location.href = "./s2.html"
+    }
+
+    if (input.probe("s", input.KEYHELD)) {
+            bone.move(null , bone.y + 0.2)
     }
 }
 
