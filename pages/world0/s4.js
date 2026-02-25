@@ -63,22 +63,6 @@ const lvl = new level({
             })
         },
         {
-            char: "v", object: new obj({
-                name: "vert_moved",
-                width: 10,
-                height: 6,
-                shows_debug_col: true
-           })
-        },
-        {
-            char: "h", object: new obj({
-                name: "hor_moved",
-                width: 2,
-                height: 10,
-                shows_debug_col: true
-           })
-        },
-        {
             char: "j", object: new obj({
                 name: "jumper",
                 width: 10,
@@ -89,15 +73,15 @@ const lvl = new level({
         }
     ],
     map: [
-        "h                               ",
-        "h    S                          ",
-        "h                               ",
-        "h   vvv                         ",
-        "h                               ",
-        "h                               ",
-        "hvvvv                           ",
-        "h                               ",
-        "h                               ",
+        "x                               ",
+        "x    S                          ",
+        "x                               ",
+        "x  xxxx                         ",
+        "x                               ",
+        "x                               ",
+        "xxxxx                           ",
+        "x                               ",
+        "x                               ",
         "xxxxxxxxxx         jjj          ",
         "                             S  ",
         "                          xxxxxx",
@@ -117,18 +101,12 @@ game.world.appendChild(player.graphic)
 function start() {
     const spawns = lvl.find_all("spawn")
 
-    if (localStorage.getItem("last_level").endsWith("level5.html")) {
+    if (localStorage.getItem("last_level").endsWith("s5.html")) {
         lvl.substitute(spawns[0], player)
     } else {
         lvl.substitute(spawns[1], player)
         player.facing = -1
     }
-
-    const moved_platforms = lvl.find_all("vert_moved")
-
-    moved_platforms.forEach((platform) => {
-        platform.move(platform.x + 5, platform.y + 3)
-    })
 
     game.savetransport()
 
@@ -140,7 +118,7 @@ function start() {
 }
 
 const jumper = lvl.find("jumper")
-jumper.move(null, jumper.y + 7)
+jumper.move(jumper.x - 5, jumper.y + 7)
 const jumper_force = 4
 
 function player_move() {
@@ -162,15 +140,15 @@ function player_move() {
     lvl.move_and_collide()
 
     if (player.y + player.height < 0) {
-        window.location.href = "./level5.html"
+        window.location.href = "./s5.html"
     }
 
     if (player.y > game.height) {
-        window.location.href = "./level4.html"
+        window.location.href = "./s4.html"
     }
 
     if (player.x > game.width) {
-        window.location.href = "./level3.html"
+        window.location.href = "./s3.html"
     }
 }
 

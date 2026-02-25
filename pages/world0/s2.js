@@ -16,7 +16,7 @@ const background0 = new obj({
 })
 
 const foreground0 = new obj({
-    name: "foreground2",
+    name: "foreground1",
     width: game.width,
     height: game.height
 })
@@ -35,6 +35,7 @@ const lvl = new level({
                 width: 10,
                 height: 10,
                 dynamic: true,
+                collides: false,
                 shows_debug_col: true
             })
         },
@@ -44,6 +45,7 @@ const lvl = new level({
                 width: 10,
                 height: 10,
                 shows_debug_col: true
+
             })
         },
         {
@@ -56,6 +58,7 @@ const lvl = new level({
         }
     ],
     map: [
+        "                         S      ",
         "                                ",
         "                                ",
         "                                ",
@@ -65,31 +68,39 @@ const lvl = new level({
         "                                ",
         "                                ",
         "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                        x       ",
-        "                        x       ",
-        "                        x       ",
-        "                        x       ",
-        "  S                     x       ",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxx      ",
+        "  S                             ",
+        "xxxxxx                          ",
+        "xxxxxx                          ",
+        "xxxxxx                          ",
+        "xxxxxxxxxxxxx                   ",
+        "xxxxxxxxxxxxx                   ",
+        "xxxxxxxxxxxxx                S  ",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     ]
 })
 const player = new Player(10, 10, false)
 
 function start() {
-    lvl.substitute("spawn", player)
+    const all_p_spawns = lvl.find_all("spawn")
+    const last_level = localStorage.getItem("last_level")
+
+    if (last_level && last_level.endsWith("s1.html")) {
+        lvl.substitute(all_p_spawns[0], player)
+    } else if (last_level && last_level.endsWith("s3.html")) {
+        lvl.substitute(all_p_spawns[1], player)
+    } else {
+        lvl.substitute(all_p_spawns[2], player)
+        player.facing = -1
+    }
 
     game.world.appendChild(background0.graphic)
     lvl.spawn()
-
-    game.savetransport()
 
     player.graphic.classList.add("falling")
 
 
     game.world.appendChild(foreground0.graphic)
+    game.savetransport()
 }
 
 function player_move() {
@@ -100,7 +111,11 @@ function player_move() {
     lvl.move_and_collide()
 
     if (player.x + player.width < 0) {
-        window.location.href = "./level2.html"
+        window.location.href = "./s3.html"
+    }
+
+    if (player.x > game.width) {
+        window.location.href = "./s2_EXT.html"
     }
 }
 

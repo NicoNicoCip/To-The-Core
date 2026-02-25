@@ -16,10 +16,12 @@ const background0 = new obj({
 })
 
 const foreground0 = new obj({
-    name: "foreground1",
+    name: "foreground3",
     width: game.width,
     height: game.height
 })
+
+let player = new Player(60, 50, false)
 
 const lvl = new level({
     x: 0,
@@ -29,6 +31,14 @@ const lvl = new level({
     tile_width: 10,
     tile_height: 10,
     keys: [
+        {
+            char: "#", object: new obj({
+                name: "wall",
+                width: 10,
+                height: 10,
+                shows_debug_col: true
+            })
+        },
         {
             char: "S", object: new obj({
                 name: "spawn",
@@ -40,25 +50,24 @@ const lvl = new level({
             })
         },
         {
-            char: "#", object: new obj({
-                name: "wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-
-            })
-        },
-        {
             char: "x", object: new obj({
                 name: "inviz_wall",
                 width: 10,
                 height: 10,
                 shows_debug_col: true
             })
+        },
+        {
+            char: "j", object: new obj({
+                name: "jumper",
+                width: 10,
+                height: 3,
+                collides: false,
+                shows_debug_col: true
+            })
         }
     ],
     map: [
-        "                         S      ",
         "                                ",
         "                                ",
         "                                ",
@@ -67,58 +76,70 @@ const lvl = new level({
         "                                ",
         "                                ",
         "                                ",
-        "                                ",
-        "  S                             ",
-        "xxxxxx                          ",
-        "xxxxxx                          ",
-        "xxxxxx                          ",
-        "xxxxxxxxxxxxx                   ",
-        "xxxxxxxxxxxxx                   ",
-        "xxxxxxxxxxxxx                S  ",
+        "   S                            ",
+        "xxxxx    jjj                    ",
+        "xxxxx                        S  ",
+        "xxxxx                     xxxxxx",
+        "xxxxx         xxxx        xxxxxx",
+        "xxxxx                     xxxxxx",
+        "xxxxx                   xxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     ]
 })
-const player = new Player(10, 10, false)
+
+game.world.appendChild(background0.graphic)
+game.world.appendChild(player.graphic)
 
 function start() {
-    const all_p_spawns = lvl.find_all("spawn")
-    const last_level = localStorage.getItem("last_level")
+    const spawns = lvl.find_all("spawn")
 
-    if (last_level && last_level.endsWith("level1.html")) {
-        lvl.substitute(all_p_spawns[0], player)
-    } else if (last_level && last_level.endsWith("level3.html")) {
-        lvl.substitute(all_p_spawns[1], player)
+    if (localStorage.getItem("last_level").endsWith("s4.html")) {
+        lvl.substitute(spawns[0], player)
     } else {
-        lvl.substitute(all_p_spawns[2], player)
+        lvl.substitute(spawns[1], player)
         player.facing = -1
     }
 
-    game.world.appendChild(background0.graphic)
-    lvl.spawn()
+    game.savetransport()
 
+    player.y_speed = player.max_gravity
     player.graphic.classList.add("falling")
 
-
+    lvl.spawn()
     game.world.appendChild(foreground0.graphic)
-    game.savetransport()
 }
 
+const jumper = lvl.find("jumper")
+jumper.move(null, jumper.y + 7)
+const jumper_force = 4
 function player_move() {
     player.update()
 
     lvl.toggle_debug(player)
 
+    if (player.collide(jumper, false)) {
+
+        if (input.probe("s", input.KEYHELD)) {
+            player.call_force({y: -jumper_force * 1.2, y_time: 1})
+        } else {
+            player.call_force({y: -jumper_force, y_time: 1})
+        }
+    }
+
+    player.apply_force()
+
     lvl.move_and_collide()
 
     if (player.x + player.width < 0) {
-        window.location.href = "./level3.html"
+        window.location.href = "./s4.html"
     }
 
     if (player.x > game.width) {
-        window.location.href = "./level2_EXT.html"
+        window.location.href = "./s2.html"
     }
 }
-
 game.add(player_move)
 start()
 game.update()

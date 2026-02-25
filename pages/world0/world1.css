@@ -35,39 +35,39 @@
 }
 
 #midground0 {
-    background-image: url("../assets/world1/level1_midground.webp");
+    background-image: url("../assets/world1/s1_midground.webp");
 }
 
 #midground1 {
-    background-image: url("../assets/world1/level4_midground.webp");
+    background-image: url("../assets/world1/s4_midground.webp");
 }
 
 #midground2 {
-    background-image: url("../assets/world1/level5_midground.webp");
+    background-image: url("../assets/world1/s5_midground.webp");
 }
 
 #foreground0 {
-    background-image: url("../assets/world1/level1.webp");
+    background-image: url("../assets/world1/s1.webp");
 }
 
 #foreground1 {
-    background-image: url("../assets/world1/level2.webp");
+    background-image: url("../assets/world1/s2.webp");
 }
 
 #foreground2 {
-    background-image: url("../assets/world1/level2_EXT.webp");
+    background-image: url("../assets/world1/s2_EXT.webp");
 }
 
 #foreground3 {
-    background-image: url("../assets/world1/level3.webp");
+    background-image: url("../assets/world1/s3.webp");
 }
 
 #foreground4 {
-    background-image: url("../assets/world1/level4.webp");
+    background-image: url("../assets/world1/s4.webp");
 }
 
 #foreground5 {
-    background-image: url("../assets/world1/level5.webp");
+    background-image: url("../assets/world1/s5.webp");
 }
 
 

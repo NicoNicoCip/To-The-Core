@@ -262,7 +262,7 @@ function player_move() {
     lvl.move_and_collide()
 
     if (player.y > 180) {
-        window.location.href = "./level2.html"
+        window.location.href = "./s2.html"
     }
 }
 

@@ -167,7 +167,7 @@ function player_move() {
     lvl.move_and_collide()
 
     if (player.y > game.height) {
-        window.location.href = "./level4.html"
+        window.location.href = "./s4.html"
     }
 
     if (player.x + player.width < 0) {
