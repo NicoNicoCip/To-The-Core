@@ -123,7 +123,7 @@ export class game {
 
     static loadtransport() {
         if (localStorage.getItem("last_level") === null) {
-            window.location.href = "/pages/world1/level1s1.html"
+            window.location.href = "/pages/world1/level1.html"
         } else {
             window.location.href = localStorage.getItem("last_level")
         }
@@ -612,6 +612,18 @@ export class level {
         } else {
             this.replace(from, to)
             to.move(from.x, from.y)
+        }
+    }
+
+    debug_col_visible = false
+    toggle_debug(player) {
+        if (input.probe("p", input.KEYDOWN)) {
+            this.debug_col_visible = !this.debug_col_visible
+            const visibility = this.debug_col_visible ? "visible" : "hidden"
+            player.collider.style.visibility = visibility
+            this.flat.forEach(o => {
+                if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
+            })
         }
     }
 }
