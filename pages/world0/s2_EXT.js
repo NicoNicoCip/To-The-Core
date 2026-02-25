@@ -1,5 +1,5 @@
 import { Player } from "../../src/prefabs.js"
-import { game, input, level, obj } from "../../src/system.js"
+import { game, input, level, obj, savecollectables} from "../../src/system.js"
 
 
 const world = document.getElementById("world")
@@ -109,6 +109,13 @@ function player_move() {
 
     lvl.toggle_debug(player)
 
+    if(player.collide(bone, false)){
+        bone.move(0,100)
+        game.world.removeChild(bone.graphic)
+        game.world.removeChild(bone.collider)
+        savecollectables(0,0,0)
+    }
+
     lvl.move_and_collide()
 
     if (player.x + player.width < 0) {
@@ -116,7 +123,7 @@ function player_move() {
     }
 
     if (input.probe("s", input.KEYHELD)) {
-            bone.move(null , bone.y + 0.2)
+            bone.shift(0 , 0.2)
     }
 }
 

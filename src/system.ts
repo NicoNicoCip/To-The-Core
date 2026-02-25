@@ -673,6 +673,12 @@ export class level {
     }
 }
 
+export function savecollectables(wold , lev , uni){
+    const collect = JSON.parse(window.localStorage.getItem("collectables")) || [];
+    collect[wold][lev][uni] = 1;
+    window.localStorage.setItem("collectables", JSON.stringify(collect));
+}
+
 export class particle {
     x = 0
     y = 0

@@ -4,6 +4,7 @@ import { game, input, obj } from "../../src/system.js"
 // const player = document.getElementById("player")
 const world = document.getElementById("world")
 const debug = document.getElementById("debug")
+window.localStorage.setItem("collectables" , "[ [[0,0]] , [[0,0,0] , [0,0,0]]]")
 
 game.register_world(world, 320, 180)
 input.init()
@@ -114,7 +115,7 @@ play_sign.graphic.addEventListener("mouseup", () => {
 })
 
 function to_next_screen() {
-
+    
 }
 
 game.update()

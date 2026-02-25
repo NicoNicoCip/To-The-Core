@@ -1,5 +1,5 @@
 import { Player } from "../../src/prefabs.js"
-import { game, input, level, obj } from "../../src/system.js"
+import { game, input, level, obj , savecollectables} from "../../src/system.js"
 
 
 const world = document.getElementById("world")
@@ -77,6 +77,7 @@ const lvl = new level({
                 width: 10,
                 height: 10,
                 shows_debug_col: true,
+                dynamic: true,
                 collides: false
             })
         }
@@ -90,7 +91,7 @@ const lvl = new level({
         "                                ",
         "                               x",
         "                               x",
-        "                               x",
+        "              B                x",
         "                               x",
         "                               x",
         "                 vvvvvvvv      x",
@@ -108,6 +109,7 @@ game.world.appendChild(midground0.graphic)
 game.world.appendChild(player.graphic)
 
 let boll = false
+const bone = lvl.find("bone")
 
 
 const halfs = lvl.find_all("half_wall")
@@ -173,7 +175,12 @@ function player_move() {
             player.y_speed = -jumper_force
         }
     }*/
-
+    if (player.collide(bone, false)) {
+        bone.move(0,100)
+        game.world.removeChild(bone.graphic)
+        game.world.removeChild(bone.collider)
+        savecollectables(0,0,1)
+    }
     lvl.move_and_collide()
 
     if (player.y > game.height) {
