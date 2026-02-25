@@ -31,7 +31,7 @@ const ALL_ASSETS = [
     "/pages/world0/s4.js",
     "/pages/world0/s5.html",
     "/pages/world0/s5.js",
-    "/pages/world0/world1.css",
+    "/pages/world0/world0.css",
     "/pages/assets/world0/s1_midground.webp",
     "/pages/assets/world0/s1.webp",
     "/pages/assets/world0/s2_EXT.webp",

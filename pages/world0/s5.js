@@ -67,7 +67,17 @@ const lvl = new level({
                 name: "half_wall",
                 width: 10,
                 height: 1,
-                shows_debug_col: true
+                shows_debug_col: true,
+                one_way:true
+            })
+        },
+        {
+            char: "B", object: new obj({
+                name: "bone",
+                width: 10,
+                height: 10,
+                shows_debug_col: true,
+                collides: false
             })
         }
     ],
@@ -79,7 +89,7 @@ const lvl = new level({
         "                                ",
         "                                ",
         "                                ",
-        "                                ",
+        "             B                  ",
         "                                ",
         "                               x",
         "                               x",
@@ -171,7 +181,7 @@ function player_move() {
     }
 
     if (player.x + player.width < 0) {
-        window.location.href = "./level6.html"
+        window.location.href = "./s6.html"
     }
 }
 

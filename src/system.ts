@@ -161,6 +161,8 @@ export class obj {
     collides = true
     shows_debug_col = false
     collider: HTMLDivElement = null
+    one_way = false
+    drop_through = false
 
     /**
      * An object with all the data and special funccionalaty in one place
@@ -178,7 +180,8 @@ export class obj {
         height = null,
         dynamic = null,
         collides = null,
-        shows_debug_col = null
+        shows_debug_col = null,
+        one_way = null
     }) {
         if (name !== null) this.name = name
         if (x !== null) this.x = x
@@ -188,6 +191,7 @@ export class obj {
         if (dynamic !== null) this.dynamic = dynamic
         if (collides !== null) this.collides = collides
         if (shows_debug_col !== null) this.shows_debug_col = shows_debug_col
+        if (one_way !== null) this.one_way = one_way
 
         this._prev_x = this.x
         this._prev_y = this.y
@@ -222,7 +226,8 @@ export class obj {
             height: other.height,
             dynamic: other.dynamic,
             collides: other.collides,
-            shows_debug_col: other.shows_debug_col
+            shows_debug_col: other.shows_debug_col,
+            one_way: other.one_way
         })
     }
 
@@ -243,6 +248,15 @@ export class obj {
 
     collide(other = null, resolve = true) {
         if (other === null) return
+
+        this.drop_through = input.probe("s", input.KEYHELD);
+
+        if (other.one_way) {
+            const was_above = this._prev_y + this.height <= other.y;
+            if (!was_above) return false;
+            if (this.drop_through) return false;  // player wants to drop
+        }
+
 
         const dx = this.x - this._prev_x
         const dy = this.y - this._prev_y
