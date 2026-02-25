@@ -94,7 +94,7 @@ const lvl = new level({
         "                             S  ",
         "                          xxxxxx",
         "                          xxxxxx",
-        "           x              xxxxxx",
+        "                          xxxxxx",
         "                          xxxxxx",
         "                                ",
         "                                ",
