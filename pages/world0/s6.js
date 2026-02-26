@@ -1,14 +1,14 @@
 import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
-import { bobj, cobj, game, input, level } from "../../src/system.js"
-
+import { bobj, cobj, game, level } from "../../src/system.js"
 
 boil_the_plate()
 
 const background0 = new bobj({name: "background3"})
 
-const foreground0 = new bobj({name: "foreground5"})
+const foreground0 = new bobj({name: "foreground6"})
 
-const midground0 = new bobj({name: "midground2"})
+const midground0 = new bobj({name: "midground3"})
+
 
 let player = new Player(60, 50, false)
 
@@ -20,14 +20,6 @@ const lvl = new level({
     tile_width: 10,
     tile_height: 10,
     keys: [
-        {
-            char: "#", object: new cobj({
-                name: "wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
         {
             char: "S", object: new cobj({
                 name: "spawn",
@@ -54,16 +46,6 @@ const lvl = new level({
                 shows_debug_col: true,
                 one_way: true
             })
-        },
-        {
-            char: "B", object: new cobj({
-                name: "bone",
-                width: 10,
-                height: 10,
-                shows_debug_col: true,
-                dynamic: true,
-                collides: false
-            })
         }
     ],
     map: [
@@ -73,43 +55,34 @@ const lvl = new level({
         "                                ",
         "                                ",
         "                                ",
-        "                               x",
-        "                               x",
-        "              B                x",
-        "                               x",
-        "                               x",
-        "                 vvvvvvvv      x",
-        "                               x",
-        "            vvv     vvvv       x",
-        "                               x",
-        " S                             x",
-        "xxxx   xxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxx S xxxxxxxxxxxxxxxxxxxxxxxxx",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "  S                          S  ",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     ]
 })
-
-let boll = false
-const bone = lvl.find("bone")
 
 function start() {
     game.world.appendChild(background0.graphic)
     game.world.appendChild(midground0.graphic)
     game.world.appendChild(player.graphic)
 
-    const halfs = lvl.find_all("half_wall")
-    halfs[0].move(null, halfs[0].y + 1)
-    halfs[1].move(null, halfs[1].y + 6)
-    halfs[2].move(halfs[2].x + 3, halfs[2].y + 5)
-
     const spawns = lvl.find_all("spawn")
 
-    if (come_from("s6.html")) {
+    if (come_from("s7.html")) {
         lvl.substitute(spawns[0], player)
         player.facing = 1
     } else {
         lvl.substitute(spawns[1], player)
-        player.facing = 1
-        boll = true
+        player.facing = -1
     }
 
     game.save_transport()
@@ -128,33 +101,16 @@ function player_move() {
 
     lvl.toggle_debug(player)
 
-    if (boll == true) {
-        player.call_force({
-            x: 1,
-            y: -5,
-            x_time: 30,
-            y_time: 1
-        })
-        boll = false
-    }
-
     player.apply_force()
 
-    if (player.collide(bone, false)) {
-        bone.move(0, 100)
-        game.world.removeChild(bone.graphic)
-        game.world.removeChild(bone.collider)
-        game.save_collectable("world0", "bone_s5")
-    }
-    
     lvl.move_and_collide()
 
-    if (player.y > game.height) {
-        send_to("./s4.html")
+    if (player.x > game.width) {
+        send_to("./s5.html")
     }
 
     if (player.x + player.width < 0) {
-        send_to("./s6.html")
+        send_to("./s7.html")
     }
 }
 

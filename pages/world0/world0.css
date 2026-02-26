@@ -54,6 +54,10 @@
     background-image: url("../assets/world0/s5_midground.webp");
 }
 
+#midground3 {
+    background-image: url("../assets/world0/s6_midground.webp");
+}
+
 #foreground0 {
     background-image: url("../assets/world0/s1.webp");
 }
@@ -78,7 +82,17 @@
     background-image: url("../assets/world0/s5.webp");
 }
 
+#foreground6 {
+    background-image: url("../assets/world0/s6.webp");
+}
 
+#foreground7 {
+    background-image: url("../assets/world0/s7.webp");
+}
+
+#foreground8 {
+    background-image: url("../assets/world0/s8.webp");
+}
 
 #splash {
     font-size: 8px;
@@ -113,4 +127,3 @@
         background-position-y: -3600px;
     }
 }
-

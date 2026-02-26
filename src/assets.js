@@ -28,6 +28,8 @@ export const ASSETS = [
     "/pages/assets/world0/s4_midground.webp",
     "/pages/assets/world0/s5.webp",
     "/pages/assets/world0/s5_midground.webp",
+    "/pages/assets/world0/s6.webp",
+    "/pages/assets/world0/s6_midground.webp",
 
     // Code
     "/src/system.js",

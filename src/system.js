@@ -159,7 +159,7 @@ export class game {
         const collect = local_data === null
             ? null
             : JSON.parse(local_data);
-        return collect !== null && collect[world] === undefined && collect[world][item] === true;
+        return collect !== null && collect[world] !== undefined && collect[world][item] === true;
     }
 }
 export class obj {

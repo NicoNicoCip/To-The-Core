@@ -94,6 +94,10 @@ function player_move() {
 
     lvl.toggle_debug(player)
 
+    if (game.check_collectable("world0", "bone_s2_EXT")) {
+        bone.move(0, -1000)
+    }
+
     if (player.collide(bone, false)) {
         bone.move(0, 100)
         game.world.removeChild(bone.graphic)
