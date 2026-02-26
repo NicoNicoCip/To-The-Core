@@ -1,0 +1,116 @@
+#player {
+    background-image: url("../assets/dog.webp");
+}
+
+.moving {
+    background-image: url("../assets/dog_walking.webp") !important;
+}
+
+.falling {
+    background-image: url("../assets/dog_falling.webp") !important;
+}
+
+.rising {
+    background-image: url("../assets/dog_rising.webp") !important;
+}
+
+#wall {
+    background-image: url("../assets/ground.webp");
+}
+
+#bone {
+    background-image: url("../assets/golden_bone.webp");
+}
+
+#background1 {
+    background-image: url("../assets/background1.webp");
+    animation: fall 1s linear infinite;
+}
+
+#background2 {
+    background-image: url("../assets/background2.webp");
+    animation: slow_raise 1800s linear;
+}
+
+#background2_transit {
+    background-image: url("../assets/background0.webp");
+    z-index: -100;
+    animation: fall 1s linear infinite;
+}
+
+#background3 {
+    background-image: url("../assets/background3.webp");
+}
+
+#midground0 {
+    background-image: url("../assets/world0/s1_midground.webp");
+}
+
+#midground1 {
+    background-image: url("../assets/world0/s4_midground.webp");
+}
+
+#midground2 {
+    background-image: url("../assets/world0/s5_midground.webp");
+}
+
+#foreground0 {
+    background-image: url("../assets/world0/s1.webp");
+}
+
+#foreground1 {
+    background-image: url("../assets/world0/s2.webp");
+}
+
+#foreground2 {
+    background-image: url("../assets/world0/s2_EXT.webp");
+}
+
+#foreground3 {
+    background-image: url("../assets/world0/s3.webp");
+}
+
+#foreground4 {
+    background-image: url("../assets/world0/s4.webp");
+}
+
+#foreground5 {
+    background-image: url("../assets/world0/s5.webp");
+}
+
+
+
+#splash {
+    font-size: 8px;
+}
+
+#fade {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #fffd95;
+    transition: background-color 0.5s steps(8);
+    z-index: 100;
+    pointer-events: none;
+}
+
+@keyframes fall {
+    0% {
+        background-position-y: 0px;
+    }
+
+    100% {
+        background-position-y: -3600px;
+    }
+}
+
+@keyframes slow_raise {
+    0% {
+        background-position-y: 0px;
+    }
+
+    100% {
+        background-position-y: -3600px;
+    }
+}
+

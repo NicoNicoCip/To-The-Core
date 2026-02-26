@@ -1,5 +1,5 @@
 import { come_from, Player, send_to } from "../../src/prefabs.js"
-import { cobj, game, input, level, obj } from "../../src/system.js"
+import { cobj, game, input, level, bobj } from "../../src/system.js"
 
 
 const world = document.getElementById("world")
@@ -8,23 +8,11 @@ const debug = document.getElementById("debug")
 game.register_world(world, 320, 180)
 input.init()
 
-const background0 = new obj({
-    name: "background3",
-    width: game.width,
-    height: game.height
-})
+const background0 = new bobj({name: "background3"})
 
-const foreground0 = new obj({
-    name: "foreground5",
-    width: game.width,
-    height: game.height
-})
+const foreground0 = new bobj({name: "foreground5"})
 
-const midground0 = new obj({
-    name: "midground2",
-    width: game.width,
-    height: game.height
-})
+const midground0 = new bobj({name: "midground2"})
 
 let player = new Player(60, 50, false)
 

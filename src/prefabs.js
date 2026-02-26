@@ -70,7 +70,7 @@ export class Player extends pobj {
                 this.landing = true;
                 this.landing_timer = 192;
                 this.graphic.classList.add("falling_in");
-                this.graphic.style.backgroundImage = `url(../assets/dog_falling_in.webp?t=${performance.now()})`;
+                this.graphic.style.backgroundImage = `url(/pages/assets/dog_falling_in.webp?t=${performance.now()})`;
             }
         }
         if (this.landing) {

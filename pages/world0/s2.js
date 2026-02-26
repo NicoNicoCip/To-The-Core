@@ -5,7 +5,7 @@ boil_the_plate()
 
 const background0 = new bobj({ name: "background3" })
 
-const foreground0 = new bobj({ name: "foreground1", })
+const foreground0 = new bobj({ name: "foreground1" })
 
 const lvl = new level({
     x: 0,
