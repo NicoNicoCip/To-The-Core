@@ -427,6 +427,9 @@ export class pobj extends cobj {
     jump_force = 4
     movedir = null
     shake = true
+    _squash_x = 1
+    _squash_y = 1
+    _squash_lerp = 0.15
 
     _force_x = 0
     _force_y = 0
@@ -488,15 +491,30 @@ export class pobj extends cobj {
         this.y += this.y_speed
     }
 
+    squash(sx, sy) {
+        this._squash_x = sx
+        this._squash_y = sy
+    }
+
+    private _squash_transform() {
+        this._squash_x += (1 - this._squash_x) * this._squash_lerp
+        this._squash_y += (1 - this._squash_y) * this._squash_lerp
+
+        if (Math.abs(this._squash_x - 1) < 0.01) this._squash_x = 1
+        if (Math.abs(this._squash_y - 1) < 0.01) this._squash_y = 1
+
+        return `translate(${this.x}px, ${this.y}px) scaleX(${this.facing}) scale(${this._squash_x}, ${this._squash_y})`
+    }
+
     move(x = null, y = null) {
         super.move(x, y)
-        this.graphic.style.transform = `translate(${this.x}px, ${this.y}px) scaleX(${this.facing})`
+        this.graphic.style.transform = this._squash_transform()
         this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`
     }
 
     shift(x = null, y = null) {
         super.shift(x, y)
-        this.graphic.style.transform = `translate(${this.x}px, ${this.y}px) scaleX(${this.facing})`
+        this.graphic.style.transform = this._squash_transform()
         this.collider.style.transform = `translate(${this.x}px, ${this.y}px)`
     }
 

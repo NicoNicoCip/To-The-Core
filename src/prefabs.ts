@@ -11,7 +11,11 @@ export function send_to(url) {
 }
 
 export function come_from(html) {
-    return localStorage.getItem("last_level").endsWith(html)
+    const res = localStorage.getItem("last_level")
+
+    if(res === null) return false
+
+    return res.endsWith(html)
 }
 
 export class Shaker {
@@ -88,7 +92,7 @@ export class Player extends pobj {
                 this.landing = true
                 this.landing_timer = 192
                 this.graphic.classList.add("falling_in")
-                this.graphic.style.backgroundImage = `url(../assets/dog_falling_in.webp?t=${performance.now()})`
+                this.graphic.style.backgroundImage = `url(/pages/assets/dog_falling_in.webp?t=${performance.now()})`
             }
         }
 
@@ -116,6 +120,11 @@ export class Player extends pobj {
         if (!this.landing && input.probe(" ", input.KEYHELD) && this.coyote > 0) {
             this.y_speed = -this.jump_force
             this.coyote = 0
+            this.squash(1.1, 0.85)
+        }
+
+        if (this.just_landed) {
+            this.squash(0.85, 1.05)
         }
 
         super.update()

@@ -30,6 +30,7 @@ export const ASSETS = [
     "/pages/assets/world0/s5_midground.webp",
     "/pages/assets/world0/s6.webp",
     "/pages/assets/world0/s6_midground.webp",
+    "/pages/assets/world0/s7.webp",
 
     // Code
     "/src/system.js",
@@ -41,6 +42,7 @@ export const ASSETS = [
     "/pages/loading/loading.css",
     "/pages/start/start.css",
     "/pages/world0/world0.css",
+    "/pages/world1/world1.css",
 
     // HTML pages
     "/pages/start/start.html",
@@ -50,6 +52,9 @@ export const ASSETS = [
     "/pages/world0/s3.html",
     "/pages/world0/s4.html",
     "/pages/world0/s5.html",
+    "/pages/world0/s6.html",
+    "/pages/world0/s7.html",
+    "/pages/world1/level1/s1.html",
 
     // Page scripts
     "/pages/start/start.js",
@@ -59,6 +64,9 @@ export const ASSETS = [
     "/pages/world0/s3.js",
     "/pages/world0/s4.js",
     "/pages/world0/s5.js",
+    "/pages/world0/s6.js",
+    "/pages/world0/s7.js",
+    "/pages/world1/level1/s1.js",
 
     // Service worker
     "/service-worker.js",

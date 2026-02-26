@@ -5,7 +5,7 @@ boil_the_plate()
 
 const background1 = new bobj({name:"background1"})
 const background2 = new bobj({name:"background2"})
-const background2_transit = new bobj({name: "background2_transit"})
+const background2_transit = new bobj({name: "midground0"})
 const background3 = new bobj({name: "background3"})
 
 const midground0 = new bobj({name: "midground0"})

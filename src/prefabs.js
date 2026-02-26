@@ -8,7 +8,10 @@ export function send_to(url) {
     window.location.href = url;
 }
 export function come_from(html) {
-    return localStorage.getItem("last_level").endsWith(html);
+    const res = localStorage.getItem("last_level");
+    if (res === null)
+        return false;
+    return res.endsWith(html);
 }
 export class Shaker {
     shake_intensity = 0;
@@ -97,6 +100,10 @@ export class Player extends pobj {
         if (!this.landing && input.probe(" ", input.KEYHELD) && this.coyote > 0) {
             this.y_speed = -this.jump_force;
             this.coyote = 0;
+            this.squash(1.1, 0.85);
+        }
+        if (this.just_landed) {
+            this.squash(0.85, 1.05);
         }
         super.update();
         if (this.grounded) {

@@ -22,6 +22,13 @@
     background-image: url("../assets/golden_bone.webp");
 }
 
+
+#background0 {
+    background-image: url("../assets/background0.webp");
+    background-size: cover;
+    animation: fall 1s linear infinite;
+}
+
 #background1 {
     background-image: url("../assets/background1.webp");
     animation: fall 1s linear infinite;
@@ -32,15 +39,11 @@
     animation: slow_raise 1800s linear;
 }
 
-#background2_transit {
-    background-image: url("../assets/background0.webp");
-    z-index: -100;
-    animation: fall 1s linear infinite;
-}
-
 #background3 {
     background-image: url("../assets/background3.webp");
 }
+
+
 
 #midground0 {
     background-image: url("../assets/world0/s1_midground.webp");
@@ -57,6 +60,12 @@
 #midground3 {
     background-image: url("../assets/world0/s6_midground.webp");
 }
+
+#midground4 {
+    background-image: url("../assets/world0/s7_midground.webp");
+}
+
+
 
 #foreground0 {
     background-image: url("../assets/world0/s1.webp");
@@ -93,6 +102,8 @@
 #foreground8 {
     background-image: url("../assets/world0/s8.webp");
 }
+
+
 
 #splash {
     font-size: 8px;

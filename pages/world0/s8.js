@@ -1,13 +1,11 @@
-import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
+import { boil_the_plate, Player, send_to } from "../../src/prefabs.js"
 import { bobj, cobj, game, level } from "../../src/system.js"
 
 boil_the_plate()
 
 const background0 = new bobj({ name: "background3", })
 
-const foreground0 = new bobj({ name: "foreground7" })
-
-const midground0 = new bobj({ name: "midground4" })
+const foreground0 = new bobj({ name: "foreground8" })
 
 let player = new Player(60, 50, false)
 
@@ -50,31 +48,25 @@ const lvl = new level({
         "                                ",
         "                                ",
         "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "  S                          S  ",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "x                               ",
+        "x                               ",
+        "x                               ",
+        "x                               ",
+        "x                            S  ",
+        "xxxxxxxxxxxxxx    xxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxx    xxxxxxxxxxxxxx",
     ]
 })
 
 function start() {
     game.world.appendChild(background0.graphic)
-    game.world.appendChild(midground0.graphic)
     game.world.appendChild(player.graphic)
 
 
-    const spawns = lvl.find_all("spawn")
+    const spawn = lvl.find("spawn")
 
-    if (come_from("s8.html")) {
-        lvl.substitute(spawns[0], player)
-        player.facing = 1
-    } else {
-        lvl.substitute(spawns[1], player)
-        player.facing = -1
-    }
+    lvl.substitute(spawn, player)
+    player.facing = 1
 
     game.save_transport()
 
@@ -97,11 +89,7 @@ function player_move() {
     lvl.move_and_collide()
 
     if (player.x > game.width) {
-        send_to("./s6.html")
-    }
-
-    if (player.x + player.width < 0) {
-        send_to("./s8.html")
+        send_to("./s7.html")
     }
 }
 

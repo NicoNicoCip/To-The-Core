@@ -47,6 +47,14 @@ const lvl = new level({
             })
         },
         {
+            char: "y", object: new cobj({
+                name: "thin_wall",
+                width: 4,
+                height: 10,
+                shows_debug_col: true
+            })
+        },
+        {
             char: "v", object: new cobj({
                 name: "half_wall",
                 width: 10,
@@ -82,7 +90,7 @@ const lvl = new level({
         "                               x",
         "            vvv     vvvv       x",
         "                               x",
-        " S                             x",
+        "S  y                           x",
         "xxxx   xxxxxxxxxxxxxxxxxxxxxxxxx",
         "xxxx S xxxxxxxxxxxxxxxxxxxxxxxxx",
     ]
@@ -100,6 +108,9 @@ function start() {
     halfs[0].move(null, halfs[0].y + 1)
     halfs[1].move(null, halfs[1].y + 6)
     halfs[2].move(halfs[2].x + 3, halfs[2].y + 5)
+
+    const thin = lvl.find("thin_wall")
+    thin.shift(5, 0)
 
     const spawns = lvl.find_all("spawn")
 

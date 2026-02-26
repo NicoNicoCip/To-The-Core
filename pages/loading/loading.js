@@ -59,7 +59,14 @@ async function cacheAssets() {
     await Promise.all(workers)
 }
 
+const IS_LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+
 async function main() {
+    if (IS_LOCAL) {
+        navigateToGame()
+        return
+    }
+
     const remoteVersion = await fetchVersion()
 
     if (remoteVersion === null) {
