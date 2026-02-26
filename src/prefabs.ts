@@ -79,6 +79,7 @@ export class Player extends pobj {
         })
 
         if (shake !== null) this.shake = shake
+        this.graphic.style.transformOrigin = "center bottom"
     }
 
     update() {
@@ -125,6 +126,10 @@ export class Player extends pobj {
 
         if (this.just_landed) {
             this.squash(0.85, 1.05)
+        }
+
+        if (this.grounded && input.probe("s", input.KEYDOWN)) {
+            this.squash(1.2, 0.65)
         }
 
         super.update()
