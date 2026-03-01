@@ -16,6 +16,7 @@ export class game {
     static now = 0;
     static then = 0;
     static delta = 0;
+    static initializers = [];
     static methods = [];
     static deferred = [];
     static on_resize = [];
@@ -63,6 +64,7 @@ export class game {
         game.now = performance.now();
         game.delta = game.now - game.then;
         game.then = game.now;
+        game.initializers.forEach(i => i());
         if (game.delta > 200)
             game.delta = 200;
         game.accumulator += game.delta;
@@ -74,24 +76,30 @@ export class game {
             game.accumulator -= game.fixed_delta;
         }
     }
-    static add(func) {
+    static init(func) {
         if (typeof (func) === "function") {
             game.methods.push(func);
             return true;
         }
         return false;
     }
-    static remove(func_or_id) {
-        if (typeof (func_or_id) === "function") {
-            const index = game.methods.indexOf(func_or_id);
+    static method(func) {
+        if (typeof (func) === "function") {
+            game.methods.push(func);
+            return true;
+        }
+        return false;
+    }
+    static remove(func) {
+        if (typeof (func) === "function") {
+            let index = game.methods.indexOf(func);
             if (index !== -1) {
                 game.methods.splice(index, 1);
                 return true;
             }
-        }
-        if (typeof (func_or_id) === "number") {
-            if (func_or_id !== -1 && func_or_id >= 0 && func_or_id < game.methods.length) {
-                game.methods.splice(func_or_id, 1);
+            index = game.initializers.indexOf(func);
+            if (index !== -1) {
+                game.initializers.splice(index, 1);
                 return true;
             }
         }
@@ -473,6 +481,11 @@ export class input {
     static KEYDOWN = "key_down";
     static KEYHELD = "key_held";
     static KEYUP = "key_up";
+    static MOUSE_LEFT = false;
+    static MOSE_RIGHT = false;
+    static MOUSE_MIDDLE = false;
+    static MOUSE_SCROLL_UP = false;
+    static MOUSE_SCROLL_DOWN = false;
     static push(key, state) {
         if (typeof (key) !== "string") {
             throw new Error("Key must be string");

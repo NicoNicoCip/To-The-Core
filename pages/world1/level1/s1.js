@@ -1,5 +1,5 @@
-import { boil_the_plate, Player, send_to, Shaker } from "../../../src/prefabs.js"
-import { bobj, cobj, game, input, level, obj } from "../../../src/system.js"
+import { boil_the_plate, Player, Shaker } from "../../../src/prefabs.js"
+import { bobj, cobj, game, level, obj } from "../../../src/system.js"
 
 boil_the_plate()
 
@@ -8,9 +8,9 @@ const background2 = new bobj({ name: "background2" })
 const background2_transit = new bobj({ name: "background2_transit" })
 const background3 = new bobj({ name: "background3" })
 
-const midground0 = new bobj({ name: "midground0" })
+const midground0 = new bobj({ name: "midground_s1" })
 
-const foreground0 = new bobj({ name: "foreground0" })
+const foreground0 = new bobj({ name: "scene_s1" })
 
 const splash = new obj({ name: "splash", width: 180, height: 60 })
 splash.graphic.innerHTML = `MADE BY:<br>MANEL<br>JOAN<br>NICO<br>
@@ -120,7 +120,7 @@ player.move(60, 449)
         game.world.appendChild(foreground0.graphic)
 
         game.remove(intro)
-        game.add(player_move)
+        game.method(player_move)
         timr = -1
     }
 
@@ -192,5 +192,5 @@ function player_move() {
     }
 }
 
-game.add(player_move)
+game.method(player_move)
 game.update()

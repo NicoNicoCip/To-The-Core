@@ -1,18 +1,18 @@
 #background1 {
-    background-image: url("../assets/background0.webp");
+    background-image: url("/pages/assets/background0.webp");
     background-size: cover;
     animation: fall 1s linear infinite;
 }
 
 #to_the_core_sign {
-    background-image: url("../assets/to_the_core_sign.webp");
+    background-image: url("/pages/assets/to_the_core_sign.webp");
     background-size: cover;
     animation: sign 10s ease-in-out infinite;
     transform-origin: center center;
 }
 
 #play_sign {
-    background-image: url("../assets/play_sign.webp");
+    background-image: url("/pages/assets/play_sign.webp");
     background-size: cover;
     animation: sign 15s ease-in-out infinite;
     transform-origin: center center;
@@ -30,7 +30,7 @@
 }
 
 .play_sign_hover {
-    background-image: url("../assets/play_sign_active.webp") !important;
+    background-image: url("/pages/assets/play_sign_active.webp") !important;
     
     /* outline-width: 2px; */
     /* outline-style: solid; */
@@ -56,7 +56,7 @@
         rotate: -3deg;
     }
 
-    90% {
+    99% {
         rotate: 5deg;
     }
 }

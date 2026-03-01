@@ -1,106 +1,112 @@
 #player {
-    background-image: url("../assets/dog.webp");
+    background-image: url("/pages/assets/dog.webp");
 }
 
 .moving {
-    background-image: url("../assets/dog_walking.webp") !important;
+    background-image: url("/pages/assets/dog_walking.webp") !important;
 }
 
 .falling {
-    background-image: url("../assets/dog_falling.webp") !important;
+    background-image: url("/pages/assets/dog_falling.webp") !important;
 }
 
 .rising {
-    background-image: url("../assets/dog_rising.webp") !important;
+    background-image: url("/pages/assets/dog_rising.webp") !important;
 }
 
 #wall {
-    background-image: url("../assets/ground.webp");
+    background-image: url("/pages/assets/ground.webp");
 }
 
 #bone {
-    background-image: url("../assets/golden_bone.webp");
+    background-image: url("/pages/assets/golden_bone.webp");
 }
 
 
 #background0 {
-    background-image: url("../assets/background0.webp");
+    background-image: url("/pages/assets/background0.webp");
     background-size: cover;
     animation: fall 1s linear infinite;
 }
 
 #background1 {
-    background-image: url("../assets/background1.webp");
+    background-image: url("/pages/assets/background1.webp");
     animation: fall 1s linear infinite;
 }
 
 #background2 {
-    background-image: url("../assets/background2.webp");
+    background-image: url("/pages/assets/background2.webp");
     animation: slow_raise 1800s linear;
 }
 
+#background2_transit {
+    background-image: url("/pages/assets/background0.webp");
+    z-index: -100;
+    animation: fall 1s linear infinite;
+}
+
 #background3 {
-    background-image: url("../assets/background3.webp");
+    background-image: url("/pages/assets/background3.webp");
 }
 
 
 
-#midground0 {
-    background-image: url("../assets/world0/s1_midground.webp");
+#midground_s1 {
+    background-image: url("/pages/assets/world0/s1_midground.webp");
 }
 
-#midground1 {
-    background-image: url("../assets/world0/s4_midground.webp");
+#midground_s4 {
+    background-image: url("/pages/assets/world0/s4_midground.webp");
 }
 
-#midground2 {
-    background-image: url("../assets/world0/s5_midground.webp");
+#midground_s5 {
+    background-image: url("/pages/assets/world0/s5_midground.webp");
 }
 
-#midground3 {
-    background-image: url("../assets/world0/s6_midground.webp");
+#midground_s6 {
+    background-image: url("/pages/assets/world0/s6_midground.webp");
 }
 
-#midground4 {
-    background-image: url("../assets/world0/s7_midground.webp");
+#midground_s7 {
+    background-image: url("/pages/assets/world0/s7_midground.webp");
 }
 
 
 
-#foreground0 {
-    background-image: url("../assets/world0/s1.webp");
+#scene_s1 {
+    background-image: url("/pages/assets/world0/s1.webp");
 }
 
-#foreground1 {
-    background-image: url("../assets/world0/s2.webp");
+#scene_s2 {
+    background-image: url("/pages/assets/world0/s2.webp");
 }
 
-#foreground2 {
-    background-image: url("../assets/world0/s2_EXT.webp");
+#scene_s2_ext {
+    background-image: url("/pages/assets/world0/s2_EXT.webp");
 }
 
-#foreground3 {
-    background-image: url("../assets/world0/s3.webp");
+#scene_s3 {
+    background-image: url("/pages/assets/world0/s3.webp");
 }
 
-#foreground4 {
-    background-image: url("../assets/world0/s4.webp");
+#scene_s4 {
+    background-image: url("/pages/assets/world0/s4.webp");
 }
 
-#foreground5 {
-    background-image: url("../assets/world0/s5.webp");
+#scene_s5 {
+    background-image: url("/pages/assets/world0/s5.webp");
 }
 
-#foreground6 {
-    background-image: url("../assets/world0/s6.webp");
+#scene_s6 {
+    background-image: url("/pages/assets/world0/s6.webp");
 }
 
-#foreground7 {
-    background-image: url("../assets/world0/s7.webp");
+#scene_s7 {
+    background-image: url("/pages/assets/world0/s7.webp");
 }
 
-#foreground8 {
-    background-image: url("../assets/world0/s8.webp");
+#scene_s8 {
+    background-image: url("/pages/assets/world0/s8.webp");
 }
 
 

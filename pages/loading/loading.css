@@ -3,6 +3,6 @@
 }
 
 #loading {
-    background-image: url("../assets/loading.webp");
+    background-image: url("/pages/assets/loading.webp");
     background-size: cover;
 }

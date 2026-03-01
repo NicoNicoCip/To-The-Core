@@ -5,9 +5,9 @@ boil_the_plate()
 
 const background0 = new bobj({name: "background3"})
 
-const foreground0 = new bobj({name: "foreground6"})
+const foreground0 = new bobj({name: "scene_s6"})
 
-const midground0 = new bobj({name: "midground3"})
+const midground0 = new bobj({name: "midground_s6"})
 
 
 let player = new Player(60, 50, false)
@@ -93,7 +93,7 @@ function start() {
     lvl.spawn()
     game.world.appendChild(foreground0.graphic)
 
-    game.add(player_move)
+    game.method(player_move)
 }
 
 function player_move() {

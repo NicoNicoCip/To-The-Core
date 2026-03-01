@@ -1,11 +1,11 @@
 import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
-import { bobj, cobj, game, input, level, obj } from "../../src/system.js"
+import { bobj, cobj, game, level } from "../../src/system.js"
 
 boil_the_plate()
 
 const background0 = new bobj({ name: "background3" })
 
-const foreground0 = new bobj({ name: "foreground1" })
+const foreground0 = new bobj({ name: "scene_s2" })
 
 const lvl = new level({
     x: 0,
@@ -88,7 +88,7 @@ function start() {
     game.world.appendChild(foreground0.graphic)
     game.save_transport()
 
-    game.add(player_move)
+    game.method(player_move)
 }
 
 function player_move() {

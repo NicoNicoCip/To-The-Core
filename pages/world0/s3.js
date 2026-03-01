@@ -1,11 +1,11 @@
 import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
-import { bobj, cobj, game, input, level, obj } from "../../src/system.js"
+import { bobj, cobj, game, input, level } from "../../src/system.js"
 
 boil_the_plate()
 
 const background0 = new bobj({ name: "background3" })
 
-const foreground0 = new bobj({ name: "foreground3" })
+const foreground0 = new bobj({ name: "scene_s3" })
 
 let player = new Player(60, 50, false)
 
@@ -96,7 +96,7 @@ function start() {
     lvl.spawn()
     game.world.appendChild(foreground0.graphic)
 
-    game.add(player_move)
+    game.method(player_move)
 }
 
 const jumper_force = 4

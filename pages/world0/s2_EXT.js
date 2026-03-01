@@ -1,11 +1,11 @@
 import { boil_the_plate, Player, send_to } from "../../src/prefabs.js"
-import { bobj, cobj, game, input, level, obj } from "../../src/system.js"
+import { bobj, cobj, game, input, level } from "../../src/system.js"
 
 boil_the_plate()
 
 const background0 = new bobj({ name: "background3" })
 
-const foreground0 = new bobj({ name: "foreground2" })
+const foreground0 = new bobj({ name: "scene_s2_ext" })
 
 const lvl = new level({
     x: 0,
@@ -84,7 +84,7 @@ function start() {
     player.graphic.classList.add("falling")
 
     game.world.appendChild(foreground0.graphic)
-    game.add(player_move)
+    game.method(player_move)
 }
 
 const bone = lvl.find("bone")

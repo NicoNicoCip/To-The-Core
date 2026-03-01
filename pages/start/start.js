@@ -1,19 +1,9 @@
-import { game, input, obj } from "../../src/system.js"
+import { boil_the_plate } from "../../src/prefabs.js"
+import { bobj, game, obj } from "../../src/system.js"
 
+boil_the_plate()
 
-// const player = document.getElementById("player")
-const world = document.getElementById("world")
-const debug = document.getElementById("debug")
-window.localStorage.setItem("collectables" , "[ [[0,0]] , [[0,0,0] , [0,0,0]]]")
-
-game.register_world(world, 320, 180)
-input.init()
-
-const background1 = new obj({
-    name: "background1",
-    width: game.width,
-    height: game.height
-})
+const background1 = new bobj({name: "background1"})
 
 const ttc_sign = new obj({
     name: "to_the_core_sign",
@@ -62,7 +52,7 @@ function wooble() {
     )
 }
 
-game.add(wooble)
+game.method(wooble)
 
 let triggered = false
 play_sign.graphic.addEventListener("mouseenter", () => {
@@ -76,6 +66,7 @@ play_sign.graphic.addEventListener("mouseleave", () => {
         play_sign.graphic.classList.remove("play_sign_hover")
     }
 })
+
 let acc = 1
 play_sign.graphic.addEventListener("mouseup", () => {
     let timr = 0
@@ -110,12 +101,8 @@ play_sign.graphic.addEventListener("mouseup", () => {
     if (!triggered) {
         triggered = true
         game.remove(wooble)
-        game.add(play_ani)
+        game.method(play_ani)
     }
 })
-
-function to_next_screen() {
-    
-}
 
 game.update()

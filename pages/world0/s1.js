@@ -5,12 +5,12 @@ boil_the_plate()
 
 const background1 = new bobj({name:"background1"})
 const background2 = new bobj({name:"background2"})
-const background2_transit = new bobj({name: "midground0"})
+const background2_transit = new bobj({name: "background2_transit"})
 const background3 = new bobj({name: "background3"})
 
-const midground0 = new bobj({name: "midground0"})
+const midground0 = new bobj({name: "midground_s1"})
 
-const foreground0 = new bobj({name: "foreground0"})
+const foreground0 = new bobj({name: "scene_s1"})
 
 const splash = new obj({name: "splash",width: 180,height: 60})
 splash.graphic.innerHTML = `MADE BY:<br>MANEL<br>JOAN<br>NICO<br>
@@ -120,7 +120,7 @@ function intro() {
         game.world.appendChild(foreground0.graphic)
 
         game.remove(intro)
-        game.add(player_move)
+        game.method(player_move)
         timr = -1
     }
 
@@ -150,11 +150,11 @@ function intro() {
         game.world.removeChild(splash.graphic)
     }
 
-    if (timr > 600 && timr < 778) {
+    if (timr > 600 && timr < 780) {
         player.shift(0, - 0.4)
     }
 
-    if (timr == 778) {
+    if (timr == 780) {
         game.world.appendChild(background3.graphic)
         game.world.appendChild(midground0.graphic)
 
@@ -163,12 +163,10 @@ function intro() {
         player.y_speed = player.max_gravity
 
         game.world.appendChild(foreground0.graphic)
-    }
 
-    if (timr == 780) {
         game.world.removeChild(background2_transit.graphic)
         game.remove(intro)
-        game.add(player_move)
+        game.method(player_move)
         timr = -1
     }
     timr++
@@ -191,5 +189,5 @@ function player_move() {
     }
 }
 
-game.add(intro)
+game.method(intro)
 game.update()
