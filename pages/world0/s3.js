@@ -96,7 +96,7 @@ function start() {
     lvl.spawn()
     game.world.appendChild(foreground0.graphic)
 
-    game.method(player_move)
+    game.update(player_move)
 }
 
 const jumper_force = 4
@@ -130,4 +130,4 @@ function player_move() {
 }
 
 start()
-game.update()
+game.run()

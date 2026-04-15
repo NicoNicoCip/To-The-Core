@@ -14,8 +14,10 @@ export function come_from(html) {
     return res.endsWith(html);
 }
 export class Shaker {
-    shake_intensity = 0;
-    shake_timer = 0;
+    constructor() {
+        this.shake_intensity = 0;
+        this.shake_timer = 0;
+    }
     tick_shake() {
         if (this.shake_timer > 0) {
             const ox = (Math.random() - 0.5) * 2 * this.shake_intensity;
@@ -35,7 +37,6 @@ export class Shaker {
     }
 }
 export class Collectable extends cobj {
-    level = null;
     constructor({ name = null, width = null, height = null, level = null, }) {
         super({
             name: name,
@@ -44,6 +45,7 @@ export class Collectable extends cobj {
             dynamic: true,
             shows_debug_col: true,
         });
+        this.level = null;
         if (this.level !== null) {
             this.level.substitute(name, this);
             return;

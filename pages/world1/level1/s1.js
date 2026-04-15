@@ -120,7 +120,7 @@ player.move(60, 449)
         game.world.appendChild(foreground0.graphic)
 
         game.remove(intro)
-        game.method(player_move)
+        game.update(player_move)
         timr = -1
     }
 
@@ -192,5 +192,5 @@ function player_move() {
     }
 }
 
-game.method(player_move)
-game.update()
+game.update(player_move)
+game.run()

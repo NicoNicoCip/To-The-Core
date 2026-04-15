@@ -52,7 +52,7 @@ function wooble() {
     )
 }
 
-game.method(wooble)
+game.update(wooble)
 
 let triggered = false
 play_sign.graphic.addEventListener("mouseenter", () => {
@@ -101,8 +101,8 @@ play_sign.graphic.addEventListener("mouseup", () => {
     if (!triggered) {
         triggered = true
         game.remove(wooble)
-        game.method(play_ani)
+        game.update(play_ani)
     }
 })
 
-game.update()
+game.run()

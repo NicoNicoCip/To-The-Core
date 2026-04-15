@@ -1,0 +1,201 @@
+================================================================
+    Setup:
+================================================================
+
+To set up a new scene you have to follow this default structure:
+
+================================================================
+
+import { boil_the_plate, Player } from "../../src/prefabs.js"
+import { cobj, game, level } from "../../src/system.js"
+
+boil_the_plate()
+
+let player = new Player(60, 50, false)
+
+const lvl = new level({
+    x: 0,
+    y: 0,
+    width: 32,
+    height: 18,
+    tile_width: 10,
+    tile_height: 10,
+    keys: [
+        {
+            char: "S", object: new cobj({
+                name: "spawn",
+                width: 10,
+                height: 10,
+                dynamic: true,
+                collides: false,
+                shows_debug_col: true
+            })
+        },
+        {
+            char: "x", object: new cobj({
+                name: "inviz_wall",
+                width: 10,
+                height: 10,
+                shows_debug_col: true
+            })
+        }
+    ],
+    map: [
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                                ",
+        "                               x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x                              x",
+        "x              S               x",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    ]
+})
+
+function start() {
+    game.world.appendChild(player.graphic)
+
+    const spawn = lvl.find("spawn")
+    lvl.substitute(spawn, player)
+    player.facing = 1
+
+    game.save_transport()
+
+    player.y_speed = player.max_gravity
+    player.graphic.classList.add("falling")
+
+    lvl.spawn()
+}
+
+function player_move() {
+    player.update()
+
+    lvl.toggle_debug(player)
+
+    player.apply_force()
+
+    lvl.move_and_collide()
+}
+
+game.start(start)
+game.update(player_move)
+game.run()
+
+================================================================
+
+This will add and create a player for you. No background and no graphics. Note that
+imports have to be local to the scene.
+
+================================================================
+    For the htmls:
+================================================================
+
+Html files are needed to set up the scene with the proper pre-imports for 
+graphical resources. The webp's are loaded randomly while the page is running.
+To make sure the animations are synked and that they dont pop in when the player
+moves into the scene, this is needed for each webp used in the scene:
+
+    <link rel="preload" as="image" href="/pages/assets/background0.webp">
+
+Just replace the href with the actual path of the webp.
+
+
+This is the general structure of the base html file:
+
+================================================================
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/pages/assets/dog.ico" type="image/x-icon">
+    <title>To The Core | by PWStudio</title> 
+    <link rel="stylesheet" href="/pages/index.css">
+    <link rel="stylesheet" href="./world0.css">
+    <link rel="preload" as="image" href="/pages/assets/background0.webp">
+    <link rel="preload" as="image" href="/pages/assets/to_the_core_sign.webp">
+    <link rel="preload" as="image" href="/pages/assets/play_sign.webp">
+    <link rel="preload" as="image" href="/pages/assets/play_sign_active.webp">
+
+    <script type="module" src="/src/system.js"></script>
+    <script type="module" src="./test.js"></script>
+</head>
+
+<body>
+    <div id="debug"></div>
+    <div id="world"></div>
+</body>
+
+================================================================
+
+Notebale things:
+
+1. the second stylesheet needs the local file as the ref.
+2. the second module script has to be the js file of the scene.
+
+The world div in the body is needed while the debug one is not. you can use it to display
+extra debug info above and outside the playable area of the game, as the name suggests,
+dor debug purposes.
+
+================================================================
+    The CSS
+================================================================
+
+These are the paths and extra special effects that you can add to each object in the scene
+Note that this engine has different divs for each and every single object.
+
+this is the default structure of one CSS file:
+
+================================================================
+
+#player {
+    background-image: url("/pages/assets/dog.webp");
+}
+
+.moving {
+    background-image: url("/pages/assets/dog_walking.webp") !important;
+}
+
+.falling {
+    background-image: url("/pages/assets/dog_falling.webp") !important;
+}
+
+.rising {
+    background-image: url("/pages/assets/dog_rising.webp") !important;
+}
+
+================================================================
+
+Notes:
+
+1. !important overrides the default of whatever another css class or index sets.
+    this way we can have stuff like the player changing sprites based on its state
+    for example. in the case above, moving, falling, and rising, replace the 
+    background-image of the #player above.
+
+2. There are no more notes.
+
+You will notice that all this example code is pressent in the test scene. you can enter
+it and see it working. you can also use it to do your own tests before implementing stuff.
+Just make sure you copy the basse test scene, rename it and edit the copy. Editing the base
+itself, will result in overwriting the GitHub version of the scene, which can cause frustration
+later.
+
+================================================================
+    Debugging
+================================================================
+
+Currenty there is just 1 debug graphic. by pressing P while playing, you get hitboxes
+of all the inportant objects in the scene. 

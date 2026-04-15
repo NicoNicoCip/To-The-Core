@@ -84,7 +84,7 @@ function start() {
     player.graphic.classList.add("falling")
 
     game.world.appendChild(foreground0.graphic)
-    game.method(player_move)
+    game.update(player_move)
 }
 
 const bone = lvl.find("bone")
@@ -117,4 +117,4 @@ function player_move() {
 }
 
 start()
-game.update()
+game.run()

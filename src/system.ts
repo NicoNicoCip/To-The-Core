@@ -15,8 +15,8 @@ export class game {
     static now = 0
     static then = 0
     static delta = 0
-    static initializers: Function[] = []
-    static methods: Function[] = []
+    static starts: Function[] = []
+    static updates: Function[] = []
     static deferred: Function[] = []
     static on_resize: Function[] = []
     static world = null
@@ -58,7 +58,7 @@ export class game {
         game.deferred.push(func)
     }
 
-    static update() {
+    static run() {
         if (game.world === null || game.world === undefined) {
             throw new Error("World in non optional.")
         }
@@ -71,20 +71,21 @@ export class game {
             throw new Error("Height in non optional.")
         }
 
-        requestAnimationFrame(game.update)
+        requestAnimationFrame(game.run)
 
         game.now = performance.now()
         game.delta = game.now - game.then
         game.then = game.now
 
-        game.initializers.forEach(i => i())
+        const starts = game.starts.splice(0);
+        starts.forEach(i => i())
 
         if (game.delta > 200) game.delta = 200
 
         game.accumulator += game.delta
 
         while (game.accumulator >= game.fixed_delta) {
-            game.methods.forEach(m => m())
+            game.updates.forEach(m => m())
             while (game.deferred.length > 0) {
                 game.deferred.shift()()
             }
@@ -92,18 +93,18 @@ export class game {
         }
     }
 
-    static init(func) {
+    static start(func) {
         if (typeof (func) === "function") {
-            game.methods.push(func)
+            game.starts.push(func)
             return true
         }
 
         return false
     }
 
-    static method(func) {
+    static update(func) {
         if (typeof (func) === "function") {
-            game.methods.push(func)
+            game.updates.push(func)
             return true
         }
 
@@ -112,15 +113,15 @@ export class game {
 
     static remove(func) {
         if (typeof (func) === "function") {
-            let index = game.methods.indexOf(func)
+            let index = game.updates.indexOf(func)
             if (index !== -1) {
-                game.methods.splice(index, 1)
+                game.updates.splice(index, 1)
                 return true
             }
 
-            index = game.initializers.indexOf(func)
+            index = game.starts.indexOf(func)
             if (index !== -1) {
-                game.initializers.splice(index, 1)
+                game.starts.splice(index, 1)
                 return true
             }
         }
@@ -877,4 +878,335 @@ export class particle {
     y = 0
     x_speed = 0
     y_speed = 0
+    rotation = 0
+}
+
+export class emitter {
+    // should spawn and move particles based on the settings.
+    // mode: pixel / sprite
+    //       pixel mode uses the global particle canvas layer pressent on the world
+    //       by default to spawn and move particles as per the settings.
+    //
+    //       sprite mode will spawn and move a sprite as per its settings, in the world
+    //       instead of the canvas.
+}
+
+export class Scene {
+    private _layer_entries: { el: HTMLDivElement, z: number, parallax: number }[] = []
+    private _layer_objs:    { obj: obj, z: number }[] = []
+    private _tile_w     = 10
+    private _tile_h     = 10
+    private _tile_keys: Record<string, cobj> = {}
+    private _tile_map:  string[] = []
+    private _map_w      = 0
+    private _map_h      = 0
+    private _level_px_w = 0
+    private _level_px_h = 0
+    private _char_instances: Record<string, cobj[]> = {}
+    private _dynamic_objs: cobj[] = []
+    private _static_objs:  cobj[] = []
+    private _tile_objs:    cobj[] = []
+    private _spawn_markers: Set<cobj> = new Set()
+    private _spawns: { obj: pobj, at: cobj | {x:number,y:number}, when: ()=>boolean, on_spawn?: ()=>void }[] = []
+    private _spawned_objs: pobj[] = []
+    private _collectables: { obj: cobj, id: string, collected: boolean }[] = []
+    private _cam_target: { x: number, y: number } | null = null
+    private _cam_lerp   = 0.1
+    private _cam_bounds = true
+    private _cam_x      = 0
+    private _cam_y      = 0
+    private _update_fn: (() => void) | null = null
+    private _debug_visible = false
+
+    // ── builder API ──────────────────────────────────────────────────────
+
+    /** Register a visual layer. z < 0 = behind tiles, z > 0 = in front. parallax 0–1 (0 = static, 1 = moves with world). */
+    layer(visual_obj: obj, z: number, parallax = 1.0): Scene {
+        this._ensure_layer(z, parallax)
+        this._layer_objs.push({ obj: visual_obj, z })
+        return this
+    }
+
+    /** Define the tile grid. Eagerly places objects so you can adjust positions immediately after. */
+    tiles(tile_w: number, tile_h: number, keys: Record<string, cobj>, map: string[]): Scene {
+        this._tile_w     = tile_w
+        this._tile_h     = tile_h
+        this._tile_keys  = keys
+        this._tile_map   = map
+        this._map_w      = map[0].length
+        this._map_h      = map.length
+        this._level_px_w = this._map_w * tile_w
+        this._level_px_h = this._map_h * tile_h
+        this._build_tiles()
+        return this
+    }
+
+    /** First surviving placed instance of a char (unique objects). */
+    find(char: string): cobj | undefined {
+        const arr = this._char_instances[char]
+        return arr ? arr[0] : undefined
+    }
+
+    /** All surviving placed instances of a char, in top-to-bottom left-to-right order. */
+    find_all(char: string): cobj[] {
+        return this._char_instances[char] || []
+    }
+
+    /** Add a spawn rule. First rule whose when() returns true wins. on_spawn fires after placement. */
+    spawn(obj: pobj, at: cobj | { x: number, y: number }, when: () => boolean, on_spawn?: () => void): Scene {
+        this._spawns.push({ obj, at, when, on_spawn })
+        if (at instanceof cobj) this._spawn_markers.add(at)
+        return this
+    }
+
+    /** Register a collectable. Auto-skips if already saved, auto-removes on pickup. id format: "world/item". */
+    collectable(obj: cobj, id: string): Scene {
+        this._collectables.push({ obj, id, collected: false })
+        return this
+    }
+
+    /** Attach a camera to a target. lerp: smoothing (0=instant). bounds: clamp to level edges. */
+    camera(target: { x: number, y: number }, opts: { lerp?: number, bounds?: boolean } = {}): Scene {
+        this._cam_target = target
+        if (opts.lerp   !== undefined) this._cam_lerp   = opts.lerp
+        if (opts.bounds !== undefined) this._cam_bounds = opts.bounds
+        return this
+    }
+
+    /** Register the per-frame update function. */
+    update(fn: () => void): Scene {
+        this._update_fn = fn
+        return this
+    }
+
+    // ── runtime API ──────────────────────────────────────────────────────
+
+    /** Resolve collisions and sync DOM for all dynamic objects. Call inside your update function. */
+    move_and_collide(): void {
+        for (let i = 0; i < this._dynamic_objs.length; i++) {
+            this._dynamic_objs[i].grounded = false
+            for (let j = 0; j < this._static_objs.length; j++) {
+                this._dynamic_objs[i].collide(this._static_objs[j])
+            }
+            for (let j = i + 1; j < this._dynamic_objs.length; j++) {
+                this._dynamic_objs[i].collide(this._dynamic_objs[j])
+            }
+            this._dynamic_objs[i].move()
+        }
+    }
+
+    /** Toggle debug collider visibility on P keydown. Call inside your update function. */
+    toggle_debug(): void {
+        if (input.probe('p', input.KEYDOWN)) {
+            this._debug_visible = !this._debug_visible
+            const vis = this._debug_visible ? 'visible' : 'hidden'
+            for (const sp of this._spawned_objs)
+                if (sp.collider) sp.collider.style.visibility = vis
+            for (const t of this._tile_objs)
+                if (t.shows_debug_col && t.collider) t.collider.style.visibility = vis
+        }
+    }
+
+    /** Build the scene DOM, save transport, register the tick, and start the game loop. */
+    run(): void {
+        this._setup_dom()
+        game.save_transport()
+        game.update(() => this._tick())
+        game.run()
+    }
+
+    // ── private ──────────────────────────────────────────────────────────
+
+    private _ensure_layer(z: number, parallax = 1.0): { el: HTMLDivElement, z: number, parallax: number } {
+        let entry = this._layer_entries.find(l => l.z === z)
+        if (!entry) {
+            const el = document.createElement('div')
+            el.style.cssText = `position:absolute;left:0;top:0;width:100%;height:100%;z-index:${z + 100};`
+            entry = { el, z, parallax }
+            this._layer_entries.push(entry)
+            this._layer_entries.sort((a, b) => a.z - b.z)
+        }
+        return entry
+    }
+
+    private _build_tiles(): void {
+        const { _tile_map: map, _tile_keys: keys, _tile_w: tw, _tile_h: th, _map_w: W, _map_h: H } = this
+        const first_used: Record<string, boolean> = {}
+        const tile_to_char = new Map<cobj, string>()
+        const grid: (cobj | null)[][] = Array.from({ length: H }, () => new Array(W).fill(null))
+
+        for (let yy = 0; yy < H; yy++) {
+            for (let xx = 0; xx < W; xx++) {
+                const char = map[yy].charAt(xx)
+                if (char === ' ' || char === '.') continue
+                const template = keys[char]
+                if (!template) throw new Error(`Scene.tiles: no key for '${char}'`)
+                let tile: cobj
+                if (!first_used[char]) {
+                    first_used[char] = true
+                    tile = template
+                } else {
+                    tile = template.copy()
+                }
+                tile.move(xx * tw, yy * th)
+                grid[yy][xx] = tile
+                tile_to_char.set(tile, char)
+            }
+        }
+
+        // horizontal merge
+        for (let yy = 0; yy < H; yy++) {
+            let cur: cobj | null = null
+            for (let xx = 0; xx < W; xx++) {
+                const t = grid[yy][xx]
+                if (t && cur && t.name === cur.name) {
+                    cur.width += t.width
+                    cur.graphic.style.width = cur.width + 'px'
+                    if (cur.collider) cur.collider.style.width = cur.width + 'px'
+                    grid[yy][xx] = null
+                } else cur = t
+            }
+        }
+
+        // vertical merge
+        for (let xx = 0; xx < W; xx++) {
+            let cur: cobj | null = null
+            for (let yy = 0; yy < H; yy++) {
+                const t = grid[yy][xx]
+                if (t && cur && t.name === cur.name && t.width === cur.width) {
+                    cur.height += t.height
+                    cur.graphic.style.height = cur.height + 'px'
+                    if (cur.collider) cur.collider.style.height = cur.height + 'px'
+                    grid[yy][xx] = null
+                } else cur = t
+            }
+        }
+
+        // flatten — char_instances built from surviving tiles only
+        this._char_instances = {}
+        for (let yy = 0; yy < H; yy++) {
+            for (let xx = 0; xx < W; xx++) {
+                const t = grid[yy][xx]
+                if (!t) continue
+                this._tile_objs.push(t)
+                if (t.dynamic && t.collides) this._dynamic_objs.push(t)
+                else if (t.collides)         this._static_objs.push(t)
+                const char = tile_to_char.get(t)
+                if (char) {
+                    if (!this._char_instances[char]) this._char_instances[char] = []
+                    this._char_instances[char].push(t)
+                }
+            }
+        }
+    }
+
+    private _setup_dom(): void {
+        this._ensure_layer(0, 1.0)
+        this._layer_entries.sort((a, b) => a.z - b.z)
+
+        // Remove spawn markers from collision lists (position markers only)
+        for (const marker of this._spawn_markers) {
+            const di = this._dynamic_objs.indexOf(marker)
+            if (di !== -1) this._dynamic_objs.splice(di, 1)
+            const si = this._static_objs.indexOf(marker)
+            if (si !== -1) this._static_objs.splice(si, 1)
+        }
+
+        // Pre-check collectables — skip ones already saved
+        for (const col of this._collectables) {
+            const [world, item] = col.id.split('/')
+            if (game.check_collectable(world, item)) {
+                col.collected = true
+                const di = this._dynamic_objs.indexOf(col.obj)
+                if (di !== -1) this._dynamic_objs.splice(di, 1)
+            }
+        }
+
+        // Resolve spawns — first matching condition wins
+        for (const s of this._spawns) {
+            if (!s.when()) continue
+            s.obj.move(s.at.x, s.at.y)
+            s.obj.y_speed = s.obj.max_gravity
+            s.obj.graphic.classList.add('falling')
+            if (s.obj.dynamic && s.obj.collides) this._dynamic_objs.push(s.obj)
+            this._spawned_objs.push(s.obj)
+            if (s.on_spawn) s.on_spawn()
+            break
+        }
+
+        // Mount layer divs into the world in z order
+        for (const entry of this._layer_entries) game.world.appendChild(entry.el)
+
+        // Append visual layer objects (backgrounds, foregrounds, etc.)
+        for (const lo of this._layer_objs) {
+            const layer = this._layer_entries.find(l => l.z === lo.z)
+            if (layer) layer.el.appendChild(lo.obj.graphic)
+        }
+
+        const main = this._layer_entries.find(l => l.z === 0)!
+
+        // Append tile graphics — skip spawn markers and pre-collected collectables
+        for (const tile of this._tile_objs) {
+            if (this._spawn_markers.has(tile)) continue
+            const col = this._collectables.find(c => c.obj === tile)
+            if (col?.collected) continue
+            main.el.appendChild(tile.graphic)
+            if (tile.shows_debug_col && tile.collider) {
+                tile.collider.style.visibility = 'hidden'
+                main.el.appendChild(tile.collider)
+            }
+        }
+
+        // Append spawned object graphics
+        for (const sp of this._spawned_objs) {
+            main.el.appendChild(sp.graphic)
+            if (sp.shows_debug_col && sp.collider) {
+                sp.collider.style.visibility = 'hidden'
+                main.el.appendChild(sp.collider)
+            }
+        }
+    }
+
+    private _tick(): void {
+        if (this._update_fn) this._update_fn()
+        this._check_collectables()
+        this._update_camera()
+    }
+
+    private _check_collectables(): void {
+        const main = this._layer_entries.find(l => l.z === 0)
+        for (const col of this._collectables) {
+            if (col.collected) continue
+            for (const sp of this._spawned_objs) {
+                if (sp.collide(col.obj, false)) {
+                    col.collected = true
+                    const [world, item] = col.id.split('/')
+                    game.save_collectable(world, item)
+                    if (main) {
+                        if (col.obj.graphic.parentNode === main.el) main.el.removeChild(col.obj.graphic)
+                        if (col.obj.collider?.parentNode === main.el) main.el.removeChild(col.obj.collider)
+                    }
+                    const di = this._dynamic_objs.indexOf(col.obj)
+                    if (di !== -1) this._dynamic_objs.splice(di, 1)
+                    break
+                }
+            }
+        }
+    }
+
+    private _update_camera(): void {
+        if (!this._cam_target) return
+        let tx = this._cam_target.x - game.width  / 2
+        let ty = this._cam_target.y - game.height / 2
+        if (this._cam_bounds) {
+            tx = Math.max(0, Math.min(tx, this._level_px_w - game.width))
+            ty = Math.max(0, Math.min(ty, this._level_px_h - game.height))
+        }
+        this._cam_x += (tx - this._cam_x) * this._cam_lerp
+        this._cam_y += (ty - this._cam_y) * this._cam_lerp
+        if (Math.abs(this._cam_x - tx) < 0.01) this._cam_x = tx
+        if (Math.abs(this._cam_y - ty) < 0.01) this._cam_y = ty
+        for (const l of this._layer_entries)
+            l.el.style.transform = `translate(${-(this._cam_x * l.parallax)}px, ${-(this._cam_y * l.parallax)}px)`
+    }
 }

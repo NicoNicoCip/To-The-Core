@@ -120,7 +120,7 @@ function intro() {
         game.world.appendChild(foreground0.graphic)
 
         game.remove(intro)
-        game.method(player_move)
+        game.update(player_move)
         timr = -1
     }
 
@@ -166,7 +166,7 @@ function intro() {
 
         game.world.removeChild(background2_transit.graphic)
         game.remove(intro)
-        game.method(player_move)
+        game.update(player_move)
         timr = -1
     }
     timr++
@@ -189,5 +189,5 @@ function player_move() {
     }
 }
 
-game.method(intro)
-game.update()
+game.update(intro)
+game.run()

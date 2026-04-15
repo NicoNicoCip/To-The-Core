@@ -1,0 +1,15 @@
+#player {
+    background-image: url("/pages/assets/dog.webp");
+}
+
+.moving {
+    background-image: url("/pages/assets/dog_walking.webp") !important;
+}
+
+.falling {
+    background-image: url("/pages/assets/dog_falling.webp") !important;
+}
+
+.rising {
+    background-image: url("/pages/assets/dog_rising.webp") !important;
+}
