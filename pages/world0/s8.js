@@ -1,97 +1,54 @@
 import { boil_the_plate, Player, send_to } from "../../src/prefabs.js"
-import { bobj, cobj, game, level } from "../../src/system.js"
+import { bobj, cobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
-const background0 = new bobj({ name: "background3", })
+const player     = new Player(60, 50, false)
+const background = new bobj({ name: "background3" })
+const foreground = new bobj({ name: "scene_s8" })
 
-const foreground0 = new bobj({ name: "scene_s8" })
+const inviz = new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+const spawn = new cobj({ name: "spawn",      width: 10, height: 10, collides: false })
 
-let player = new Player(60, 50, false)
+const scene = new Scene()
 
-const lvl = new level({
-    x: 0,
-    y: 0,
-    width: 32,
-    height: 18,
-    tile_width: 10,
-    tile_height: 10,
-    keys: [
-        {
-            char: "S", object: new cobj({
-                name: "spawn",
-                width: 10,
-                height: 10,
-                dynamic: true,
-                collides: false,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "x", object: new cobj({
-                name: "inviz_wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        }
-    ],
-    map: [
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "x                               ",
-        "x                               ",
-        "x                               ",
-        "x                               ",
-        "x                            S  ",
-        "xxxxxxxxxxxxxx    xxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxx    xxxxxxxxxxxxxx",
-    ]
+scene.layer(background, -5, 0.3)
+scene.layer(foreground,  2, 1.0)
+
+scene.tiles(10, 10, {
+    'x': inviz,
+    'S': spawn,
+}, [
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "x                               ",
+    "x                               ",
+    "x                               ",
+    "x                               ",
+    "x                            S  ",
+    "xxxxxxxxxxxxxx    xxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxx    xxxxxxxxxxxxxx",
+])
+
+scene.spawn(player, spawn, () => true, () => { player.facing = 1 })
+scene.camera(player, { lerp: 0.1 })
+
+scene.update(function() {
+    player.update()
+    scene.toggle_debug()
+    player.apply_force()
+    scene.move_and_collide()
+
+    if (player.x > game.width) send_to("./s7.html")
 })
 
-function start() {
-    game.world.appendChild(background0.graphic)
-    game.world.appendChild(player.graphic)
-
-
-    const spawn = lvl.find("spawn")
-
-    lvl.substitute(spawn, player)
-    player.facing = 1
-
-    game.save_transport()
-
-    player.y_speed = player.max_gravity
-    player.graphic.classList.add("falling")
-
-    lvl.spawn()
-    game.world.appendChild(foreground0.graphic)
-
-    game.update(player_move)
-}
-
-function player_move() {
-    player.update()
-
-    lvl.toggle_debug(player)
-
-    player.apply_force()
-
-    lvl.move_and_collide()
-
-    if (player.x > game.width) {
-        send_to("./s7.html")
-    }
-}
-
-start()
-game.run()
+scene.run()

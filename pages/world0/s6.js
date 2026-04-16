@@ -1,119 +1,63 @@
 import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
-import { bobj, cobj, game, level } from "../../src/system.js"
+import { bobj, cobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
-const background0 = new bobj({name: "background3"})
+const player     = new Player(60, 50, false)
+const background = new bobj({ name: "background3" })
+const midground  = new bobj({ name: "midground_s6" })
+const foreground = new bobj({ name: "scene_s6" })
 
-const foreground0 = new bobj({name: "scene_s6"})
+const inviz   = new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+const half    = new cobj({ name: "half_wall",  width: 10, height: 1,  one_way: true, shows_debug_col: true })
+const spawn_l = new cobj({ name: "spawn_l",    width: 10, height: 10, collides: false })
+const spawn_r = new cobj({ name: "spawn_r",    width: 10, height: 10, collides: false })
 
-const midground0 = new bobj({name: "midground_s6"})
+const scene = new Scene()
 
+scene.layer(background, -5, 0.3)
+scene.layer(midground,  -2, 0.6)
+scene.layer(foreground,  2, 1.0)
 
-let player = new Player(60, 50, false)
+scene.tiles(10, 10, {
+    'x': inviz,
+    'v': half,
+    'L': spawn_l,
+    'R': spawn_r,
+}, [
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "  L                          R  ",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+])
 
-const lvl = new level({
-    x: 0,
-    y: 0,
-    width: 32,
-    height: 18,
-    tile_width: 10,
-    tile_height: 10,
-    keys: [
-        {
-            char: "S", object: new cobj({
-                name: "spawn",
-                width: 10,
-                height: 10,
-                dynamic: true,
-                collides: false,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "x", object: new cobj({
-                name: "inviz_wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "v", object: new cobj({
-                name: "half_wall",
-                width: 10,
-                height: 1,
-                shows_debug_col: true,
-                one_way: true
-            })
-        }
-    ],
-    map: [
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "  S                          S  ",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    ]
+scene.spawn(player, spawn_l, () => come_from("s7.html"),  () => { player.facing =  1 })
+scene.spawn(player, spawn_r, () => true,                   () => { player.facing = -1 })
+
+scene.camera(player, { lerp: 0.1 })
+
+scene.update(function() {
+    player.update()
+    scene.toggle_debug()
+    player.apply_force()
+    scene.move_and_collide()
+
+    if (player.x > game.width)       send_to("./s5.html")
+    if (player.x + player.width < 0) send_to("./s7.html")
 })
 
-function start() {
-    game.world.appendChild(background0.graphic)
-    game.world.appendChild(midground0.graphic)
-    game.world.appendChild(player.graphic)
-
-    const spawns = lvl.find_all("spawn")
-
-    if (come_from("s7.html")) {
-        lvl.substitute(spawns[0], player)
-        player.facing = 1
-    } else {
-        lvl.substitute(spawns[1], player)
-        player.facing = -1
-    }
-
-    game.save_transport()
-
-    player.y_speed = player.max_gravity
-    player.graphic.classList.add("falling")
-
-    lvl.spawn()
-    game.world.appendChild(foreground0.graphic)
-
-    game.update(player_move)
-}
-
-function player_move() {
-    player.update()
-
-    lvl.toggle_debug(player)
-
-    player.apply_force()
-
-    lvl.move_and_collide()
-
-    if (player.x > game.width) {
-        send_to("./s5.html")
-    }
-
-    if (player.x + player.width < 0) {
-        send_to("./s7.html")
-    }
-}
-
-
-start()
-game.run()
+scene.run()

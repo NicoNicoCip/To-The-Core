@@ -1,149 +1,84 @@
 import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
-import { bobj, cobj, game, input, level } from "../../src/system.js"
+import { bobj, cobj, game, input, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
-const background0 = new bobj({ name: "background3" })
+const player      = new Player(60, 50, false)
+const background  = new bobj({ name: "background3" })
+const midground   = new bobj({ name: "midground_s4" })
+const foreground  = new bobj({ name: "scene_s4" })
 
-const midground0 = new bobj({ name: "midground_s4" })
+const inviz       = new cobj({ name: "inviz_wall",  width: 10, height: 10, shows_debug_col: true })
+const moved_wall  = new cobj({ name: "moved_wall",  width: 10, height: 10, shows_debug_col: true })
+const height_wall = new cobj({ name: "height_wall", width: 1,  height: 10, shows_debug_col: true })
+const jumper      = new cobj({ name: "jumper",      width: 10, height: 3,  collides: false, shows_debug_col: true })
+const spawn_l     = new cobj({ name: "spawn_l",     width: 10, height: 10, collides: false })
+const spawn_r     = new cobj({ name: "spawn_r",     width: 10, height: 10, collides: false })
 
-const foreground0 = new bobj({ name: "scene_s4" })
+const scene = new Scene()
 
-let player = new Player(60, 50, false)
+scene.layer(background, -5, 0.3)
+scene.layer(midground,  -2, 0.6)
+scene.layer(foreground,  2, 1.0)
 
-const lvl = new level({
-    x: 0,
-    y: 0,
-    width: 32,
-    height: 18,
-    tile_width: 10,
-    tile_height: 10,
-    keys: [
-        {
-            char: "S", object: new cobj({
-                name: "spawn",
-                width: 10,
-                height: 10,
-                dynamic: true,
-                collides: false,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "x", object: new cobj({
-                name: "inviz_wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "v", object: new cobj({
-                name: "moved_wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "h", object: new cobj({
-                name: "height_wall",
-                width: 1,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "j", object: new cobj({
-                name: "jumper",
-                width: 10,
-                height: 3,
-                collides: false,
-                shows_debug_col: true
-            })
-        }
-    ],
-    map: [
-        "h                               ",
-        "h    S                          ",
-        "h                               ",
-        "h  vvv                          ",
-        "h                               ",
-        "h                               ",
-        "hvvvv                           ",
-        "h                               ",
-        "h                               ",
-        "xxxxxxxxxx         jjj          ",
-        "                             S  ",
-        "                          xxxxxx",
-        "                          xxxxxx",
-        "                          xxxxxx",
-        "                          xxxxxx",
-        "                                ",
-        "                                ",
-        "                                ",
-    ]
-})
+scene.tiles(10, 10, {
+    'x': inviz,
+    'v': moved_wall,
+    'h': height_wall,
+    'j': jumper,
+    'L': spawn_l,
+    'R': spawn_r,
+}, [
+    "h                               ",
+    "h    L                          ",
+    "h                               ",
+    "h  vvv                          ",
+    "h                               ",
+    "h                               ",
+    "hvvvv                           ",
+    "h                               ",
+    "h                               ",
+    "xxxxxxxxxx         jjj          ",
+    "                             R  ",
+    "                          xxxxxx",
+    "                          xxxxxx",
+    "                          xxxxxx",
+    "                          xxxxxx",
+    "                                ",
+    "                                ",
+    "                                ",
+])
 
-function start() {
-    game.world.appendChild(background0.graphic)
-    game.world.appendChild(midground0.graphic)
-    game.world.appendChild(player.graphic)
+const moved = scene.find_all('v')
+moved[0].shift(6, 0)
+moved[1].shift(-5, 0)
 
-    const moved = lvl.find_all("moved_wall")
-    moved[0].shift(6, 0)
-    moved[1].shift(-5, 0)
-
-    const spawns = lvl.find_all("spawn")
-    if (come_from("s5.html")) {
-        lvl.substitute(spawns[0], player)
-    } else {
-        lvl.substitute(spawns[1], player)
-        player.facing = -1
-    }
-
-    player.y_speed = player.max_gravity
-    player.graphic.classList.add("falling")
-
-    lvl.spawn()
-    game.world.appendChild(foreground0.graphic)
-    game.update(player_move)
-}
-
-const jumper_force = 4
-const jumper = lvl.find("jumper")
 jumper.shift(-5, 7)
 
-function player_move() {
-    player.update()
+scene.spawn(player, spawn_l, () => come_from("s5.html"))
+scene.spawn(player, spawn_r, () => true, () => { player.facing = -1 })
 
-    lvl.toggle_debug(player)
+scene.camera(player, { lerp: 0.1 })
+
+const jumper_force = 4
+
+scene.update(function() {
+    player.update()
+    scene.toggle_debug()
 
     if (player.collide(jumper, false)) {
-
-        if (input.probe("s", input.KEYHELD)) {
-            player.call_force({ y: -jumper_force * 1.4, y_time: 1 })
-        } else {
-            player.call_force({ y: -jumper_force, y_time: 1 })
-        }
+        player.call_force({
+            y: input.probe("s", input.KEYHELD) ? -jumper_force * 1.4 : -jumper_force,
+            y_time: 1
+        })
     }
 
     player.apply_force()
+    scene.move_and_collide()
 
-    lvl.move_and_collide()
+    if (player.y + player.height < 0) send_to("./s5.html")
+    if (player.y > game.height)        window.location.href = "./s4.html"
+    if (player.x > game.width)         send_to("./s3.html")
+})
 
-    if (player.y + player.height < 0) {
-        send_to("./s5.html")
-    }
-
-    if (player.y > game.height) {
-        window.location.href = "./s4.html"
-    }
-
-    if (player.x > game.width) {
-        send_to("./s3.html")
-    }
-}
-
-start()
-game.run()
+scene.run()

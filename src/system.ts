@@ -1149,7 +1149,7 @@ export class Scene {
         for (const tile of this._tile_objs) {
             if (this._spawn_markers.has(tile)) continue
             const col = this._collectables.find(c => c.obj === tile)
-            if (col?.collected) continue
+            if (col && col.collected) continue
             main.el.appendChild(tile.graphic)
             if (tile.shows_debug_col && tile.collider) {
                 tile.collider.style.visibility = 'hidden'
@@ -1184,7 +1184,7 @@ export class Scene {
                     game.save_collectable(world, item)
                     if (main) {
                         if (col.obj.graphic.parentNode === main.el) main.el.removeChild(col.obj.graphic)
-                        if (col.obj.collider?.parentNode === main.el) main.el.removeChild(col.obj.collider)
+                        if (col.obj.collider && col.obj.collider.parentNode === main.el) main.el.removeChild(col.obj.collider)
                     }
                     const di = this._dynamic_objs.indexOf(col.obj)
                     if (di !== -1) this._dynamic_objs.splice(di, 1)

@@ -1,174 +1,84 @@
 import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
-import { bobj, cobj, game, level } from "../../src/system.js"
-
+import { bobj, cobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
-const background0 = new bobj({name: "background3"})
+const player     = new Player(60, 50, false)
+const background = new bobj({ name: "background3" })
+const midground  = new bobj({ name: "midground_s5" })
+const foreground = new bobj({ name: "scene_s5" })
 
-const foreground0 = new bobj({name: "scene_s5"})
+const wall    = new cobj({ name: "wall",       width: 10, height: 10, shows_debug_col: true })
+const inviz   = new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+const thin    = new cobj({ name: "thin_wall",  width: 4,  height: 10, shows_debug_col: true })
+const half    = new cobj({ name: "half_wall",  width: 10, height: 1,  one_way: true, shows_debug_col: true })
+const bone    = new cobj({ name: "bone",       width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true })
+const spawn_s = new cobj({ name: "spawn_s",    width: 10, height: 10, collides: false })
+const spawn_t = new cobj({ name: "spawn_t",    width: 10, height: 10, collides: false })
 
-const midground0 = new bobj({name: "midground_s5"})
+const scene = new Scene()
 
-let player = new Player(60, 50, false)
+scene.layer(background, -5, 0.3)
+scene.layer(midground,  -2, 0.6)
+scene.layer(foreground,  2, 1.0)
 
-const lvl = new level({
-    x: 0,
-    y: 0,
-    width: 32,
-    height: 18,
-    tile_width: 10,
-    tile_height: 10,
-    keys: [
-        {
-            char: "#", object: new cobj({
-                name: "wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "S", object: new cobj({
-                name: "spawn",
-                width: 10,
-                height: 10,
-                dynamic: true,
-                collides: false,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "x", object: new cobj({
-                name: "inviz_wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "y", object: new cobj({
-                name: "thin_wall",
-                width: 4,
-                height: 10,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "v", object: new cobj({
-                name: "half_wall",
-                width: 10,
-                height: 1,
-                shows_debug_col: true,
-                one_way: true
-            })
-        },
-        {
-            char: "B", object: new cobj({
-                name: "bone",
-                width: 10,
-                height: 10,
-                shows_debug_col: true,
-                dynamic: true,
-                collides: false
-            })
-        }
-    ],
-    map: [
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                               x",
-        "                               x",
-        "              B                x",
-        "                               x",
-        "                               x",
-        "                 vvvvvvvv      x",
-        "                               x",
-        "            vvv     vvvv       x",
-        "                               x",
-        "S  y                           x",
-        "xxxx   xxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxx S xxxxxxxxxxxxxxxxxxxxxxxxx",
-    ]
-})
+scene.tiles(10, 10, {
+    '#': wall,
+    'x': inviz,
+    'y': thin,
+    'v': half,
+    'B': bone,
+    'S': spawn_s,
+    'T': spawn_t,
+}, [
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                               x",
+    "                               x",
+    "              B                x",
+    "                               x",
+    "                               x",
+    "                 vvvvvvvv      x",
+    "                               x",
+    "            vvv     vvvv       x",
+    "                               x",
+    "S  y                           x",
+    "xxxx   xxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxx T xxxxxxxxxxxxxxxxxxxxxxxxx",
+])
+
+const halfs = scene.find_all('v')
+halfs[0].shift(0, 1)
+halfs[1].shift(0, 6)
+halfs[2].shift(3, 5)
+thin.shift(5, 0)
+
+scene.spawn(player, spawn_s, () => come_from("s6.html"))
+scene.spawn(player, spawn_t, () => true, () => { boll = true })
+
+scene.collectable(bone, "world0/bone_s5")
+scene.camera(player, { lerp: 0.1 })
 
 let boll = false
-const bone = lvl.find("bone")
 
-function start() {
-    game.world.appendChild(background0.graphic)
-    game.world.appendChild(midground0.graphic)
-    game.world.appendChild(player.graphic)
-
-    const halfs = lvl.find_all("half_wall")
-    halfs[0].move(null, halfs[0].y + 1)
-    halfs[1].move(null, halfs[1].y + 6)
-    halfs[2].move(halfs[2].x + 3, halfs[2].y + 5)
-
-    const thin = lvl.find("thin_wall")
-    thin.shift(5, 0)
-
-    const spawns = lvl.find_all("spawn")
-
-    if (come_from("s6.html")) {
-        lvl.substitute(spawns[0], player)
-        player.facing = 1
-    } else {
-        lvl.substitute(spawns[1], player)
-        player.facing = 1
-        boll = true
-    }
-
-    game.save_transport()
-
-    player.y_speed = player.max_gravity
-    player.graphic.classList.add("falling")
-
-    lvl.spawn()
-    game.world.appendChild(foreground0.graphic)
-
-    game.update(player_move)
-}
-
-function player_move() {
+scene.update(function() {
     player.update()
+    scene.toggle_debug()
 
-    lvl.toggle_debug(player)
-
-    if (boll == true) {
-        player.call_force({
-            x: 1,
-            y: -5,
-            x_time: 30,
-            y_time: 1
-        })
+    if (boll) {
+        player.call_force({ x: 1, y: -5, x_time: 30, y_time: 1 })
         boll = false
     }
 
     player.apply_force()
+    scene.move_and_collide()
 
-    if (player.collide(bone, false)) {
-        bone.move(0, 100)
-        game.world.removeChild(bone.graphic)
-        game.world.removeChild(bone.collider)
-        game.save_collectable("world0", "bone_s5")
-    }
-    
-    lvl.move_and_collide()
+    if (player.y > game.height)        send_to("./s4.html")
+    if (player.x + player.width < 0)   send_to("./s6.html")
+})
 
-    if (player.y > game.height) {
-        send_to("./s4.html")
-    }
-
-    if (player.x + player.width < 0) {
-        send_to("./s6.html")
-    }
-}
-
-
-start()
-game.run()
+scene.run()
