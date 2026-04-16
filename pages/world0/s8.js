@@ -49,6 +49,7 @@ scene.update(function() {
     scene.move_and_collide()
 
     if (player.x > game.width) send_to("./s7.html")
+    if (player.y > game.height) send_to("../world1/level1/s1.html")
 })
 
 scene.run()

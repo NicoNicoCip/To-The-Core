@@ -55,6 +55,14 @@
     background-image: url("/pages/assets/world0/s1_midground.webp");
 }
 
+#midground_s2 {
+    background-image: url("/pages/assets/world0/s2_midground.webp");
+}
+
+#midground_s3 {
+    background-image: url("/pages/assets/world0/s3_midground.webp");
+}
+
 #midground_s4 {
     background-image: url("/pages/assets/world0/s4_midground.webp");
 }

@@ -5,6 +5,7 @@ boil_the_plate()
 
 const player     = new Player(60, 50, false)
 const background = new bobj({ name: "background3" })
+const midground = new bobj({ name: "midground_s3" })
 const foreground = new bobj({ name: "scene_s3" })
 
 const wall    = new cobj({ name: "wall",       width: 10, height: 10, shows_debug_col: true })
@@ -16,6 +17,7 @@ const jumper  = new cobj({ name: "jumper",     width: 10, height: 3,  collides: 
 const scene = new Scene()
 
 scene.layer(background, -5, 0.3)
+scene.layer(midground, -3, 0.5)
 scene.layer(foreground,  2, 1.0)
 
 scene.tiles(10, 10, {
