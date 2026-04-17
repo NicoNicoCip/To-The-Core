@@ -1,116 +1,184 @@
 ================================================================
-    Setup:
+    Setup
 ================================================================
 
-To set up a new scene you have to follow this default structure:
+Every scene starts the same way. Call boil_the_plate() at the top — it registers
+the world canvas (320x180) and sets up keyboard input. Then build your scene with
+the Scene class and call scene.run() at the end. That's the full loop.
 
 ================================================================
 
 import { boil_the_plate, Player } from "../../src/prefabs.js"
-import { cobj, game, level } from "../../src/system.js"
+import { cobj, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
-let player = new Player(60, 50, false)
+const player = new Player(60, 50, false)
 
-const lvl = new level({
-    x: 0,
-    y: 0,
-    width: 32,
-    height: 18,
-    tile_width: 10,
-    tile_height: 10,
-    keys: [
-        {
-            char: "S", object: new cobj({
-                name: "spawn",
-                width: 10,
-                height: 10,
-                dynamic: true,
-                collides: false,
-                shows_debug_col: true
-            })
-        },
-        {
-            char: "x", object: new cobj({
-                name: "inviz_wall",
-                width: 10,
-                height: 10,
-                shows_debug_col: true
-            })
-        }
-    ],
-    map: [
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                                ",
-        "                               x",
-        "x                              x",
-        "x                              x",
-        "x                              x",
-        "x                              x",
-        "x                              x",
-        "x                              x",
-        "x                              x",
-        "x              S               x",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    ]
+const wall  = new cobj({ name: "wall",       width: 10, height: 10, shows_debug_col: true })
+const inviz = new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+const spawn = new cobj({ name: "spawn",      width: 10, height: 10, collides: false })
+
+const scene = new Scene()
+
+scene.tiles(10, 10, {
+    '#': wall,
+    'x': inviz,
+    'S': spawn,
+}, [
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                               x",
+    "x                              x",
+    "x                              x",
+    "x                              x",
+    "x                              x",
+    "x                              x",
+    "x                              x",
+    "x                              x",
+    "x              S               x",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+])
+
+scene.spawn(player, spawn, () => true)
+scene.camera(player, { lerp: 0.1 })
+
+scene.update(function() {
+    player.update()
+    scene.toggle_debug()
+    player.apply_force()
+    scene.move_and_collide()
 })
 
-function start() {
-    game.world.appendChild(player.graphic)
-
-    const spawn = lvl.find("spawn")
-    lvl.substitute(spawn, player)
-    player.facing = 1
-
-    game.save_transport()
-
-    player.y_speed = player.max_gravity
-    player.graphic.classList.add("falling")
-
-    lvl.spawn()
-}
-
-function player_move() {
-    player.update()
-
-    lvl.toggle_debug(player)
-
-    player.apply_force()
-
-    lvl.move_and_collide()
-}
-
-game.start(start)
-game.update(player_move)
-game.run()
+scene.run()
 
 ================================================================
 
-This will add and create a player for you. No background and no graphics. Note that
-imports have to be local to the scene.
+The test scene (pages/test/) has this exact setup working. Copy it, rename the
+copy, and edit that — don't touch the original or it'll get overwritten from GitHub.
 
 ================================================================
-    For the htmls:
+    The Scene class
 ================================================================
 
-Html files are needed to set up the scene with the proper pre-imports for 
-graphical resources. The webp's are loaded randomly while the page is running.
-To make sure the animations are synked and that they dont pop in when the player
-moves into the scene, this is needed for each webp used in the scene:
+scene.tiles(tile_w, tile_h, keys, map)
+    Defines the tile grid. tile_w and tile_h are the pixel size of each cell
+    (almost always 10). keys maps single characters to cobj instances. map is
+    an array of strings, one per row. Adjacent tiles with the same name are
+    merged automatically — a row of 8 wall tiles becomes one 80x10 object,
+    which keeps the DOM small and collision fast.
+
+scene.layer(visual_obj, z, parallax)
+    Adds a background or foreground visual layer. z controls depth — negative values
+    go behind the tiles, positive go in front.
+
+    parallax can be a single number (both axes) or { x, y } to lock individual axes.
+    Omitting an axis in the object form locks it in place (defaults to 0).
+
+    parallax < 1.0  Background / mid layer. The div stays fixed to the screen and
+                    always fills the viewport. The image shifts via background-position
+                    based on the focused object's normalized position across the world
+                    (Celeste-style). No black edges — add background-repeat: repeat in
+                    CSS for seamless tiling across large worlds.
+    parallax = 1.0  World layer. Translates 1:1 with the camera. Use this for
+                    foreground decorations that should track the level exactly.
+    parallax > 1.0  Close-up layer. Scrolls faster than the world — gives the
+                    impression of something very close (foreground rain, debris, etc.).
+
+    Per-axis examples:
+        scene.layer(bg, -5, { x: 0.3 })         // scroll on x only, y locked
+        scene.layer(bg, -5, { y: 0.3 })         // scroll on y only, x locked
+        scene.layer(bg, -5, { x: 0.3, y: 0.1 }) // different rate per axis
+
+scene.spawn(player, at, when, on_spawn)
+    Registers a spawn rule. at is a tile instance or a {x, y} point. when is
+    a function returning true/false — the first rule that passes wins, the rest
+    are ignored. on_spawn is an optional callback that fires once after the
+    player is placed. Use come_from() for conditional spawns:
+
+        scene.spawn(player, spawn_left,  () => come_from("s2.html"))
+        scene.spawn(player, spawn_right, () => true)   // fallback
+
+scene.collectable(obj, id)
+    Registers a collectable. id format is "worldName/itemName". If already
+    saved in localStorage, the tile is removed before the scene starts.
+    Otherwise the scene watches for overlap — on contact it removes the tile
+    and saves it. See the Collectables section for more.
+
+scene.place(obj)
+    Adds a free-standing world object to the main layer. Use this for anything
+    that isn't a tile and isn't a player — death zones, crumble platforms, force
+    zones, etc. The object scrolls with the world and shows up in debug mode.
+
+scene.camera(target, opts)
+    Follows a target object. All options are optional.
+
+    lerp          Uniform smoothing for both axes. 0 = instant, 0.1 = smooth.
+    lerp_x        Horizontal smoothing only.
+    lerp_y        Vertical smoothing only. Useful to make x smooth but y snappy.
+    bounds        Clamp camera to level edges (default true). Set false for
+                  small rooms or cutscenes where the level is smaller than the screen.
+    offset_x      Shift the camera's focal point horizontally (pixels). Positive
+                  moves the view right, showing more of what's to the right.
+    offset_y      Same but vertical. Negative shifts view up.
+    look_ahead    Pixels to lead ahead in the direction the player is facing.
+                  The camera drifts smoothly when the player turns. Works on any
+                  pobj target (including Player).
+    deadzone_x    Horizontal deadzone half-width in pixels. The camera only moves
+                  horizontally when the player exits this window around the screen
+                  centre. Gives the player more room to move before the camera reacts.
+    deadzone_y    Same but vertical.
+
+scene.cam_snap()
+    Instantly positions the camera on its target. Called automatically inside
+    scene.run() so the camera never lerps in from (0,0) on scene start. Call it
+    manually after teleporting the player or cutting to a new position.
+
+scene.update(fn)
+    Your per-frame game logic goes here. Called every fixed timestep (60 fps).
+    Always include player.update(), scene.toggle_debug(), player.apply_force(),
+    and scene.move_and_collide() in that order.
+
+scene.run()
+    Builds the DOM, saves the current URL as the navigation checkpoint, and
+    starts the game loop. Always call this last.
+
+scene.find(char)
+    Returns the first surviving tile of that character after merging. Use it
+    to fine-tune a tile's position after scene.tiles():
+
+        scene.find('v').shift(0, 1)
+
+scene.find_all(char)
+    Returns all surviving tiles of that character. Use when the same character
+    appears multiple times and merges into separate groups:
+
+        const halfs = scene.find_all('v')
+        halfs[0].shift(0, 1)
+        halfs[1].shift(0, 6)
+
+scene.move_and_collide()
+    Resolves all collisions and syncs the DOM. Call after player.apply_force().
+
+scene.toggle_debug()
+    Press P to toggle debug collider outlines. Call every frame.
+
+================================================================
+    For the HTML files
+================================================================
+
+Each scene needs an HTML file. The important part is preloading your webps so
+sprites don't pop in when the player enters the scene:
 
     <link rel="preload" as="image" href="/pages/assets/background0.webp">
 
-Just replace the href with the actual path of the webp.
-
-
-This is the general structure of the base html file:
+One line per webp. Here's the full template:
 
 ================================================================
 
@@ -121,16 +189,16 @@ This is the general structure of the base html file:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/pages/assets/dog.ico" type="image/x-icon">
-    <title>To The Core | by PWStudio</title> 
+    <title>To The Core | by PWStudio</title>
     <link rel="stylesheet" href="/pages/index.css">
     <link rel="stylesheet" href="./world0.css">
-    <link rel="preload" as="image" href="/pages/assets/background0.webp">
-    <link rel="preload" as="image" href="/pages/assets/to_the_core_sign.webp">
-    <link rel="preload" as="image" href="/pages/assets/play_sign.webp">
-    <link rel="preload" as="image" href="/pages/assets/play_sign_active.webp">
+    <link rel="preload" as="image" href="/pages/assets/dog.webp">
+    <link rel="preload" as="image" href="/pages/assets/dog_walking.webp">
+    <link rel="preload" as="image" href="/pages/assets/dog_falling.webp">
+    <link rel="preload" as="image" href="/pages/assets/dog_rising.webp">
 
     <script type="module" src="/src/system.js"></script>
-    <script type="module" src="./test.js"></script>
+    <script type="module" src="./s1.js"></script>
 </head>
 
 <body>
@@ -138,25 +206,21 @@ This is the general structure of the base html file:
     <div id="world"></div>
 </body>
 
+</html>
+
 ================================================================
 
-Notebale things:
-
-1. the second stylesheet needs the local file as the ref.
-2. the second module script has to be the js file of the scene.
-
-The world div in the body is needed while the debug one is not. you can use it to display
-extra debug info above and outside the playable area of the game, as the name suggests,
-dor debug purposes.
+The second stylesheet href should point to the local css file for the scene.
+The second script src should point to the local js file. The #world div is
+required. The #debug div is optional — use it to show extra info outside the
+game canvas during development.
 
 ================================================================
     The CSS
 ================================================================
 
-These are the paths and extra special effects that you can add to each object in the scene
-Note that this engine has different divs for each and every single object.
-
-this is the default structure of one CSS file:
+Each object in the game is its own div, referenced by its name as a CSS id.
+Sprite states are CSS classes that the engine adds and removes automatically.
 
 ================================================================
 
@@ -176,26 +240,550 @@ this is the default structure of one CSS file:
     background-image: url("/pages/assets/dog_rising.webp") !important;
 }
 
+#wall {
+    background-image: url("/pages/assets/ground.webp");
+}
+
+#bone {
+    background-image: url("/pages/assets/golden_bone.webp");
+}
+
 ================================================================
 
-Notes:
+!important is needed on state sprites so they override the base id style.
+Without it, .moving wouldn't override #player's background-image.
 
-1. !important overrides the default of whatever another css class or index sets.
-    this way we can have stuff like the player changing sprites based on its state
-    for example. in the case above, moving, falling, and rising, replace the 
-    background-image of the #player above.
+================================================================
+    Tile types
+================================================================
 
-2. There are no more notes.
+These are the cobj configurations used as tile keys. The character you pick
+for the map string is up to you — the ones below are conventions from the
+existing scenes.
 
-You will notice that all this example code is pressent in the test scene. you can enter
-it and see it working. you can also use it to do your own tests before implementing stuff.
-Just make sure you copy the basse test scene, rename it and edit the copy. Editing the base
-itself, will result in overwriting the GitHub version of the scene, which can cause frustration
-later.
+wall (#)
+    new cobj({ name: "wall", width: 10, height: 10, shows_debug_col: true })
+    Solid collision tile. Merges with adjacent same-name tiles.
+    Or use the factory: wall_tile()
+
+one-way platform (v)
+    new cobj({ name: "platform", width: 10, height: 10, one_way: true, shows_debug_col: true })
+    Solid only from above. The player can jump through it from below and drop
+    through by holding S. Often needs a small shift after placement:
+        scene.find('v').shift(0, 1)
+    Or use the factory: platform_tile()
+
+invisible wall (x)
+    new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+    Full collision, no sprite. Good for level boundaries. Shows in debug mode.
+    Or use: invisible_wall_tile()
+
+thin wall (y)
+    new cobj({ name: "thin_wall", width: 4, height: 10, shows_debug_col: true })
+    4px-wide vertical wall. Used for tight gaps and door frames.
+
+half wall (v, alternate)
+    new cobj({ name: "half_wall", width: 10, height: 1, one_way: true, shows_debug_col: true })
+    1px-tall invisible one-way surface. The player lands on it from above.
+    Position it precisely with .shift().
+
+spawn marker (S, T, etc.)
+    new cobj({ name: "spawn", width: 10, height: 10, collides: false })
+    No collision, invisible. A position reference for scene.spawn().
+    You can have multiple spawn markers with different names for different
+    entry points. Or use: spawn_tile()
+
+jump pad (j)
+    new cobj({ name: "jump_pad", width: 10, height: 10, collides: false, shows_debug_col: true })
+    No collision. Detect the overlap yourself and call player.call_force():
+
+        const pad = scene.find('j')
+        scene.update(function() {
+            if (player.overlaps(pad)) {
+                player.call_force({ y: -6, y_time: 1 })
+            }
+            ...
+        })
+
+    Or use: jump_pad_tile()
+
+bone (B)
+    new cobj({ name: "bone", width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true })
+    Collectable. No physics collision. Pass to scene.collectable() and the
+    engine handles the rest. Or use: bone_tile()
+
+================================================================
+    Prefab factory functions
+================================================================
+
+prefabs.js exports ready-to-use factory functions. These work from plain
+JavaScript — no TypeScript needed. Just import from prefabs.js.
+
+The tile factories return a configured cobj to use as a key in scene.tiles().
+The object factories create a standalone instance placed at a position.
+
+================================================================
+
+import {
+    boil_the_plate, send_to, come_from,
+    Player, Shaker,
+    wall_tile, platform_tile, spawn_tile, invisible_wall_tile,
+    jump_pad_tile, bone_tile,
+    make_player, make_bone,
+    DeathZone, CrumblePlatform, JumpOncePlatform, ForceZone,
+} from "../../src/prefabs.js"
+
+================================================================
+
+Tile factories (for scene.tiles() keys):
+
+    wall_tile()              solid wall, 10x10
+    platform_tile()          one-way platform, 10x10
+    spawn_tile()             spawn marker, no collision
+    invisible_wall_tile()    invisible wall with collision
+    jump_pad_tile()          trigger zone, no collision
+    bone_tile()              collectable bone, no collision
+
+Object factories (standalone instances at a position):
+
+    make_player(x, y)        returns a new Player at (x, y)
+    make_bone(x, y)          returns a bone cobj at (x, y)
+
+Example using factories instead of raw cobj constructors:
+
+================================================================
+
+import { boil_the_plate, wall_tile, platform_tile,
+         spawn_tile, bone_tile, make_player } from "../../src/prefabs.js"
+import { Scene } from "../../src/system.js"
+
+boil_the_plate()
+
+const player = make_player(0, 0)
+const scene  = new Scene()
+
+scene.tiles(10, 10, {
+    '#': wall_tile(),
+    'v': platform_tile(),
+    'S': spawn_tile(),
+    'B': bone_tile(),
+}, [
+    "                                ",
+    "         B                      ",
+    "       vvvvvv                   ",
+    "                                ",
+    "S              vvvvvv           ",
+    "################################",
+])
+
+scene.spawn(player, scene.find('S'), () => true)
+scene.collectable(scene.find('B'), "world1/bone1")
+scene.camera(player, { lerp: 0.1 })
+
+scene.update(function() {
+    player.update()
+    scene.toggle_debug()
+    player.apply_force()
+    scene.move_and_collide()
+})
+
+scene.run()
+
+================================================================
+    Special world objects
+================================================================
+
+These prefabs are placed freely in the world (not via scene.tiles). Create them,
+call scene.place() so they mount to the right DOM layer, position them with
+move(), then call their update() or check() method every frame.
+
+All of them accept a name so you can style them with CSS like any other object.
+Width and height are always configurable. All units are pixels, all timers are
+in frames (60 frames = 1 second).
+
+================================================================
+
+DEATH ZONE
+
+Kills the player — or does whatever you pass as on_hit — when they overlap it.
+Good for spikes, lava, pits, anything instakill.
+
+    const spikes = new DeathZone({
+        name: "spikes",
+        width: 30, height: 4,
+        on_hit: () => send_to("./s1.html"),
+    })
+    scene.place(spikes)
+    spikes.move(80, 176)
+
+    scene.update(function() {
+        ...
+        spikes.check(player)
+    })
+
+    spikes.check(player)   // calls on_hit if the player overlaps
+
+================================================================
+
+CRUMBLE PLATFORM
+
+One-way platform. Timer starts the moment the player lands on it and ticks
+while they stay. At 50% of stay_frames the engine adds the class "crumbling" to
+the graphic — use that in CSS to play a shake or flash. At stay_frames it
+disappears. Reappears after respawn_frames. Timer resets if the player steps off.
+
+    const crumble = new CrumblePlatform({
+        name: "crumble",
+        width: 30, height: 4,
+        stay_frames: 90,
+        respawn_frames: 180,
+    })
+    scene.place(crumble)
+    crumble.move(80, 120)
+
+    scene.update(function() {
+        ...
+        crumble.update(player)   // handles collision and state internally
+    })
+
+CSS for the warning state:
+    #crumble.crumbling { animation: shake 0.1s infinite; }
+
+================================================================
+
+JUMP-ONCE PLATFORM
+
+One-way platform that disappears the instant the player leaves it — whether they
+jump, walk off the edge, or get knocked off. Reappears after respawn_frames.
+
+    const jp = new JumpOncePlatform({
+        name: "jump_once",
+        width: 30, height: 4,
+        respawn_frames: 120,
+    })
+    scene.place(jp)
+    jp.move(140, 100)
+
+    scene.update(function() {
+        ...
+        jp.update(player)
+    })
+
+================================================================
+
+FORCE ZONE
+
+Invisible region that pushes the player while they're inside it. force_x and
+force_y are added to the player's speed every frame, so keep the values small
+(0.1–0.5 is usually enough). Works as a fan, conveyor belt, wind gust, or updraft.
+
+A fan pushing up (counteracting gravity of 0.2):
+    const fan = new ForceZone({ name: "fan", width: 20, height: 40, force_y: -0.4 })
+
+A conveyor belt pushing right:
+    const belt = new ForceZone({ name: "belt", width: 60, height: 4, force_x: 0.5 })
+
+    scene.place(fan)
+    fan.move(60, 80)
+
+    scene.update(function() {
+        ...
+        fan.update(player)
+    })
+
+================================================================
+
+OVERLAPS (utility)
+
+Any cobj has an overlaps() method that does a plain AABB check — use it
+whenever you need to detect contact without physics resolution.
+
+    if (player.overlaps(zone)) { ... }
+
+This is what DeathZone.check() uses internally. Also useful for custom triggers,
+dialogue zones, checkpoints, etc.
+
+================================================================
+    The Player
+================================================================
+
+new Player(x, y, shake)
+    x, y  — starting position in pixels
+    shake — if true, the intro landing animation plays on first contact
+
+Controls:
+    A / D    — move left / right
+    Space    — jump (coyote time gives you 4 frames after leaving a ledge)
+    S        — squash on ground / drop through one-way platforms
+
+Physics (tweak these after construction if needed):
+    player.gravity     = 0.2   downward pull per frame
+    player.max_gravity = 6     terminal velocity
+    player.jump_force  = 4     speed applied upward on jump
+    player.max_acc     = 2     max horizontal speed
+    player.friction    = 0.4   deceleration when no input
+
+Sprite states (automatically managed CSS classes):
+    (none)       idle — dog.webp
+    .moving      walking — dog_walking.webp
+    .falling     airborne, falling — dog_falling.webp
+    .rising      airborne, rising — dog_rising.webp
+    .falling_in  landing animation — dog_falling_in.webp (only when shake=true)
+
+Squash and stretch:
+    The player auto-squashes on jump and landing. You can also trigger it:
+        player.squash(1.2, 0.65)   // wide and flat
+        player.squash(0.85, 1.1)   // tall and thin
+
+Forces:
+    player.call_force({ y: -6, y_time: 1 })
+        Applies an external velocity for a number of frames. Use for jump pads,
+        knockback, catapults, etc. Call it once — it runs itself out.
+
+    player.apply_force()
+        Must be called every frame before move_and_collide(). Returns true when
+        all active forces have expired, or { x_end, y_end } while they're still running.
+
+The update loop for a scene with a player always looks like this:
+
+    scene.update(function() {
+        player.update()
+        scene.toggle_debug()
+        player.apply_force()
+        scene.move_and_collide()
+    })
+
+================================================================
+    Navigation
+================================================================
+
+send_to(url)
+    Saves the current page as the navigation checkpoint, then goes to url.
+    Use this whenever the player exits a scene:
+
+        if (player.x > game.width)  send_to("./s2.html")
+        if (player.y > game.height) send_to("./s4.html")
+
+come_from(html)
+    Returns true if the player arrived from that specific scene. Use it as
+    the condition in scene.spawn() to pick the right entry point:
+
+        scene.spawn(player, spawn_left,  () => come_from("s2.html"))
+        scene.spawn(player, spawn_right, () => true)
+
+boil_the_plate()
+    Registers the world canvas and keyboard input. Call it at the very top of
+    every scene file, before anything else.
+
+================================================================
+    Collectables
+================================================================
+
+Register a collectable with scene.collectable(obj, id). The id is a string in
+"worldName/itemName" format — pick anything, just keep it unique.
+
+    scene.collectable(bone, "world0/bone_s5")
+
+When scene.run() fires, if that id is already in localStorage the tile is
+silently removed and the player never sees it. If it hasn't been collected,
+the scene watches every frame. When the player touches it, it disappears and
+gets saved. That's all there is to it.
+
+To check programmatically whether something was collected:
+    game.check_collectable("world0", "bone_s5")   // true or false
+
+================================================================
+    Background layers
+================================================================
+
+Use scene.layer() with bobj to add parallax backgrounds and foregrounds.
+bobj defaults to the full viewport size (game.width × game.height) if you don't
+pass width/height — so it automatically fills the screen at any resolution.
+
+================================================================
+
+import { bobj } from "../../src/system.js"
+
+const background = new bobj({ name: "background3" })
+const midground  = new bobj({ name: "midground_s5" })
+const foreground = new bobj({ name: "scene_s5" })
+
+scene.layer(background, -5, 0.3)   // behind tiles, drifts at 30% of the player's world position
+scene.layer(midground,  -2, 0.6)   // behind tiles, drifts at 60% of the player's world position
+scene.layer(foreground,  2, 1.0)   // in front of tiles, translates 1:1 with the world
+
+================================================================
+
+To note that a value of 0 for the third parameter means that there is no paralaxing
+done, or 0% of the players world position.
+
+The z value controls depth relative to the tile layer (z=0). Negative is behind,
+positive is in front. The parallax value controls how much the background shifts
+based on where the focused object is in the world.
+
+Layers with parallax < 1.0 work in screen space — the div always fills the
+viewport and the image inside shifts via background-position. The shift is
+proportional to the focused object's position across the world: at the left edge
+the background sits at 0, at the right edge it has moved by (game.width * parallax)
+pixels. This is the Celeste-style approach — it responds to where the player
+actually is in the level, not where the camera currently sits, so the parallax
+keeps drifting even when the camera hits the world boundary.
+
+Layers with parallax >= 1.0 are world-space and scroll with the camera directly.
+1.0 tracks the world exactly. Values above 1.0 scroll faster, giving the illusion
+of something very close (foreground rain, debris, etc.).
+
+Set the sprite in your CSS file using the object's name as the id:
+
+    #background3  { background-image: url("/pages/assets/background3.webp"); }
+    #midground_s5 { background-image: url("/pages/assets/world0/s5_midground.webp"); }
+
+================================================================
+    Camera shake
+================================================================
+
+The Shaker class offsets the world canvas randomly for a screen shake effect.
+
+================================================================
+
+import { Shaker } from "../../src/prefabs.js"
+
+const shaker = new Shaker()
+shaker.shake(3, 20)   // intensity in pixels, duration in frames
+
+scene.update(function() {
+    shaker.tick_shake()   // call every frame
+    ...
+})
+
+================================================================
+    Particle system
+================================================================
+
+The particle system has two modes. Pixel mode draws colored squares on a shared
+canvas — cheap and good for small effects like dust or sparks. Sprite mode creates
+individual divs with a background image — good for anything that needs a real sprite.
+
+Import emitter from system.js. No TypeScript required.
+
+================================================================
+
+import { emitter } from "../../src/system.js"
+
+================================================================
+
+PIXEL MODE EXAMPLE (sparks on a button press):
+
+    const sparks = new emitter()
+    sparks.mode         = "pixel"
+    sparks.x            = 100
+    sparks.y            = 80
+    sparks.color        = "#ffdd44"
+    sparks.size_min     = 2
+    sparks.size_max     = 4
+    sparks.speed_min    = 1
+    sparks.speed_max    = 3
+    sparks.lifetime_min = 20
+    sparks.lifetime_max = 40
+    sparks.gravity      = 0.1
+    sparks.fade         = true
+
+    sparks.burst(15)   // one-shot, 15 particles
+
+    scene.update(function() {
+        sparks.update()
+        emitter.draw_pixels()   // required for pixel mode — call once per frame
+        ...
+    })
+
+SPRITE MODE EXAMPLE (continuous rain of dogs):
+
+    const dogs = new emitter()
+    dogs.mode         = "sprite"
+    dogs.x            = 160
+    dogs.y            = -10
+    dogs.x_spread     = 160          // spreads spawns x ± 160px
+    dogs.rate         = 1.5          // particles per frame
+    dogs.angle_min    = 82 * Math.PI / 180
+    dogs.angle_max    = 98 * Math.PI / 180
+    dogs.speed_min    = 2
+    dogs.speed_max    = 4
+    dogs.lifetime_min = 80
+    dogs.lifetime_max = 130
+    dogs.sprite_url   = "/pages/assets/dog.webp"
+    dogs.sprite_w     = 10
+    dogs.sprite_h     = 10
+    dogs.gravity      = 0.02
+    dogs.fade         = false
+    dogs.spin         = true
+    dogs.spin_speed   = 5
+
+    dogs.start()
+
+    scene.update(function() {
+        dogs.update()
+        ...
+    })
+
+    dogs.stop()   // stops spawning; existing particles finish their lifetime
+
+ALL PROPERTIES:
+
+    x, y            Spawn position.
+    x_spread        Each particle spawns at x ± random(x_spread). Good for rain.
+    mode            "pixel" or "sprite".
+    rate            Particles per frame for continuous emission. 0 = burst only.
+    angle_min/max   Direction range in radians. 0=right, π/2=down, π=left, 3π/2=up.
+    speed_min/max   Initial speed range in pixels per frame.
+    lifetime_min/max  How long particles live, in frames.
+    size_min/max    Pixel size range (pixel mode only).
+    color           Fill color (pixel mode only). e.g. "#ff4400".
+    sprite_url      Background image URL (sprite mode only).
+    sprite_class    CSS class added to particle divs (sprite mode only).
+    sprite_w/h      Particle div size in pixels (sprite mode only).
+    gravity         Added to y_speed every frame. 0 = weightless.
+    fade            Fade opacity to 0 over lifetime.
+    shrink          Scale to 0 over lifetime.
+    spin            Rotate the particle each frame (sprite mode only).
+    spin_speed      Degrees of rotation per frame.
+
+METHODS:
+
+    emitter.start()           Begin continuous emission at rate particles/frame.
+    emitter.stop()            Stop spawning. Existing particles finish.
+    emitter.burst(count)      Emit count particles immediately. Default 10.
+    emitter.update()          Tick physics and DOM for all particles. Call every frame.
+    emitter.clear()           Kill all particles and remove their DOM elements.
+    emitter.attach(element)   Use a different container div instead of game.world.
+
+    emitter.draw_pixels()     Static. Clears and redraws the pixel canvas for all
+                              pixel-mode emitters. Call once per frame after all
+                              update() calls. Not needed for sprite mode.
+
+ANGLE CHEAT SHEET:
+
+    Straight right:   0
+    Straight down:    Math.PI / 2         (90°)
+    Straight left:    Math.PI             (180°)
+    Straight up:      3 * Math.PI / 2     (270°)
+    Upward fountain:  angle_min = 210 * Math.PI / 180
+                      angle_max = 330 * Math.PI / 180
+    Downward rain:    angle_min = 82 * Math.PI / 180
+                      angle_max = 98 * Math.PI / 180
+
+Live demos you can open in a browser:
+    pages/test/demo_fountain.html   dog fountain, sprite mode
+    pages/test/demo_rain.html       pixel rain, pixel mode
 
 ================================================================
     Debugging
 ================================================================
 
-Currenty there is just 1 debug graphic. by pressing P while playing, you get hitboxes
-of all the inportant objects in the scene. 
+Press P while playing to toggle collision box outlines on any object where
+shows_debug_col: true was set.
+
+The #debug div sits outside the game canvas. Use it to print values during
+development without cluttering the screen:
+
+    document.getElementById("debug").textContent =
+        `x: ${player.x.toFixed(1)}  y: ${player.y.toFixed(1)}`

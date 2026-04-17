@@ -17,9 +17,9 @@ const spawn_right = new cobj({ name: "spawn_right", width: 10, height: 10, colli
 
 const scene = new Scene()
 
-scene.layer(background, -5, 0.3)
-scene.layer(midground, -3, 0.5)
-scene.layer(foreground, 2, 1.0)
+scene.layer(background, -5, 0)
+scene.layer(midground, -3, 0)
+scene.layer(foreground, 2, 0)
 
 scene.tiles(10, 10, {
     '#': wall,
@@ -40,7 +40,7 @@ scene.tiles(10, 10, {
     "                                ",
     "                                ",
     "  L                             ",
-    "xxvvvv                          ",
+    "xxxxxx                          ",
     "xx                              ",
     "xx                              ",
     "xx   vvvvvvvv                   ",

@@ -14,9 +14,9 @@ const spawn_r = new cobj({ name: "spawn_r",    width: 10, height: 10, collides: 
 
 const scene = new Scene()
 
-scene.layer(background, -5, 0.3)
-scene.layer(midground,  -2, 0.6)
-scene.layer(foreground,  2, 1.0)
+scene.layer(background, -5, 0)
+scene.layer(midground,  -2, 0)
+scene.layer(foreground,  2, 0)
 
 scene.tiles(10, 10, {
     'x': inviz,

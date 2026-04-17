@@ -16,9 +16,9 @@ const jumper  = new cobj({ name: "jumper",     width: 10, height: 3,  collides: 
 
 const scene = new Scene()
 
-scene.layer(background, -5, 0.3)
-scene.layer(midground, -3, 0.5)
-scene.layer(foreground,  2, 1.0)
+scene.layer(background, -5, 0)
+scene.layer(midground, -3, 0)
+scene.layer(foreground, 2, 0)
 
 scene.tiles(10, 10, {
     '#': wall,

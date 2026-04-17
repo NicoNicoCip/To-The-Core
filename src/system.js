@@ -10,6 +10,20 @@ export class math {
     }
 }
 export class game {
+    static fps = 60;
+    static fixed_delta = 1000 / game.fps;
+    static accumulator = 0;
+    static now = 0;
+    static then = 0;
+    static delta = 0;
+    static starts = [];
+    static updates = [];
+    static deferred = [];
+    static on_resize = [];
+    static world = null;
+    static width = null;
+    static height = null;
+    static scale = null;
     static register_world(world, width, height) {
         if (world === null || world === undefined) {
             throw new Error("World in non optional.");
@@ -157,30 +171,16 @@ export class game {
         return collect !== null && collect[world] !== undefined && collect[world][item] === true;
     }
 }
-game.fps = 60;
-game.fixed_delta = 1000 / game.fps;
-game.accumulator = 0;
-game.now = 0;
-game.then = 0;
-game.delta = 0;
-game.starts = [];
-game.updates = [];
-game.deferred = [];
-game.on_resize = [];
-game.world = null;
-game.width = null;
-game.height = null;
-game.scale = null;
 export class obj {
+    graphic = null;
+    name = "";
+    x = 0;
+    y = 0;
+    _prev_x = -1;
+    _prev_y = -1;
+    width = 0;
+    height = 0;
     constructor({ name = null, x = null, y = null, width = null, height = null, }) {
-        this.graphic = null;
-        this.name = "";
-        this.x = 0;
-        this.y = 0;
-        this._prev_x = -1;
-        this._prev_y = -1;
-        this.width = 0;
-        this.height = 0;
         if (name !== null)
             this.name = name;
         if (x !== null)
@@ -244,17 +244,17 @@ export class bobj extends obj {
     }
 }
 export class cobj extends obj {
+    collider = null;
+    x_speed = 0;
+    y_speed = 0;
+    grounded = false;
+    dynamic = false;
+    collides = true;
+    shows_debug_col = false;
+    one_way = false;
+    drop_through = false;
     constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null, collides = null, shows_debug_col = null, one_way = null }) {
         super({ name, x, y, width, height });
-        this.collider = null;
-        this.x_speed = 0;
-        this.y_speed = 0;
-        this.grounded = false;
-        this.dynamic = false;
-        this.collides = true;
-        this.shows_debug_col = false;
-        this.one_way = false;
-        this.drop_through = false;
         if (width !== null)
             this.width = width;
         if (height !== null)
@@ -336,6 +336,15 @@ export class cobj extends obj {
         }
         return col;
     }
+    /** Simple AABB overlap test — use this for triggers and pickups instead of collide(). */
+    overlaps(other) {
+        if (!other)
+            return false;
+        return this.x < other.x + other.width &&
+            this.x + this.width > other.x &&
+            this.y < other.y + other.height &&
+            this.y + this.height > other.y;
+    }
     copy() {
         return cobj.copy(this);
     }
@@ -362,31 +371,31 @@ export class cobj extends obj {
     }
 }
 export class pobj extends cobj {
+    facing = 1;
+    was_grounded = false;
+    just_landed = false;
+    landed_once = false;
+    landing = false;
+    landing_timer = 0;
+    max_acc = 2;
+    max_gravity = 6;
+    acc_modifier = 0.4;
+    gravity = 0.2;
+    friction = 0.4;
+    jump_force = 4;
+    movedir = null;
+    shake = true;
+    _squash_x = 1;
+    _squash_y = 1;
+    _squash_lerp = 0.15;
+    _force_x = 0;
+    _force_y = 0;
+    _force_x_time = 0;
+    _force_y_time = 0;
+    coyote = 0;
+    coyote_time = 4;
     constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null, collides = null, shows_debug_col = null, one_way = null }) {
         super({ name, x, y, width, height, dynamic, collides, shows_debug_col, one_way });
-        this.facing = 1;
-        this.was_grounded = false;
-        this.just_landed = false;
-        this.landed_once = false;
-        this.landing = false;
-        this.landing_timer = 0;
-        this.max_acc = 2;
-        this.max_gravity = 6;
-        this.acc_modifier = 0.4;
-        this.gravity = 0.2;
-        this.friction = 0.4;
-        this.jump_force = 4;
-        this.movedir = null;
-        this.shake = true;
-        this._squash_x = 1;
-        this._squash_y = 1;
-        this._squash_lerp = 0.15;
-        this._force_x = 0;
-        this._force_y = 0;
-        this._force_x_time = 0;
-        this._force_y_time = 0;
-        this.coyote = 0;
-        this.coyote_time = 4;
     }
     update() {
         if (this.movedir === 1) {
@@ -478,6 +487,15 @@ export class pobj extends cobj {
     }
 }
 export class input {
+    static key_pairs = {};
+    static KEYDOWN = "key_down";
+    static KEYHELD = "key_held";
+    static KEYUP = "key_up";
+    static MOUSE_LEFT = false;
+    static MOSE_RIGHT = false;
+    static MOUSE_MIDDLE = false;
+    static MOUSE_SCROLL_UP = false;
+    static MOUSE_SCROLL_DOWN = false;
     static push(key, state) {
         if (typeof (key) !== "string") {
             throw new Error("Key must be string");
@@ -511,30 +529,20 @@ export class input {
         });
     }
 }
-input.key_pairs = {};
-input.KEYDOWN = "key_down";
-input.KEYHELD = "key_held";
-input.KEYUP = "key_up";
-input.MOUSE_LEFT = false;
-input.MOSE_RIGHT = false;
-input.MOUSE_MIDDLE = false;
-input.MOUSE_SCROLL_UP = false;
-input.MOUSE_SCROLL_DOWN = false;
 export class level {
+    objects = [];
+    flat = null;
+    dynamic_objs = [];
+    static_objs = [];
+    keys = null;
+    map = [];
+    x = 0;
+    y = 0;
+    width = 0;
+    height = 0;
+    tile_width = 0;
+    tile_height = 0;
     constructor({ x = null, y = null, width = null, height = null, tile_width = null, tile_height = null, keys = null, map = null }) {
-        this.objects = [];
-        this.flat = null;
-        this.dynamic_objs = [];
-        this.static_objs = [];
-        this.keys = null;
-        this.map = [];
-        this.x = 0;
-        this.y = 0;
-        this.width = 0;
-        this.height = 0;
-        this.tile_width = 0;
-        this.tile_height = 0;
-        this.debug_col_visible = false;
         if (x !== null)
             this.x = x;
         if (y !== null)
@@ -731,6 +739,7 @@ export class level {
             to.move(from.x, from.y);
         }
     }
+    debug_col_visible = false;
     toggle_debug(player) {
         if (input.probe("p", input.KEYDOWN)) {
             this.debug_col_visible = !this.debug_col_visible;
@@ -744,46 +753,230 @@ export class level {
     }
 }
 export class particle {
-    constructor() {
-        this.x = 0;
-        this.y = 0;
-        this.x_speed = 0;
-        this.y_speed = 0;
-        this.rotation = 0;
-    }
+    x = 0;
+    y = 0;
+    x_speed = 0;
+    y_speed = 0;
+    rotation = 0;
+    lifetime = 60;
+    max_lifetime = 60;
+    size = 4;
+    color = "#ffffff";
+    alpha = 1;
+    _el = null;
 }
 export class emitter {
+    x = 0;
+    y = 0;
+    mode = "pixel";
+    // Emission rate (particles per frame). 0 = burst-only.
+    rate = 0;
+    // Spawn velocity — direction in radians (0=right, π/2=down, π=left, 3π/2=up).
+    angle_min = 0;
+    angle_max = Math.PI * 2;
+    speed_min = 1;
+    speed_max = 3;
+    // Random x offset applied at spawn (particles spread across x ± x_spread).
+    x_spread = 0;
+    // Particle lifetime in frames.
+    lifetime_min = 30;
+    lifetime_max = 90;
+    // Pixel mode: size of the square drawn on canvas.
+    size_min = 2;
+    size_max = 6;
+    color = "#ffffff";
+    // Sprite mode: image and dimensions per particle.
+    sprite_url = null;
+    sprite_class = null;
+    sprite_w = 10;
+    sprite_h = 10;
+    // Per-frame gravity added to y_speed.
+    gravity = 0.1;
+    // Fade opacity to 0 over lifetime.
+    fade = true;
+    // Shrink size to 0 over lifetime.
+    shrink = false;
+    // Rotate particle each frame.
+    spin = false;
+    spin_speed = 5;
+    _particles = [];
+    _active = false;
+    _rate_acc = 0;
+    _container = null;
+    static _canvas = null;
+    static _ctx = null;
+    static _all_pixel = [];
+    // Creates the shared pixel canvas over the world. Called automatically.
+    static init_canvas() {
+        if (emitter._canvas)
+            return;
+        const canvas = document.createElement("canvas");
+        canvas.width = game.width;
+        canvas.height = game.height;
+        canvas.style.cssText = `position:absolute;left:0;top:0;width:${game.width}px;height:${game.height}px;z-index:9999;pointer-events:none;image-rendering:pixelated;`;
+        game.world.appendChild(canvas);
+        emitter._canvas = canvas;
+        emitter._ctx = canvas.getContext("2d");
+    }
+    // Override the default container (game.world) for sprite-mode particles.
+    attach(container) {
+        this._container = container;
+        return this;
+    }
+    // Begin continuous emission at the configured rate.
+    start() {
+        this._active = true;
+        if (this.mode === "pixel") {
+            emitter.init_canvas();
+            if (!emitter._all_pixel.includes(this))
+                emitter._all_pixel.push(this);
+        }
+        return this;
+    }
+    // Stop continuous emission. Existing particles finish their lifetime.
+    stop() {
+        this._active = false;
+        return this;
+    }
+    // Emit a one-shot burst of particles.
+    burst(count = 10) {
+        if (this.mode === "pixel") {
+            emitter.init_canvas();
+            if (!emitter._all_pixel.includes(this))
+                emitter._all_pixel.push(this);
+        }
+        for (let i = 0; i < count; i++)
+            this._spawn_one();
+        return this;
+    }
+    // Tick all particles. Call once per frame inside your scene update function.
+    update() {
+        if (this._active && this.rate > 0) {
+            this._rate_acc += this.rate;
+            while (this._rate_acc >= 1) {
+                this._spawn_one();
+                this._rate_acc -= 1;
+            }
+        }
+        for (let i = this._particles.length - 1; i >= 0; i--) {
+            const p = this._particles[i];
+            p.y_speed += this.gravity;
+            p.x += p.x_speed;
+            p.y += p.y_speed;
+            if (this.spin)
+                p.rotation += this.spin_speed;
+            p.lifetime--;
+            p.alpha = this.fade ? Math.max(0, p.lifetime / p.max_lifetime) : 1;
+            if (p.lifetime <= 0) {
+                if (p._el) {
+                    p._el.parentNode?.removeChild(p._el);
+                    p._el = null;
+                }
+                this._particles.splice(i, 1);
+            }
+            else if (p._el) {
+                const scale = this.shrink ? p.alpha : 1;
+                p._el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${p.rotation}deg) scale(${scale})`;
+                p._el.style.opacity = String(p.alpha);
+            }
+        }
+    }
+    // Remove all active particles and clean up their DOM elements.
+    clear() {
+        for (const p of this._particles) {
+            if (p._el) {
+                p._el.parentNode?.removeChild(p._el);
+                p._el = null;
+            }
+        }
+        this._particles = [];
+        const idx = emitter._all_pixel.indexOf(this);
+        if (idx !== -1)
+            emitter._all_pixel.splice(idx, 1);
+    }
+    _spawn_one() {
+        const p = new particle();
+        p.x = this.x + (Math.random() - 0.5) * 2 * this.x_spread;
+        p.y = this.y;
+        const angle = this.angle_min + Math.random() * (this.angle_max - this.angle_min);
+        const speed = this.speed_min + Math.random() * (this.speed_max - this.speed_min);
+        p.x_speed = Math.cos(angle) * speed;
+        p.y_speed = Math.sin(angle) * speed;
+        p.lifetime = Math.floor(this.lifetime_min + Math.random() * (this.lifetime_max - this.lifetime_min));
+        p.max_lifetime = p.lifetime;
+        p.size = this.size_min + Math.random() * (this.size_max - this.size_min);
+        p.color = this.color;
+        p.alpha = 1;
+        if (this.mode === "sprite") {
+            const el = document.createElement("div");
+            el.style.cssText = `position:absolute;left:0;top:0;width:${this.sprite_w}px;height:${this.sprite_h}px;transform:translate(${p.x}px,${p.y}px);image-rendering:pixelated;background-size:cover;transform-origin:center center;`;
+            if (this.sprite_url)
+                el.style.backgroundImage = `url(${this.sprite_url})`;
+            if (this.sprite_class)
+                el.className = this.sprite_class;
+            const container = this._container ?? game.world;
+            container.appendChild(el);
+            p._el = el;
+        }
+        this._particles.push(p);
+    }
+    // Redraw the pixel canvas. Call once per frame after all emitter.update() calls
+    // when any emitter is in pixel mode.
+    static draw_pixels() {
+        if (!emitter._canvas || !emitter._ctx)
+            return;
+        const ctx = emitter._ctx;
+        ctx.clearRect(0, 0, emitter._canvas.width, emitter._canvas.height);
+        for (const e of emitter._all_pixel) {
+            for (const p of e._particles) {
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                const s = e.shrink ? p.size * p.alpha : p.size;
+                ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+            }
+        }
+        ctx.globalAlpha = 1;
+    }
 }
 export class Scene {
-    constructor() {
-        this._layer_entries = [];
-        this._layer_objs = [];
-        this._tile_w = 10;
-        this._tile_h = 10;
-        this._tile_keys = {};
-        this._tile_map = [];
-        this._map_w = 0;
-        this._map_h = 0;
-        this._level_px_w = 0;
-        this._level_px_h = 0;
-        this._char_instances = {};
-        this._dynamic_objs = [];
-        this._static_objs = [];
-        this._tile_objs = [];
-        this._spawn_markers = new Set();
-        this._spawns = [];
-        this._spawned_objs = [];
-        this._collectables = [];
-        this._cam_target = null;
-        this._cam_lerp = 0.1;
-        this._cam_bounds = true;
-        this._cam_x = 0;
-        this._cam_y = 0;
-        this._update_fn = null;
-        this._debug_visible = false;
-    }
+    _layer_entries = [];
+    _layer_objs = [];
+    _tile_w = 10;
+    _tile_h = 10;
+    _tile_keys = {};
+    _tile_map = [];
+    _map_w = 0;
+    _map_h = 0;
+    _level_px_w = 0;
+    _level_px_h = 0;
+    _char_instances = {};
+    _dynamic_objs = [];
+    _static_objs = [];
+    _tile_objs = [];
+    _placed_objs = [];
+    _debug_overlay = null;
+    _spawn_markers = new Set();
+    _spawns = [];
+    _spawned_objs = [];
+    _collectables = [];
+    _cam_target = null;
+    _cam_lerp_x = 0.1;
+    _cam_lerp_y = 0.1;
+    _cam_bounds = true;
+    _cam_x = 0;
+    _cam_y = 0;
+    _cam_offset_x = 0;
+    _cam_offset_y = 0;
+    _cam_look_ahead = 0;
+    _cam_look_x = 0;
+    _cam_deadzone_x = 0;
+    _cam_deadzone_y = 0;
+    _update_fn = null;
+    _debug_visible = false;
     // ── builder API ──────────────────────────────────────────────────────
-    /** Register a visual layer. z < 0 = behind tiles, z > 0 = in front. parallax 0–1 (0 = static, 1 = moves with world). */
+    /** Register a visual layer. z < 0 = behind tiles, z > 0 = in front.
+     *  parallax: number (both axes) or { x, y } to lock individual axes.
+     *  0 = static, 1 = moves with world. */
     layer(visual_obj, z, parallax = 1.0) {
         this._ensure_layer(z, parallax);
         this._layer_objs.push({ obj: visual_obj, z });
@@ -818,20 +1011,65 @@ export class Scene {
             this._spawn_markers.add(at);
         return this;
     }
+    /** Place a free-standing world object (not a tile, not a spawn). Appended to the main layer so it scrolls with the world. */
+    place(obj) {
+        this._placed_objs.push(obj);
+        return this;
+    }
     /** Register a collectable. Auto-skips if already saved, auto-removes on pickup. id format: "world/item". */
     collectable(obj, id) {
         this._collectables.push({ obj, id, collected: false });
         return this;
     }
-    /** Attach a camera to a target. lerp: smoothing (0=instant). bounds: clamp to level edges. */
+    /** Attach a camera to a target.
+     *  lerp/lerp_x/lerp_y: smoothing 0=instant, 0.1=smooth.
+     *  offset_x/offset_y: shift the camera's focal point in pixels.
+     *  look_ahead: pixels to lead ahead in the target's facing direction (pobj only).
+     *  deadzone_x/deadzone_y: camera only moves when target exits this window (pixels).
+     *  bounds: clamp to level edges (default true). */
     camera(target, opts = {}) {
         this._cam_target = target;
-        if (opts.lerp !== undefined)
-            this._cam_lerp = opts.lerp;
+        if (opts.lerp !== undefined) {
+            this._cam_lerp_x = opts.lerp;
+            this._cam_lerp_y = opts.lerp;
+        }
+        if (opts.lerp_x !== undefined)
+            this._cam_lerp_x = opts.lerp_x;
+        if (opts.lerp_y !== undefined)
+            this._cam_lerp_y = opts.lerp_y;
         if (opts.bounds !== undefined)
             this._cam_bounds = opts.bounds;
+        if (opts.offset_x !== undefined)
+            this._cam_offset_x = opts.offset_x;
+        if (opts.offset_y !== undefined)
+            this._cam_offset_y = opts.offset_y;
+        if (opts.look_ahead !== undefined)
+            this._cam_look_ahead = opts.look_ahead;
+        if (opts.deadzone_x !== undefined)
+            this._cam_deadzone_x = opts.deadzone_x;
+        if (opts.deadzone_y !== undefined)
+            this._cam_deadzone_y = opts.deadzone_y;
         return this;
     }
+    /** Instantly snaps the camera to the target — call after scene.run() to skip the lerp-in. */
+    cam_snap() {
+        if (!this._cam_target)
+            return;
+        this._cam_look_x = 'facing' in this._cam_target
+            ? this._cam_target.facing * this._cam_look_ahead
+            : 0;
+        let tx = this._cam_target.x + this._cam_offset_x + this._cam_look_x - game.width / 2;
+        let ty = this._cam_target.y + this._cam_offset_y - game.height / 2;
+        if (this._cam_bounds) {
+            tx = Math.max(0, Math.min(tx, Math.max(0, this._level_px_w - game.width)));
+            ty = Math.max(0, Math.min(ty, Math.max(0, this._level_px_h - game.height)));
+        }
+        this._cam_x = tx;
+        this._cam_y = ty;
+    }
+    /** Current camera scroll position in world pixels. Useful for HUD placement. */
+    get cam_x() { return this._cam_x; }
+    get cam_y() { return this._cam_y; }
     /** Register the per-frame update function. */
     update(fn) {
         this._update_fn = fn;
@@ -862,11 +1100,15 @@ export class Scene {
             for (const t of this._tile_objs)
                 if (t.shows_debug_col && t.collider)
                     t.collider.style.visibility = vis;
+            for (const o of this._placed_objs)
+                if (o.shows_debug_col && o.collider)
+                    o.collider.style.visibility = vis;
         }
     }
     /** Build the scene DOM, save transport, register the tick, and start the game loop. */
     run() {
         this._setup_dom();
+        this.cam_snap();
         game.save_transport();
         game.update(() => this._tick());
         game.run();
@@ -877,7 +1119,9 @@ export class Scene {
         if (!entry) {
             const el = document.createElement('div');
             el.style.cssText = `position:absolute;left:0;top:0;width:100%;height:100%;z-index:${z + 100};`;
-            entry = { el, z, parallax };
+            const px = typeof parallax === 'number' ? parallax : (parallax.x ?? 0);
+            const py = typeof parallax === 'number' ? parallax : (parallax.y ?? 0);
+            entry = { el, z, px, py };
             this._layer_entries.push(entry);
             this._layer_entries.sort((a, b) => a.z - b.z);
         }
@@ -965,6 +1209,10 @@ export class Scene {
     _setup_dom() {
         this._ensure_layer(0, 1.0);
         this._layer_entries.sort((a, b) => a.z - b.z);
+        // Debug overlay sits above all layers and scrolls with the world.
+        this._debug_overlay = document.createElement('div');
+        this._debug_overlay.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:9999;pointer-events:none;';
+        game.world.appendChild(this._debug_overlay);
         // Remove spawn markers from collision lists (position markers only)
         for (const marker of this._spawn_markers) {
             const di = this._dynamic_objs.indexOf(marker);
@@ -1013,12 +1261,20 @@ export class Scene {
             if (this._spawn_markers.has(tile))
                 continue;
             const col = this._collectables.find(c => c.obj === tile);
-            if (col ? col.collected : false)
+            if (col && col.collected)
                 continue;
             main.el.appendChild(tile.graphic);
             if (tile.shows_debug_col && tile.collider) {
                 tile.collider.style.visibility = 'hidden';
-                main.el.appendChild(tile.collider);
+                this._debug_overlay.appendChild(tile.collider);
+            }
+        }
+        // Append placed objects (free-standing world objects)
+        for (const o of this._placed_objs) {
+            main.el.appendChild(o.graphic);
+            if (o.shows_debug_col && o.collider) {
+                o.collider.style.visibility = 'hidden';
+                this._debug_overlay.appendChild(o.collider);
             }
         }
         // Append spawned object graphics
@@ -1026,7 +1282,7 @@ export class Scene {
             main.el.appendChild(sp.graphic);
             if (sp.shows_debug_col && sp.collider) {
                 sp.collider.style.visibility = 'hidden';
-                main.el.appendChild(sp.collider);
+                this._debug_overlay.appendChild(sp.collider);
             }
         }
     }
@@ -1042,14 +1298,14 @@ export class Scene {
             if (col.collected)
                 continue;
             for (const sp of this._spawned_objs) {
-                if (sp.collide(col.obj, false)) {
+                if (sp.overlaps(col.obj)) {
                     col.collected = true;
                     const [world, item] = col.id.split('/');
                     game.save_collectable(world, item);
                     if (main) {
                         if (col.obj.graphic.parentNode === main.el)
                             main.el.removeChild(col.obj.graphic);
-                        if (col.obj.collider ? col.object.parentNode === main.el : false)
+                        if (col.obj.collider && col.obj.collider.parentNode === main.el)
                             main.el.removeChild(col.obj.collider);
                     }
                     const di = this._dynamic_objs.indexOf(col.obj);
@@ -1063,19 +1319,75 @@ export class Scene {
     _update_camera() {
         if (!this._cam_target)
             return;
-        let tx = this._cam_target.x - game.width / 2;
-        let ty = this._cam_target.y - game.height / 2;
-        if (this._cam_bounds) {
-            tx = Math.max(0, Math.min(tx, this._level_px_w - game.width));
-            ty = Math.max(0, Math.min(ty, this._level_px_h - game.height));
+        // Smooth look-ahead: drift the camera ahead in the direction the target faces.
+        if (this._cam_look_ahead > 0 && 'facing' in this._cam_target) {
+            const desired = this._cam_target.facing * this._cam_look_ahead;
+            this._cam_look_x += (desired - this._cam_look_x) * 0.05;
         }
-        this._cam_x += (tx - this._cam_x) * this._cam_lerp;
-        this._cam_y += (ty - this._cam_y) * this._cam_lerp;
+        const base_x = this._cam_target.x + this._cam_offset_x + this._cam_look_x;
+        const base_y = this._cam_target.y + this._cam_offset_y;
+        // Deadzone: camera only starts moving once the target exits a window around the screen centre.
+        let tx, ty;
+        if (this._cam_deadzone_x > 0) {
+            const sx = base_x - this._cam_x - game.width / 2;
+            if (sx > this._cam_deadzone_x)
+                tx = base_x - game.width / 2 - this._cam_deadzone_x;
+            else if (sx < -this._cam_deadzone_x)
+                tx = base_x - game.width / 2 + this._cam_deadzone_x;
+            else
+                tx = this._cam_x;
+        }
+        else {
+            tx = base_x - game.width / 2;
+        }
+        if (this._cam_deadzone_y > 0) {
+            const sy = base_y - this._cam_y - game.height / 2;
+            if (sy > this._cam_deadzone_y)
+                ty = base_y - game.height / 2 - this._cam_deadzone_y;
+            else if (sy < -this._cam_deadzone_y)
+                ty = base_y - game.height / 2 + this._cam_deadzone_y;
+            else
+                ty = this._cam_y;
+        }
+        else {
+            ty = base_y - game.height / 2;
+        }
+        if (this._cam_bounds) {
+            tx = Math.max(0, Math.min(tx, Math.max(0, this._level_px_w - game.width)));
+            ty = Math.max(0, Math.min(ty, Math.max(0, this._level_px_h - game.height)));
+        }
+        this._cam_x += (tx - this._cam_x) * this._cam_lerp_x;
+        this._cam_y += (ty - this._cam_y) * this._cam_lerp_y;
         if (Math.abs(this._cam_x - tx) < 0.01)
             this._cam_x = tx;
         if (Math.abs(this._cam_y - ty) < 0.01)
             this._cam_y = ty;
-        for (const l of this._layer_entries)
-            l.el.style.transform = `translate(${-(this._cam_x * l.parallax)}px, ${-(this._cam_y * l.parallax)}px)`;
+        // World size (at least one viewport so the division is never zero).
+        const world_w = Math.max(this._level_px_w, game.width);
+        const world_h = Math.max(this._level_px_h, game.height);
+        for (const l of this._layer_entries) {
+            if (l.px < 1.0 || l.py < 1.0) {
+                // Background / mid layer: div stays fixed to screen, image shifts via background-position.
+                // Each axis is independent — set px or py to 0 to lock that axis entirely.
+                l.el.style.transform = '';
+                if (this._cam_target) {
+                    const bx = -(this._cam_target.x / world_w) * game.width * l.px;
+                    const by = -(this._cam_target.y / world_h) * game.height * l.py;
+                    for (const lo of this._layer_objs) {
+                        if (lo.z === l.z) {
+                            lo.obj.graphic.style.backgroundPositionX = bx + 'px';
+                            lo.obj.graphic.style.backgroundPositionY = by + 'px';
+                        }
+                    }
+                }
+            }
+            else {
+                // Foreground / world layer: translate the container with the camera.
+                l.el.style.transform = `translate(${-(this._cam_x * l.px)}px, ${-(this._cam_y * l.py)}px)`;
+            }
+        }
+        if (this._debug_overlay) {
+            this._debug_overlay.style.transform = `translate(${-this._cam_x}px, ${-this._cam_y}px)`;
+        }
     }
 }

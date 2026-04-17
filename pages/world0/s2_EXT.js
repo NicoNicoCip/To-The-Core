@@ -14,8 +14,8 @@ const bone  = new cobj({ name: "bone",       width: 10, height: 10, dynamic: tru
 
 const scene = new Scene()
 
-scene.layer(background, -5, 0.3)
-scene.layer(foreground,  2, 1.0)
+scene.layer(background, -5, 0)
+scene.layer(foreground,  2, 0)
 
 scene.tiles(10, 10, {
     '#': wall,

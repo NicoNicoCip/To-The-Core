@@ -1,5 +1,47 @@
 import { cobj, game, input, level, pobj } from "./system.js"
 
+// ── Tile factory functions ────────────────────────────────────────────────────
+// Return a configured cobj ready to use as a key in scene.tiles().
+// Each call creates a fresh instance, so the same factory can be called
+// multiple times in the same scene without sharing state.
+
+export function wall_tile(): cobj {
+    return new cobj({ name: "wall", width: 10, height: 10, shows_debug_col: true })
+}
+
+export function platform_tile(): cobj {
+    return new cobj({ name: "platform", width: 10, height: 10, one_way: true, shows_debug_col: true })
+}
+
+export function spawn_tile(): cobj {
+    return new cobj({ name: "spawn", width: 10, height: 10, collides: false })
+}
+
+export function invisible_wall_tile(): cobj {
+    return new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+}
+
+export function jump_pad_tile(): cobj {
+    return new cobj({ name: "jump_pad", width: 10, height: 10, collides: false, shows_debug_col: true })
+}
+
+export function bone_tile(): cobj {
+    return new cobj({ name: "bone", width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true })
+}
+
+// ── Object factory functions ──────────────────────────────────────────────────
+// Return a ready-to-use instance placed at (x, y).
+
+export function make_player(x: number, y: number): Player {
+    return new Player(x, y)
+}
+
+export function make_bone(x: number, y: number): cobj {
+    const b = new cobj({ name: "bone", width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true })
+    b.move(x, y)
+    return b
+}
+
 export function boil_the_plate() {
     game.register_world(document.getElementById("world"), 320, 180)
     input.init()
@@ -41,6 +83,156 @@ export class Shaker {
     }
 }
 
+// ── DeathZone ─────────────────────────────────────────────────────────────────
+// Kills (calls on_hit) when any pobj overlaps it.
+// Use as a tile key or place freely with scene.place() + move().
+//
+//   const spikes = new DeathZone({ name: "spikes", width: 10, height: 4, on_hit: () => send_to("./s1.html") })
+//   scene.place(spikes)
+//   spikes.move(80, 176)
+//   // in update: spikes.check(player)
+
+export class DeathZone extends cobj {
+    on_hit: () => void
+
+    constructor({ name = "death_zone", width = 10, height = 10, on_hit = null }: {
+        name?: string, width?: number, height?: number, on_hit?: () => void
+    } = {}) {
+        super({ name, width, height, collides: false, shows_debug_col: true })
+        this.on_hit = on_hit
+    }
+
+    check(player: cobj) {
+        if (player.overlaps(this) && this.on_hit) this.on_hit()
+    }
+}
+
+// ── CrumblePlatform ───────────────────────────────────────────────────────────
+// One-way platform that crumbles after the player stands on it too long.
+// Adds a "crumbling" CSS class as a warning before it disappears.
+// Reappears after respawn_frames. Timer resets if the player steps off early.
+//
+//   const crumble = new CrumblePlatform({ name: "plat_crumble", width: 30, stay_frames: 60, respawn_frames: 180 })
+//   scene.place(crumble)
+//   crumble.move(80, 120)
+//   // in update: crumble.update(player)
+
+export class CrumblePlatform extends cobj {
+    stay_frames:    number
+    respawn_frames: number
+    private _timer = 0
+    private _gone  = false
+
+    constructor({ name = "crumble_platform", width = 20, height = 4, stay_frames = 90, respawn_frames = 180 }: {
+        name?: string, width?: number, height?: number, stay_frames?: number, respawn_frames?: number
+    } = {}) {
+        super({ name, width, height, one_way: true, shows_debug_col: true })
+        this.stay_frames    = stay_frames
+        this.respawn_frames = respawn_frames
+    }
+
+    update(player: cobj) {
+        if (!this._gone) {
+            player.collide(this)
+            if (player.grounded && player.overlaps(this)) {
+                this._timer++
+                if (this._timer > this.stay_frames * 0.5) this.graphic.classList.add('crumbling')
+                if (this._timer >= this.stay_frames) {
+                    this._gone = true
+                    this._timer = 0
+                    this.graphic.style.visibility = 'hidden'
+                    this.graphic.classList.remove('crumbling')
+                }
+            } else {
+                this._timer = 0
+                this.graphic.classList.remove('crumbling')
+            }
+        } else {
+            this._timer++
+            if (this._timer >= this.respawn_frames) {
+                this._gone  = false
+                this._timer = 0
+                this.graphic.style.visibility = 'visible'
+            }
+        }
+    }
+}
+
+// ── JumpOncePlatform ──────────────────────────────────────────────────────────
+// One-way platform that disappears the moment the player leaves it (jumps off
+// or walks off the edge). Reappears after respawn_frames.
+//
+//   const jp = new JumpOncePlatform({ name: "plat_jump", width: 30, respawn_frames: 120 })
+//   scene.place(jp)
+//   jp.move(140, 100)
+//   // in update: jp.update(player)
+
+export class JumpOncePlatform extends cobj {
+    respawn_frames: number
+    private _timer   = 0
+    private _gone    = false
+    private _was_on  = false
+
+    constructor({ name = "jump_once_platform", width = 20, height = 4, respawn_frames = 120 }: {
+        name?: string, width?: number, height?: number, respawn_frames?: number
+    } = {}) {
+        super({ name, width, height, one_way: true, shows_debug_col: true })
+        this.respawn_frames = respawn_frames
+    }
+
+    update(player: cobj) {
+        if (!this._gone) {
+            player.collide(this)
+            const on_now = player.grounded && player.overlaps(this)
+            if (this._was_on && !on_now) {
+                this._gone   = true
+                this._timer  = 0
+                this._was_on = false
+                this.graphic.style.visibility = 'hidden'
+            } else {
+                this._was_on = on_now
+            }
+        } else {
+            this._timer++
+            if (this._timer >= this.respawn_frames) {
+                this._gone   = false
+                this._timer  = 0
+                this._was_on = false
+                this.graphic.style.visibility = 'visible'
+            }
+        }
+    }
+}
+
+// ── ForceZone ─────────────────────────────────────────────────────────────────
+// Invisible region that pushes the player while they're inside it.
+// Works as a fan (force_y < 0), conveyor belt (force_x), wind, etc.
+// force values are added to player speed each frame, so keep them small (0.1–0.5).
+//
+//   const fan = new ForceZone({ name: "fan", width: 20, height: 40, force_y: -0.25 })
+//   scene.place(fan)
+//   fan.move(60, 80)
+//   // in update: fan.update(player)
+
+export class ForceZone extends cobj {
+    force_x: number
+    force_y: number
+
+    constructor({ name = "force_zone", width = 10, height = 10, force_x = 0, force_y = 0 }: {
+        name?: string, width?: number, height?: number, force_x?: number, force_y?: number
+    } = {}) {
+        super({ name, width, height, collides: false, shows_debug_col: true })
+        this.force_x = force_x
+        this.force_y = force_y
+    }
+
+    update(player: cobj) {
+        if (!player.overlaps(this)) return
+        player.x_speed += this.force_x
+        player.y_speed += this.force_y
+    }
+}
+
 export class Collectable extends cobj {
     level: level = null
 
@@ -58,7 +250,8 @@ export class Collectable extends cobj {
             shows_debug_col: true,
         })
 
-        if (this.level !== null) {
+        if (level !== null) {
+            this.level = level
             this.level.substitute(name, this)
             return
         }
