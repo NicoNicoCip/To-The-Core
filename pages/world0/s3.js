@@ -60,7 +60,7 @@ scene.update(function() {
     player.update()
     scene.toggle_debug()
 
-    if (player.collide(jumper, false)) {
+    if (player.overlaps(jumper)) {
         player.call_force({
             y: input.probe("s", input.KEYHELD) ? -jumper_force * 1.2 : -jumper_force,
             y_time: 1

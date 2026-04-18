@@ -1162,6 +1162,13 @@ export class Scene {
         return this
     }
 
+    /** Show or hide an entire layer by its z value. Useful for scenes that reveal layers progressively (e.g. intro sequences). */
+    layer_visible(z: number, visible: boolean): Scene {
+        const entry = this._layer_entries.find(l => l.z === z)
+        if (entry) entry.el.style.display = visible ? '' : 'none'
+        return this
+    }
+
     /** Place a free-standing world object (not a tile, not a spawn). Appended to the main layer so it scrolls with the world. */
     place(obj: cobj): Scene {
         this._placed_objs.push(obj)
@@ -1260,11 +1267,12 @@ export class Scene {
         }
     }
 
-    /** Build the scene DOM, save transport, register the tick, and start the game loop. */
-    run(): void {
+    /** Build the scene DOM, register the tick, and start the game loop.
+     *  Pass { save_transport: false } for screens like the start menu that should not overwrite the last played level. */
+    run({ save_transport = true }: { save_transport?: boolean } = {}): void {
         this._setup_dom()
         this.cam_snap()
-        game.save_transport()
+        if (save_transport) game.save_transport()
         game.update(() => this._tick())
         game.run()
     }

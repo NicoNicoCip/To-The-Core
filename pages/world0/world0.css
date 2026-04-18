@@ -125,6 +125,9 @@
 
 #splash {
     font-size: 8px;
+    text-wrap-mode: wrap;
+    text-wrap-style:balance;
+    
 }
 
 #fade {

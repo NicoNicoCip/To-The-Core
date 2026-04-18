@@ -1,8 +1,17 @@
+
+@font-face {
+    font-family: press_start;
+    src: url("/pages/assets/PressStart2P-vaV7.ttf");
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'press_start';
 }
+
+
 
 body {
     display: flex;

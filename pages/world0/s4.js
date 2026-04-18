@@ -66,7 +66,7 @@ scene.update(function() {
     player.update()
     scene.toggle_debug()
 
-    if (player.collide(jumper, false)) {
+    if (player.overlaps(jumper)) {
         player.call_force({
             y: input.probe("s", input.KEYHELD) ? -jumper_force * 1.4 : -jumper_force,
             y_time: 1
@@ -77,7 +77,7 @@ scene.update(function() {
     scene.move_and_collide()
 
     if (player.y + player.height < 0) send_to("./s5.html")
-    if (player.y > game.height)        window.location.href = "./s4.html"
+    if (player.y > game.height)         send_to("./s4.html")
     if (player.x > game.width)         send_to("./s3.html")
 })
 
