@@ -262,7 +262,7 @@ export class Collectable extends cobj {
 }
 
 export class Player extends pobj {
-    constructor(x, y, shake = null) {
+    constructor(x, y) {
         super({
             name: "player", x, y,
             width: 10,
@@ -271,7 +271,6 @@ export class Player extends pobj {
             shows_debug_col: true
         })
 
-        if (shake !== null) this.shake = shake
         this.graphic.style.transformOrigin = "center bottom"
     }
 
@@ -279,31 +278,9 @@ export class Player extends pobj {
         this.just_landed = this.grounded && !this.was_grounded
         this.was_grounded = this.grounded
 
-        if (this.just_landed && !this.landed_once) {
-            this.landed_once = true
-
-            if (this.shake) {
-                this.landing = true
-                this.landing_timer = 192
-                this.graphic.classList.add("falling_in")
-                this.graphic.style.backgroundImage = `url(/pages/assets/dog_falling_in.webp?t=${performance.now()})`
-            }
-        }
-
-        if (this.landing) {
-            this.landing_timer--
-            if (this.landing_timer <= 0) {
-                this.landing = false
-                this.graphic.classList.remove("falling_in")
-                this.graphic.style.backgroundImage = ""
-            }
-        }
-
         this.movedir = null
-        if (!this.landing) {
-            if (input.probe("d", input.KEYHELD)) this.movedir = 1
-            if (input.probe("a", input.KEYHELD)) this.movedir = -1
-        }
+        if (input.probe("d", input.KEYHELD)) this.movedir = 1
+        if (input.probe("a", input.KEYHELD)) this.movedir = -1
 
         if (this.grounded) {
             this.coyote = this.coyote_time
@@ -311,7 +288,7 @@ export class Player extends pobj {
             this.coyote--
         }
 
-        if (!this.landing && input.probe(" ", input.KEYHELD) && this.coyote > 0) {
+        if (input.probe(" ", input.KEYHELD) && this.coyote > 0) {
             this.y_speed = -this.jump_force
             this.coyote = 0
             this.squash(1.1, 0.85)

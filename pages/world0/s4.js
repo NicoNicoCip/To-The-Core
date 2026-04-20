@@ -1,4 +1,4 @@
-import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
+import { boil_the_plate, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
 import { bobj, cobj, game, input, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -8,7 +8,7 @@ const background  = new bobj({ name: "background3" })
 const midground   = new bobj({ name: "midground_s4" })
 const foreground  = new bobj({ name: "scene_s4" })
 
-const inviz       = new cobj({ name: "inviz_wall",  width: 10, height: 10, shows_debug_col: true })
+const inviz       = invisible_wall_tile()
 const moved_wall  = new cobj({ name: "moved_wall",  width: 10, height: 10, shows_debug_col: true })
 const height_wall = new cobj({ name: "height_wall", width: 1,  height: 10, shows_debug_col: true })
 const jumper      = new cobj({ name: "jumper",      width: 10, height: 3,  collides: false, shows_debug_col: true })

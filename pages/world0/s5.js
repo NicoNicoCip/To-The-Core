@@ -1,4 +1,4 @@
-import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
+import { boil_the_plate, bone_tile, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
 import { bobj, cobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -8,11 +8,10 @@ const background = new bobj({ name: "background3" })
 const midground  = new bobj({ name: "midground_s5" })
 const foreground = new bobj({ name: "scene_s5" })
 
-const wall    = new cobj({ name: "wall",       width: 10, height: 10, shows_debug_col: true })
-const inviz   = new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+const inviz   = invisible_wall_tile()
 const thin    = new cobj({ name: "thin_wall",  width: 4,  height: 10, shows_debug_col: true })
 const half    = new cobj({ name: "half_wall",  width: 10, height: 1,  one_way: true, shows_debug_col: true })
-const bone    = new cobj({ name: "bone",       width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true })
+const bone    = bone_tile()
 const spawn_s = new cobj({ name: "spawn_s",    width: 10, height: 10, collides: false })
 const spawn_t = new cobj({ name: "spawn_t",    width: 10, height: 10, collides: false })
 
@@ -23,7 +22,6 @@ scene.layer(midground,  -2, 0)
 scene.layer(foreground,  2, 0)
 
 scene.tiles(10, 10, {
-    '#': wall,
     'x': inviz,
     'y': thin,
     'v': half,

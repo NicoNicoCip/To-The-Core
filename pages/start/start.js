@@ -9,6 +9,8 @@ const play_sign = new obj({ name: "play_sign", width: 72, height: 29 })
 
 const scene = new Scene()
 scene.layer(background, -5, 0)
+scene.layer(ttc_sign, 10, 0)
+scene.layer(play_sign, 11, 0)
 
 const tcc_x = game.width / 2 - 112
 const tcc_y = 15
@@ -48,8 +50,8 @@ scene.update(function () {
     }
 
     if (timr === 95) {
-        game.world.removeChild(ttc_sign.graphic)
-        game.world.removeChild(play_sign.graphic)
+        scene.layer_visible(10, false)
+        scene.layer_visible(11, false)
         document.getElementById("fade").style.backgroundColor = "black"
     }
 
@@ -73,9 +75,3 @@ play_sign.graphic.addEventListener("mouseup", () => {
 })
 
 scene.run({ save_transport: false })
-
-// Signs must be appended after scene.run() so they sit above the background layer in DOM order.
-ttc_sign.graphic.style.zIndex = "110"
-play_sign.graphic.style.zIndex = "110"
-game.world.appendChild(ttc_sign.graphic)
-game.world.appendChild(play_sign.graphic)

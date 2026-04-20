@@ -1,4 +1,4 @@
-import { boil_the_plate, come_from, Player, send_to } from "../../src/prefabs.js"
+import { boil_the_plate, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
 import { bobj, cobj, game, input, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -8,8 +8,7 @@ const background = new bobj({ name: "background3" })
 const midground = new bobj({ name: "midground_s3" })
 const foreground = new bobj({ name: "scene_s3" })
 
-const wall    = new cobj({ name: "wall",       width: 10, height: 10, shows_debug_col: true })
-const inviz   = new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+const inviz   = invisible_wall_tile()
 const spawn_l = new cobj({ name: "spawn_l",    width: 10, height: 10, collides: false })
 const spawn_r = new cobj({ name: "spawn_r",    width: 10, height: 10, collides: false })
 const jumper  = new cobj({ name: "jumper",     width: 10, height: 3,  collides: false, shows_debug_col: true })
@@ -21,7 +20,6 @@ scene.layer(midground, -3, 0)
 scene.layer(foreground, 2, 0)
 
 scene.tiles(10, 10, {
-    '#': wall,
     'x': inviz,
     'L': spawn_l,
     'R': spawn_r,

@@ -41,7 +41,6 @@
 
 #background2_transit {
     background-image: url("/pages/assets/background0.webp");
-    z-index: -100;
     animation: fall 1s linear infinite;
 }
 

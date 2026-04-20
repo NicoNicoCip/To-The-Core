@@ -1,12 +1,12 @@
-import { boil_the_plate, Player } from "../../../src/prefabs.js"
-import { cobj, Scene } from "../../../src/system.js"
+import { boil_the_plate, invisible_wall_tile, Player, spawn_tile } from "../../../src/prefabs.js"
+import { Scene } from "../../../src/system.js"
 
 boil_the_plate()
 
 const player = new Player(60, 50, false)
 
-const inviz = new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
-const spawn = new cobj({ name: "spawn",      width: 10, height: 10, collides: false })
+const inviz = invisible_wall_tile()
+const spawn = spawn_tile()
 
 const scene = new Scene()
 
