@@ -1,4 +1,4 @@
-import { cobj, game, input, pobj } from "./system.js";
+import { cobj, game, input, obj, pobj } from "./system.js";
 // ── Tile factory functions ────────────────────────────────────────────────────
 // Return a configured cobj ready to use as a key in scene.tiles().
 // Each call creates a fresh instance, so the same factory can be called
@@ -41,8 +41,9 @@ export function send_to(url) {
 }
 export function come_from(html) {
     const res = localStorage.getItem("last_level");
-    if (res === null)
+    if (res === null) {
         return false;
+    }
     return res.endsWith(html);
 }
 export class Shaker {
@@ -66,6 +67,82 @@ export class Shaker {
         this.shake_timer = duration_frames;
     }
 }
+export class Sequencer {
+    _steps = [];
+    _i = 0;
+    _elapsed = 0;
+    _tween_from = 0;
+    _started = false;
+    wait(frames) {
+        this._steps.push({ kind: 'wait', frames });
+        return this;
+    }
+    call(fn) {
+        this._steps.push({ kind: 'call', fn });
+        return this;
+    }
+    tween(obj, prop, to, frames) {
+        this._steps.push({ kind: 'tween', obj, prop, to, frames });
+        return this;
+    }
+    wait_until(pred) {
+        this._steps.push({ kind: 'wait_until', pred });
+        return this;
+    }
+    get done() {
+        return this._i >= this._steps.length;
+    }
+    reset() {
+        this._i = 0;
+        this._elapsed = 0;
+        this._started = false;
+    }
+    tick() {
+        while (this._i < this._steps.length) {
+            const step = this._steps[this._i];
+            if (!this._started) {
+                this._started = true;
+                this._elapsed = 0;
+                if (step.kind === 'tween') {
+                    this._tween_from = step.obj[step.prop];
+                }
+            }
+            switch (step.kind) {
+                case 'call':
+                    step.fn();
+                    this._advance();
+                    continue;
+                case 'wait':
+                    if (this._elapsed >= step.frames) {
+                        this._advance();
+                        continue;
+                    }
+                    this._elapsed++;
+                    return;
+                case 'tween': {
+                    if (this._elapsed >= step.frames) {
+                        this._advance();
+                        continue;
+                    }
+                    this._elapsed++;
+                    const t = this._elapsed / step.frames;
+                    step.obj[step.prop] = this._tween_from + (step.to - this._tween_from) * t;
+                    return;
+                }
+                case 'wait_until':
+                    if (step.pred()) {
+                        this._advance();
+                        continue;
+                    }
+                    return;
+            }
+        }
+    }
+    _advance() {
+        this._i++;
+        this._started = false;
+    }
+}
 // ── DeathZone ─────────────────────────────────────────────────────────────────
 // Kills (calls on_hit) when any pobj overlaps it.
 // Use as a tile key or place freely with scene.place() + move().
@@ -81,8 +158,9 @@ export class DeathZone extends cobj {
         this.on_hit = on_hit;
     }
     check(player) {
-        if (player.overlaps(this) && this.on_hit)
+        if (player.overlaps(this) && this.on_hit) {
             this.on_hit();
+        }
     }
 }
 // ── CrumblePlatform ───────────────────────────────────────────────────────────
@@ -109,8 +187,9 @@ export class CrumblePlatform extends cobj {
             player.collide(this);
             if (player.grounded && player.overlaps(this)) {
                 this._timer++;
-                if (this._timer > this.stay_frames * 0.5)
+                if (this._timer > this.stay_frames * 0.5) {
                     this.graphic.classList.add('crumbling');
+                }
                 if (this._timer >= this.stay_frames) {
                     this._gone = true;
                     this._timer = 0;
@@ -193,10 +272,59 @@ export class ForceZone extends cobj {
         this.force_y = force_y;
     }
     update(player) {
-        if (!player.overlaps(this))
+        if (!player.overlaps(this)) {
             return;
+        }
         player.x_speed += this.force_x;
         player.y_speed += this.force_y;
+    }
+}
+// ── Button ────────────────────────────────────────────────────────────────────
+// Clickable UI element. Extends obj, adds hover/click handlers.
+// hover_class toggles on mouseenter/mouseleave. on_click fires on mouseup.
+// Set disabled = true to freeze (e.g. after first click in a menu).
+//
+//   const play = new Button({ name: "play_sign", width: 72, height: 29,
+//                             hover_class: "play_sign_hover", on_click: () => { ... } })
+//   scene.layer(play, 11, 0)
+//   play.move(100, 100)
+export class Button extends obj {
+    hover_class;
+    on_click;
+    disabled = false;
+    hovered = false;
+    constructor({ name, width, height, hover_class = null, on_click = null }) {
+        super({ name, width, height });
+        this.hover_class = hover_class;
+        this.on_click = on_click;
+        this.graphic.style.cursor = "pointer";
+        this.graphic.addEventListener("mouseenter", () => this._set_hover(true));
+        this.graphic.addEventListener("mouseleave", () => this._set_hover(false));
+        this.graphic.addEventListener("mouseup", () => this._fire_click());
+    }
+    _set_hover(entering) {
+        if (this.disabled) {
+            return;
+        }
+        this.hovered = entering;
+        if (!this.hover_class) {
+            return;
+        }
+        if (entering) {
+            this.graphic.classList.add(this.hover_class);
+        }
+        else {
+            this.graphic.classList.remove(this.hover_class);
+        }
+    }
+    _fire_click() {
+        if (this.disabled || !this.on_click) {
+            return;
+        }
+        this.on_click();
+    }
+    disable() {
+        this.disabled = true;
     }
 }
 export class Collectable extends cobj {
@@ -233,10 +361,12 @@ export class Player extends pobj {
         this.just_landed = this.grounded && !this.was_grounded;
         this.was_grounded = this.grounded;
         this.movedir = null;
-        if (input.probe("d", input.KEYHELD))
+        if (input.probe("d", input.KEYHELD)) {
             this.movedir = 1;
-        if (input.probe("a", input.KEYHELD))
+        }
+        if (input.probe("a", input.KEYHELD)) {
             this.movedir = -1;
+        }
         if (this.grounded) {
             this.coyote = this.coyote_time;
         }

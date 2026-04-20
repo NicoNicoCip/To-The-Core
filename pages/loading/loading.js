@@ -16,7 +16,9 @@ const CONCURRENCY = 6
 async function fetchVersion() {
     try {
         const res = await fetch(API_URL)
-        if (!res.ok) return null
+        if (!res.ok) {
+            return null
+        }
         const data = await res.json()
         return data.sha
     } catch {
@@ -55,7 +57,9 @@ async function cacheAssets() {
     }
 
     const workers = []
-    for (let i = 0; i < CONCURRENCY; i++) workers.push(worker())
+    for (let i = 0; i < CONCURRENCY; i++) {
+        workers.push(worker())
+    }
     await Promise.all(workers)
 }
 

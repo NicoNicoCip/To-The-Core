@@ -1,4 +1,4 @@
-import { cobj, game, input, level, pobj } from "./system.js"
+import { cobj, game, input, level, obj, pobj } from "./system.js"
 
 // ── Tile factory functions ────────────────────────────────────────────────────
 // Return a configured cobj ready to use as a key in scene.tiles().
@@ -55,7 +55,9 @@ export function send_to(url) {
 export function come_from(html) {
     const res = localStorage.getItem("last_level")
 
-    if(res === null) return false
+    if (res === null) {
+        return false
+    }
 
     return res.endsWith(html)
 }
@@ -83,6 +85,112 @@ export class Shaker {
     }
 }
 
+// ── Sequencer ─────────────────────────────────────────────────────────────────
+// Queue-based timeline. Steps fire in order; each tick advances until it hits
+// a blocking step (wait / tween / wait_until with unmet condition). Multiple
+// call() steps back-to-back all fire in the same tick.
+//
+//   const seq = new Sequencer()
+//   seq.call(() => doX())
+//   seq.wait(60)
+//   seq.tween(obj, 'y', 100, 30)
+//   seq.wait_until(() => obj.y_speed === 0)
+//   seq.call(() => doY())
+//   // in update: seq.tick()
+
+type SeqStep =
+    | { kind: 'wait', frames: number }
+    | { kind: 'call', fn: () => void }
+    | { kind: 'tween', obj: any, prop: string, to: number, frames: number }
+    | { kind: 'wait_until', pred: () => boolean }
+
+export class Sequencer {
+    private _steps: SeqStep[] = []
+    private _i = 0
+    private _elapsed = 0
+    private _tween_from = 0
+    private _started = false
+
+    wait(frames: number): Sequencer {
+        this._steps.push({ kind: 'wait', frames })
+        return this
+    }
+
+    call(fn: () => void): Sequencer {
+        this._steps.push({ kind: 'call', fn })
+        return this
+    }
+
+    tween(obj: any, prop: string, to: number, frames: number): Sequencer {
+        this._steps.push({ kind: 'tween', obj, prop, to, frames })
+        return this
+    }
+
+    wait_until(pred: () => boolean): Sequencer {
+        this._steps.push({ kind: 'wait_until', pred })
+        return this
+    }
+
+    get done(): boolean {
+        return this._i >= this._steps.length
+    }
+
+    reset(): void {
+        this._i = 0
+        this._elapsed = 0
+        this._started = false
+    }
+
+    tick(): void {
+        while (this._i < this._steps.length) {
+            const step = this._steps[this._i]
+
+            if (!this._started) {
+                this._started = true
+                this._elapsed = 0
+                if (step.kind === 'tween') {
+                    this._tween_from = step.obj[step.prop]
+                }
+            }
+
+            switch (step.kind) {
+                case 'call':
+                    step.fn()
+                    this._advance()
+                    continue
+                case 'wait':
+                    if (this._elapsed >= step.frames) {
+                        this._advance()
+                        continue
+                    }
+                    this._elapsed++
+                    return
+                case 'tween': {
+                    if (this._elapsed >= step.frames) {
+                        this._advance()
+                        continue
+                    }
+                    this._elapsed++
+                    const t = this._elapsed / step.frames
+                    step.obj[step.prop] = this._tween_from + (step.to - this._tween_from) * t
+                    return
+                }
+                case 'wait_until':
+                    if (step.pred()) {
+                        this._advance()
+                        continue
+                    }
+                    return
+            }
+        }
+    }
+
+    private _advance(): void {
+        this._i++
+        this._started = false
+    }
+}
+
 // ── DeathZone ─────────────────────────────────────────────────────────────────
 // Kills (calls on_hit) when any pobj overlaps it.
 // Use as a tile key or place freely with scene.place() + move().
@@ -103,7 +211,9 @@ export class DeathZone extends cobj {
     }
 
     check(player: cobj) {
-        if (player.overlaps(this) && this.on_hit) this.on_hit()
+        if (player.overlaps(this) && this.on_hit) {
+            this.on_hit()
+        }
     }
 }
 
@@ -136,7 +246,9 @@ export class CrumblePlatform extends cobj {
             player.collide(this)
             if (player.grounded && player.overlaps(this)) {
                 this._timer++
-                if (this._timer > this.stay_frames * 0.5) this.graphic.classList.add('crumbling')
+                if (this._timer > this.stay_frames * 0.5) {
+                    this.graphic.classList.add('crumbling')
+                }
                 if (this._timer >= this.stay_frames) {
                     this._gone = true
                     this._timer = 0
@@ -227,9 +339,68 @@ export class ForceZone extends cobj {
     }
 
     update(player: cobj) {
-        if (!player.overlaps(this)) return
+        if (!player.overlaps(this)) {
+            return
+        }
         player.x_speed += this.force_x
         player.y_speed += this.force_y
+    }
+}
+
+// ── Button ────────────────────────────────────────────────────────────────────
+// Clickable UI element. Extends obj, adds hover/click handlers.
+// hover_class toggles on mouseenter/mouseleave. on_click fires on mouseup.
+// Set disabled = true to freeze (e.g. after first click in a menu).
+//
+//   const play = new Button({ name: "play_sign", width: 72, height: 29,
+//                             hover_class: "play_sign_hover", on_click: () => { ... } })
+//   scene.layer(play, 11, 0)
+//   play.move(100, 100)
+
+export class Button extends obj {
+    hover_class: string | null
+    on_click:    (() => void) | null
+    disabled = false
+    hovered  = false
+
+    constructor({ name, width, height, hover_class = null, on_click = null }: {
+        name: string, width: number, height: number,
+        hover_class?: string | null, on_click?: (() => void) | null,
+    }) {
+        super({ name, width, height })
+        this.hover_class = hover_class
+        this.on_click    = on_click
+
+        this.graphic.style.cursor = "pointer"
+        this.graphic.addEventListener("mouseenter", () => this._set_hover(true))
+        this.graphic.addEventListener("mouseleave", () => this._set_hover(false))
+        this.graphic.addEventListener("mouseup",    () => this._fire_click())
+    }
+
+    private _set_hover(entering: boolean): void {
+        if (this.disabled) {
+            return
+        }
+        this.hovered = entering
+        if (!this.hover_class) {
+            return
+        }
+        if (entering) {
+            this.graphic.classList.add(this.hover_class)
+        } else {
+            this.graphic.classList.remove(this.hover_class)
+        }
+    }
+
+    private _fire_click(): void {
+        if (this.disabled || !this.on_click) {
+            return
+        }
+        this.on_click()
+    }
+
+    disable(): void {
+        this.disabled = true
     }
 }
 
@@ -279,8 +450,12 @@ export class Player extends pobj {
         this.was_grounded = this.grounded
 
         this.movedir = null
-        if (input.probe("d", input.KEYHELD)) this.movedir = 1
-        if (input.probe("a", input.KEYHELD)) this.movedir = -1
+        if (input.probe("d", input.KEYHELD)) {
+            this.movedir = 1
+        }
+        if (input.probe("a", input.KEYHELD)) {
+            this.movedir = -1
+        }
 
         if (this.grounded) {
             this.coyote = this.coyote_time

@@ -54,8 +54,12 @@ scene.update(function() {
     player.apply_force()
     scene.move_and_collide()
 
-    if (player.x > game.width)       send_to("./s6.html")
-    if (player.x + player.width < 0) send_to("./s8.html")
+    if (player.x > game.width) {
+        send_to("./s6.html")
+    }
+    if (player.x + player.width < 0) {
+        send_to("./s8.html")
+    }
 })
 
 scene.run()

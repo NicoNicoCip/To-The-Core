@@ -1,8 +1,12 @@
 export class math {
     static sign(value) {
-        if (value === 0) return 0
-        else if (value > 0) return 1
-        else if (value < 0) return -1
+        if (value === 0) {
+            return 0
+        } else if (value > 0) {
+            return 1
+        } else if (value < 0) {
+            return -1
+        }
 
         return 0
     }
@@ -80,7 +84,9 @@ export class game {
         const starts = game.starts.splice(0);
         starts.forEach(i => i())
 
-        if (game.delta > 200) game.delta = 200
+        if (game.delta > 200) {
+            game.delta = 200
+        }
 
         game.accumulator += game.delta
 
@@ -148,8 +154,12 @@ export class game {
     // Called automatically by register_world() on production.
     static check_version() {
         const is_local = location.hostname === "localhost" || location.hostname === "127.0.0.1"
-        if (is_local) return
-        if (sessionStorage.getItem("loading_in_progress") === "1") return
+        if (is_local) {
+            return
+        }
+        if (sessionStorage.getItem("loading_in_progress") === "1") {
+            return
+        }
 
         if (localStorage.getItem("jump_clone_version") === null) {
             window.location.href = "/pages/loading/loading.html"
@@ -167,7 +177,9 @@ export class game {
         fetch("https://api.github.com/repos/NicoNicoCip/To-The-Core/commits/main")
             .then(res => res.ok ? res.json() : null)
             .then(data => {
-                if (!data) return
+                if (!data) {
+                    return
+                }
                 const remote = data.sha
                 const local = localStorage.getItem("jump_clone_version")
                 if (remote && local && remote !== local) {
@@ -220,11 +232,21 @@ export class obj {
         width = null,
         height = null,
     }) {
-        if (name !== null) this.name = name
-        if (x !== null) this.x = x
-        if (y !== null) this.y = y
-        if (width !== null) this.width = width
-        if (height !== null) this.height = height
+        if (name !== null) {
+            this.name = name
+        }
+        if (x !== null) {
+            this.x = x
+        }
+        if (y !== null) {
+            this.y = y
+        }
+        if (width !== null) {
+            this.width = width
+        }
+        if (height !== null) {
+            this.height = height
+        }
 
         this._prev_x = this.x
         this._prev_y = this.y
@@ -253,8 +275,12 @@ export class obj {
     }
 
     move(x = null, y = null) {
-        if (x !== null) this.x = x
-        if (y !== null) this.y = y
+        if (x !== null) {
+            this.x = x
+        }
+        if (y !== null) {
+            this.y = y
+        }
 
         this._prev_x = this.x
         this._prev_y = this.y
@@ -262,8 +288,12 @@ export class obj {
     }
 
     shift(x = null, y = null) {
-        if (x !== null) this.x += x
-        if (y !== null) this.y += y
+        if (x !== null) {
+            this.x += x
+        }
+        if (y !== null) {
+            this.y += y
+        }
 
         this._prev_x = this.x
         this._prev_y = this.y
@@ -314,12 +344,24 @@ export class cobj extends obj {
         one_way = null
     }) {
         super({ name, x, y, width, height })
-        if (width !== null) this.width = width
-        if (height !== null) this.height = height
-        if (dynamic !== null) this.dynamic = dynamic
-        if (collides !== null) this.collides = collides
-        if (shows_debug_col !== null) this.shows_debug_col = shows_debug_col
-        if (one_way !== null) this.one_way = one_way
+        if (width !== null) {
+            this.width = width
+        }
+        if (height !== null) {
+            this.height = height
+        }
+        if (dynamic !== null) {
+            this.dynamic = dynamic
+        }
+        if (collides !== null) {
+            this.collides = collides
+        }
+        if (shows_debug_col !== null) {
+            this.shows_debug_col = shows_debug_col
+        }
+        if (one_way !== null) {
+            this.one_way = one_way
+        }
 
         this.collider = document.createElement("div")
         this.collider.style.border = "solid 1px #FF0000"
@@ -331,14 +373,20 @@ export class cobj extends obj {
     }
 
     collide(other = null, resolve = true) {
-        if (other === null) return false
+        if (other === null) {
+            return false
+        }
 
         this.drop_through = input.probe("s", input.KEYHELD);
 
         if (other.one_way) {
             const was_above = this._prev_y + this.height <= other.y;
-            if (!was_above) return false;
-            if (this.drop_through) return false;
+            if (!was_above) {
+                return false;
+            }
+            if (this.drop_through) {
+                return false;
+            }
         }
 
         const dx = this.x - this._prev_x
@@ -355,7 +403,9 @@ export class cobj extends obj {
             x_exit_t = (other.x - (this._prev_x + this.width)) / dx
         } else {
             const x_overlap = this._prev_x + this.width > other.x && this._prev_x < other.x + other.width
-            if (!x_overlap) x_entry_t = Infinity
+            if (!x_overlap) {
+                x_entry_t = Infinity
+            }
         }
 
         let y_entry_t = Number.NEGATIVE_INFINITY
@@ -369,7 +419,9 @@ export class cobj extends obj {
             y_exit_t = (other.y - (this._prev_y + this.height)) / dy
         } else {
             const y_overlap = this._prev_y + this.height > other.y && this._prev_y < other.y + other.height
-            if (!y_overlap) y_entry_t = Infinity
+            if (!y_overlap) {
+                y_entry_t = Infinity
+            }
         }
 
         const entry_t = Math.max(x_entry_t, y_entry_t)
@@ -396,7 +448,9 @@ export class cobj extends obj {
 
     /** Simple AABB overlap test — use this for triggers and pickups instead of collide(). */
     overlaps(other): boolean {
-        if (!other) return false
+        if (!other) {
+            return false
+        }
         return this.x < other.x + other.width  &&
                this.x + this.width  > other.x  &&
                this.y < other.y + other.height &&
@@ -521,8 +575,12 @@ export class pobj extends cobj {
         this._squash_x += (1 - this._squash_x) * this._squash_lerp
         this._squash_y += (1 - this._squash_y) * this._squash_lerp
 
-        if (Math.abs(this._squash_x - 1) < 0.01) this._squash_x = 1
-        if (Math.abs(this._squash_y - 1) < 0.01) this._squash_y = 1
+        if (Math.abs(this._squash_x - 1) < 0.01) {
+            this._squash_x = 1
+        }
+        if (Math.abs(this._squash_y - 1) < 0.01) {
+            this._squash_y = 1
+        }
 
         return `translate(${this.x}px, ${this.y}px) scaleX(${this.facing}) scale(${this._squash_x}, ${this._squash_y})`
     }
@@ -653,14 +711,30 @@ export class level {
         keys = null,
         map = null
     }) {
-        if (x !== null) this.x = x
-        if (y !== null) this.y = y
-        if (width !== null) this.width = width
-        if (height !== null) this.height = height
-        if (tile_width !== null) this.tile_width = tile_width
-        if (tile_height !== null) this.tile_height = tile_height
-        if (keys !== null) this.keys = keys
-        if (map !== null) this.map = map
+        if (x !== null) {
+            this.x = x
+        }
+        if (y !== null) {
+            this.y = y
+        }
+        if (width !== null) {
+            this.width = width
+        }
+        if (height !== null) {
+            this.height = height
+        }
+        if (tile_width !== null) {
+            this.tile_width = tile_width
+        }
+        if (tile_height !== null) {
+            this.tile_height = tile_height
+        }
+        if (keys !== null) {
+            this.keys = keys
+        }
+        if (map !== null) {
+            this.map = map
+        }
 
         if (this.map[0].length != width) {
             throw new Error("The width of the map does not match the level width")
@@ -719,7 +793,9 @@ export class level {
                 if (tile !== null && obj !== null && tile.name === obj.name) {
                     obj.width += tile.width
                     obj.graphic.style.width = obj.width + "px"
-                    if (obj.collider) obj.collider.style.width = obj.width + "px"
+                    if (obj.collider) {
+                        obj.collider.style.width = obj.width + "px"
+                    }
                     this.objects[yy][xx] = null
                 } else {
                     if (obj !== null) {
@@ -746,7 +822,9 @@ export class level {
                 if (tile !== null && obj !== null && tile.name === obj.name && tile.width === obj.width) {
                     obj.height += tile.height
                     obj.graphic.style.height = obj.height + "px"
-                    if (obj.collider) obj.collider.style.height = obj.height + "px"
+                    if (obj.collider) {
+                        obj.collider.style.height = obj.height + "px"
+                    }
                     this.objects[yy][xx] = null
                 } else {
                     if (obj !== null) {
@@ -818,7 +896,9 @@ export class level {
 
     replace(name_or_obj, obj) {
         const other = typeof name_or_obj === "string" ? this.find(name_or_obj) : name_or_obj
-        if (other) this.flat[this.flat.indexOf(other)] = obj
+        if (other) {
+            this.flat[this.flat.indexOf(other)] = obj
+        }
 
         for (let yy = 0; yy < this.height; yy++) {
             for (let xx = 0; xx < this.width; xx++) {
@@ -832,8 +912,12 @@ export class level {
         const si = this.static_objs.indexOf(other)
 
         // Remove old from whichever list it was in
-        if (di !== -1) this.dynamic_objs.splice(di, 1)
-        if (si !== -1) this.static_objs.splice(si, 1)
+        if (di !== -1) {
+            this.dynamic_objs.splice(di, 1)
+        }
+        if (si !== -1) {
+            this.static_objs.splice(si, 1)
+        }
 
         // Add new to the appropriate list based on its own properties
         if (obj.dynamic && obj.collides) {
@@ -876,7 +960,9 @@ export class level {
             const visibility = this.debug_col_visible ? "visible" : "hidden"
             player.collider.style.visibility = visibility
             this.flat.forEach(o => {
-                if (o !== null && o.shows_debug_col) o.collider.style.visibility = visibility
+                if (o !== null && o.shows_debug_col) {
+                    o.collider.style.visibility = visibility
+                }
             })
         }
     }
@@ -950,7 +1036,9 @@ export class emitter {
 
     // Creates the shared pixel canvas over the world. Called automatically.
     static init_canvas(): void {
-        if (emitter._canvas) return
+        if (emitter._canvas) {
+            return
+        }
         const canvas = document.createElement("canvas")
         canvas.width = game.width
         canvas.height = game.height
@@ -971,7 +1059,9 @@ export class emitter {
         this._active = true
         if (this.mode === "pixel") {
             emitter.init_canvas()
-            if (!emitter._all_pixel.includes(this)) emitter._all_pixel.push(this)
+            if (!emitter._all_pixel.includes(this)) {
+                emitter._all_pixel.push(this)
+            }
         }
         return this
     }
@@ -986,9 +1076,13 @@ export class emitter {
     burst(count = 10): this {
         if (this.mode === "pixel") {
             emitter.init_canvas()
-            if (!emitter._all_pixel.includes(this)) emitter._all_pixel.push(this)
+            if (!emitter._all_pixel.includes(this)) {
+                emitter._all_pixel.push(this)
+            }
         }
-        for (let i = 0; i < count; i++) this._spawn_one()
+        for (let i = 0; i < count; i++) {
+            this._spawn_one()
+        }
         return this
     }
 
@@ -1007,7 +1101,9 @@ export class emitter {
             p.y_speed += this.gravity
             p.x += p.x_speed
             p.y += p.y_speed
-            if (this.spin) p.rotation += this.spin_speed
+            if (this.spin) {
+                p.rotation += this.spin_speed
+            }
             p.lifetime--
             p.alpha = this.fade ? Math.max(0, p.lifetime / p.max_lifetime) : 1
 
@@ -1035,7 +1131,9 @@ export class emitter {
         }
         this._particles = []
         const idx = emitter._all_pixel.indexOf(this)
-        if (idx !== -1) emitter._all_pixel.splice(idx, 1)
+        if (idx !== -1) {
+            emitter._all_pixel.splice(idx, 1)
+        }
     }
 
     private _spawn_one(): void {
@@ -1055,8 +1153,12 @@ export class emitter {
         if (this.mode === "sprite") {
             const el = document.createElement("div")
             el.style.cssText = `position:absolute;left:0;top:0;width:${this.sprite_w}px;height:${this.sprite_h}px;transform:translate(${p.x}px,${p.y}px);image-rendering:pixelated;background-size:cover;transform-origin:center center;`
-            if (this.sprite_url) el.style.backgroundImage = `url(${this.sprite_url})`
-            if (this.sprite_class) el.className = this.sprite_class
+            if (this.sprite_url) {
+                el.style.backgroundImage = `url(${this.sprite_url})`
+            }
+            if (this.sprite_class) {
+                el.className = this.sprite_class
+            }
             const container = this._container ?? game.world
             container.appendChild(el)
             p._el = el
@@ -1068,7 +1170,9 @@ export class emitter {
     // Redraw the pixel canvas. Call once per frame after all emitter.update() calls
     // when any emitter is in pixel mode.
     static draw_pixels(): void {
-        if (!emitter._canvas || !emitter._ctx) return
+        if (!emitter._canvas || !emitter._ctx) {
+            return
+        }
         const ctx = emitter._ctx
         ctx.clearRect(0, 0, emitter._canvas.width, emitter._canvas.height)
         for (const e of emitter._all_pixel) {
@@ -1158,7 +1262,9 @@ export class Scene {
     /** Add a spawn rule. First rule whose when() returns true wins. on_spawn fires after placement. */
     spawn(obj: pobj, at: cobj | { x: number, y: number }, when: () => boolean, on_spawn?: () => void): Scene {
         this._spawns.push({ obj, at, when, on_spawn })
-        if (at instanceof cobj) this._spawn_markers.add(at)
+        if (at instanceof cobj) {
+            this._spawn_markers.add(at)
+        }
         return this
     }
 

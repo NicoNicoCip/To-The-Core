@@ -1,11 +1,20 @@
-import { boil_the_plate } from "../../src/prefabs.js"
+import { boil_the_plate, Button } from "../../src/prefabs.js"
 import { bobj, game, obj, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
 const background = new bobj({ name: "background1" })
 const ttc_sign = new obj({ name: "to_the_core_sign", width: 224, height: 64 })
-const play_sign = new obj({ name: "play_sign", width: 72, height: 29 })
+const play_sign = new Button({
+    name: "play_sign",
+    width: 72,
+    height: 29,
+    hover_class: "play_sign_hover",
+    on_click: () => {
+        state = 'play'
+        play_sign.disable()
+    },
+})
 
 const scene = new Scene()
 scene.layer(background, -5, 0)
@@ -24,7 +33,6 @@ let state = 'wobble'
 let t = 0
 let timr = 0
 let acc = 1
-let triggered = false
 
 scene.update(function () {
     if (state === 'wobble') {
@@ -55,23 +63,11 @@ scene.update(function () {
         document.getElementById("fade").style.backgroundColor = "black"
     }
 
-    if (timr === 180) game.load_transport()
+    if (timr === 180) {
+        game.load_transport()
+    }
 
     timr++
-})
-
-play_sign.graphic.addEventListener("mouseenter", () => {
-    if (!triggered) play_sign.graphic.classList.add("play_sign_hover")
-})
-
-play_sign.graphic.addEventListener("mouseleave", () => {
-    if (!triggered) play_sign.graphic.classList.remove("play_sign_hover")
-})
-
-play_sign.graphic.addEventListener("mouseup", () => {
-    if (triggered) return
-    triggered = true
-    state = 'play'
 })
 
 scene.run({ save_transport: false })

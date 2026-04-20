@@ -1,4 +1,4 @@
-import { boil_the_plate, invisible_wall_tile, Player, send_to, Shaker, spawn_tile } from "../../src/prefabs.js"
+import { boil_the_plate, invisible_wall_tile, Player, send_to, Sequencer, Shaker, spawn_tile } from "../../src/prefabs.js"
 import { bobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -10,9 +10,7 @@ const background   = new bobj({ name: "background3" })
 const midground    = new bobj({ name: "midground_s1" })
 const foreground   = new bobj({ name: "scene_s1" })
 
-// Intro-only fall-in animation state
-let landing       = false
-let landing_timer = 0
+let landing = false
 
 const inviz = invisible_wall_tile()
 const spawn = spawn_tile()
@@ -56,35 +54,41 @@ scene.spawn(player, spawn, () => true, () => {
 scene.camera(player, { lerp: 0.1 })
 
 const shaker = new Shaker()
+const intro  = new Sequencer()
+
+if (intro_played) {
+    intro.wait_until(() => player.just_landed)
+    intro.call(() => {
+        landing = true
+        player.graphic.classList.add("falling_in")
+        player.graphic.style.backgroundImage = `url(/pages/assets/dog_falling_in.webp?t=${performance.now()})`
+        shaker.shake(1, 20)
+    })
+    intro.wait(192)
+    intro.call(() => {
+        landing = false
+        player.graphic.classList.remove("falling_in")
+        player.graphic.style.backgroundImage = ""
+    })
+}
 
 scene.update(function () {
     player.update()
     scene.toggle_debug()
 
-    // Intro-only: freeze input and play dog_falling_in on first landing
-    if (intro_played && player.just_landed && !landing && landing_timer === 0) {
-        landing = true
-        landing_timer = 192
-        player.graphic.classList.add("falling_in")
-        player.graphic.style.backgroundImage = `url(/pages/assets/dog_falling_in.webp?t=${performance.now()})`
-        shaker.shake(1, 20)
-    }
+    intro.tick()
     if (landing) {
         player.movedir = null
         player.y_speed = 0
-        landing_timer--
-        if (landing_timer <= 0) {
-            landing = false
-            player.graphic.classList.remove("falling_in")
-            player.graphic.style.backgroundImage = ""
-        }
     }
 
     shaker.tick_shake()
     player.apply_force()
     scene.move_and_collide()
 
-    if (player.y > game.height) send_to("./s2.html")
+    if (player.y > game.height) {
+        send_to("./s2.html")
+    }
 })
 
 scene.run()

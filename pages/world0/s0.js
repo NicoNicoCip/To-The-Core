@@ -1,4 +1,4 @@
-import { boil_the_plate, send_to } from "../../src/prefabs.js"
+import { boil_the_plate, Sequencer, send_to } from "../../src/prefabs.js"
 import { bobj, game, input, obj, Scene } from "../../src/system.js"
 
 if (game.check_collectable("s1", "intro_ended")) {
@@ -84,7 +84,20 @@ dog.move(DOG_X, DOG_START_Y)
 splash.move(SPLASH_X, SPLASH_START_Y)
 
 // ── Sequence ───────────────────────────────────────────────────────────────
-let timr = 0
+let dog_scrolling = true
+let phase_3       = false
+
+const seq = new Sequencer()
+seq.call(() => {
+    document.getElementById("fade").style.backgroundColor = "transparent"
+})
+seq.wait(WAIT_FRAMES)
+seq.wait(FRAMES_TO_PAUSE)
+seq.call(() => { dog_scrolling = false })
+seq.wait(PAUSE_DURATION - 60)
+seq.call(() => scene.layer_visible(-3, true))
+seq.wait(60)
+seq.call(() => { dog_scrolling = true; phase_3 = true })
 
 scene.update(function () {
     if (input.probe("escape", input.KEYDOWN)) {
@@ -92,36 +105,17 @@ scene.update(function () {
         return
     }
 
-    // Frame 0: start the CSS fade (yellowish-white → transparent)
-    if (timr === 0) {
-        document.getElementById("fade").style.backgroundColor = "transparent"
-    }
+    seq.tick()
 
-    // Phase 0: wait — backgrounds scroll via CSS, nothing else moves
-    if (timr < WAIT_FRAMES) {
-        timr++
-        return
-    }
-
-    // Splash keeps scrolling the whole time
     splash.shift(0, -SCROLL_SPEED)
 
-    // Dog pauses mid-screen, then resumes
-    if (timr < PAUSE_FRAME || timr >= RESUME_FRAME) {
+    if (dog_scrolling) {
         dog.shift(0, -SCROLL_SPEED)
     }
 
-    // Show background2_transit a bit before the dog resumes
-    if (timr === TRANSIT_FRAME) {
-        scene.layer_visible(-3, true)
-    }
-
-    // Navigate once the dog has scrolled fully off the top
-    if (timr > RESUME_FRAME && dog.y + dog.height < 0) {
+    if (phase_3 && dog.y + dog.height < 0) {
         end_intro()
     }
-
-    timr++
 })
 
 function end_intro() {
