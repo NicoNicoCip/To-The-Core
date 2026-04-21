@@ -1,0 +1,39 @@
+#world {
+    background-color: #1a1a2a;
+}
+
+#player {
+    background-image: url("/pages/assets/dog.webp");
+}
+
+.moving {
+    background-image: url("/pages/assets/dog_walking.webp") !important;
+}
+
+.falling {
+    background-image: url("/pages/assets/dog_falling.webp") !important;
+}
+
+.rising {
+    background-image: url("/pages/assets/dog_rising.webp") !important;
+}
+
+#wall {
+    background-color: #3a2e1a;
+}
+
+#jump_once_platform {
+    background-color: #4070a0;
+    border-top: 1px solid #70c0e0;
+}
+
+.shard-0, .shard-1, .shard-2, .shard-3 {
+    background-color: #4070a0;
+    border-top: 1px solid #70c0e0;
+    box-sizing: border-box;
+}
+
+.shard-0 { clip-path: polygon(0 0,    45% 0,   25% 100%, 0 100%) }
+.shard-1 { clip-path: polygon(45% 0,  75% 0,   60% 100%, 25% 100%) }
+.shard-2 { clip-path: polygon(75% 0,  100% 0,  100% 60%, 60% 100%) }
+.shard-3 { clip-path: polygon(100% 60%, 100% 100%, 60% 100%) }

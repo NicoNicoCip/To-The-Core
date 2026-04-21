@@ -53,7 +53,7 @@ scene.spawn(player, spawn_right, () => true, () => { player.facing = -1 })
 
 scene.camera(player, { lerp: 0.1 })
 
-scene.update(function () {
+function tick() {
     player.update()
     scene.toggle_debug()
     player.apply_force()
@@ -65,6 +65,7 @@ scene.update(function () {
     if (player.x > game.width) {
         send_to("./s2_EXT.html")
     }
-})
+}
 
+scene.update(tick)
 scene.run()

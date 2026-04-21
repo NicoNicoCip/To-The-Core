@@ -34,7 +34,7 @@ let t = 0
 let timr = 0
 let acc = 1
 
-scene.update(function () {
+function tick() {
     if (state === 'wobble') {
         t += 0.05
         ttc_sign.move(tcc_x + Math.cos(t) * 3, tcc_y + Math.sin(t * 0.7) * 2)
@@ -42,7 +42,6 @@ scene.update(function () {
         return
     }
 
-    // play animation
     if (timr === 8 || timr === 24 || timr === 40) {
         play_sign.graphic.classList.add("play_sign_hover")
     }
@@ -68,6 +67,7 @@ scene.update(function () {
     }
 
     timr++
-})
+}
 
+scene.update(tick)
 scene.run({ save_transport: false })

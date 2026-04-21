@@ -37,12 +37,13 @@ scene.tiles(10, 10, {
 scene.spawn(player, spawn, () => true)
 scene.camera(player, { lerp: 0.1 })
 
-scene.update(function() {
+function tick() {
     player.update()
     scene.toggle_debug()
     player.apply_force()
     scene.move_and_collide()
-})
+}
 
+scene.update(tick)
 scene.run()
 

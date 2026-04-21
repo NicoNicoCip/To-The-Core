@@ -45,7 +45,7 @@ scene.spawn(player, spawn, () => true)
 scene.collectable(bone, "world0/bone_s2_EXT")
 scene.camera(player, { lerp: 0.1 })
 
-scene.update(function() {
+function tick() {
     player.update()
     scene.toggle_debug()
     player.apply_force()
@@ -54,6 +54,7 @@ scene.update(function() {
     if (player.x + player.width < 0) {
         send_to("./s2.html")
     }
-})
+}
 
+scene.update(tick)
 scene.run()

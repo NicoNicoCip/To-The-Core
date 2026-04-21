@@ -1,10 +1,5 @@
 import { cobj, game, input, level, obj, pobj } from "./system.js"
 
-// ── Tile factory functions ────────────────────────────────────────────────────
-// Return a configured cobj ready to use as a key in scene.tiles().
-// Each call creates a fresh instance, so the same factory can be called
-// multiple times in the same scene without sharing state.
-
 export function wall_tile(): cobj {
     return new cobj({ name: "wall", width: 10, height: 10, shows_debug_col: true })
 }
@@ -28,9 +23,6 @@ export function jump_pad_tile(): cobj {
 export function bone_tile(): cobj {
     return new cobj({ name: "bone", width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true })
 }
-
-// ── Object factory functions ──────────────────────────────────────────────────
-// Return a ready-to-use instance placed at (x, y).
 
 export function make_player(x: number, y: number): Player {
     return new Player(x, y)
@@ -84,19 +76,6 @@ export class Shaker {
         this.shake_timer = duration_frames
     }
 }
-
-// ── Sequencer ─────────────────────────────────────────────────────────────────
-// Queue-based timeline. Steps fire in order; each tick advances until it hits
-// a blocking step (wait / tween / wait_until with unmet condition). Multiple
-// call() steps back-to-back all fire in the same tick.
-//
-//   const seq = new Sequencer()
-//   seq.call(() => doX())
-//   seq.wait(60)
-//   seq.tween(obj, 'y', 100, 30)
-//   seq.wait_until(() => obj.y_speed === 0)
-//   seq.call(() => doY())
-//   // in update: seq.tick()
 
 type SeqStep =
     | { kind: 'wait', frames: number }
@@ -191,15 +170,6 @@ export class Sequencer {
     }
 }
 
-// ── DeathZone ─────────────────────────────────────────────────────────────────
-// Kills (calls on_hit) when any pobj overlaps it.
-// Use as a tile key or place freely with scene.place() + move().
-//
-//   const spikes = new DeathZone({ name: "spikes", width: 10, height: 4, on_hit: () => send_to("./s1.html") })
-//   scene.place(spikes)
-//   spikes.move(80, 176)
-//   // in update: spikes.check(player)
-
 export class DeathZone extends cobj {
     on_hit: () => void
 
@@ -216,16 +186,6 @@ export class DeathZone extends cobj {
         }
     }
 }
-
-// ── CrumblePlatform ───────────────────────────────────────────────────────────
-// One-way platform that crumbles after the player stands on it too long.
-// Adds a "crumbling" CSS class as a warning before it disappears.
-// Reappears after respawn_frames. Timer resets if the player steps off early.
-//
-//   const crumble = new CrumblePlatform({ name: "plat_crumble", width: 30, stay_frames: 60, respawn_frames: 180 })
-//   scene.place(crumble)
-//   crumble.move(80, 120)
-//   // in update: crumble.update(player)
 
 export class CrumblePlatform extends cobj {
     stay_frames:    number
@@ -244,7 +204,9 @@ export class CrumblePlatform extends cobj {
     update(player: cobj) {
         if (!this._gone) {
             player.collide(this)
-            if (player.grounded && player.overlaps(this)) {
+            const horiz = player.x + player.width > this.x && player.x < this.x + this.width
+            const on_top = horiz && player.y + player.height === this.y
+            if (on_top) {
                 this._timer++
                 if (this._timer > this.stay_frames * 0.5) {
                     this.graphic.classList.add('crumbling')
@@ -270,15 +232,6 @@ export class CrumblePlatform extends cobj {
     }
 }
 
-// ── JumpOncePlatform ──────────────────────────────────────────────────────────
-// One-way platform that disappears the moment the player leaves it (jumps off
-// or walks off the edge). Reappears after respawn_frames.
-//
-//   const jp = new JumpOncePlatform({ name: "plat_jump", width: 30, respawn_frames: 120 })
-//   scene.place(jp)
-//   jp.move(140, 100)
-//   // in update: jp.update(player)
-
 export class JumpOncePlatform extends cobj {
     respawn_frames: number
     private _timer   = 0
@@ -295,7 +248,8 @@ export class JumpOncePlatform extends cobj {
     update(player: cobj) {
         if (!this._gone) {
             player.collide(this)
-            const on_now = player.grounded && player.overlaps(this)
+            const horiz = player.x + player.width > this.x && player.x < this.x + this.width
+            const on_now = horiz && player.y + player.height === this.y
             if (this._was_on && !on_now) {
                 this._gone   = true
                 this._timer  = 0
@@ -315,16 +269,6 @@ export class JumpOncePlatform extends cobj {
         }
     }
 }
-
-// ── ForceZone ─────────────────────────────────────────────────────────────────
-// Invisible region that pushes the player while they're inside it.
-// Works as a fan (force_y < 0), conveyor belt (force_x), wind, etc.
-// force values are added to player speed each frame, so keep them small (0.1–0.5).
-//
-//   const fan = new ForceZone({ name: "fan", width: 20, height: 40, force_y: -0.25 })
-//   scene.place(fan)
-//   fan.move(60, 80)
-//   // in update: fan.update(player)
 
 export class ForceZone extends cobj {
     force_x: number
@@ -346,16 +290,6 @@ export class ForceZone extends cobj {
         player.y_speed += this.force_y
     }
 }
-
-// ── Button ────────────────────────────────────────────────────────────────────
-// Clickable UI element. Extends obj, adds hover/click handlers.
-// hover_class toggles on mouseenter/mouseleave. on_click fires on mouseup.
-// Set disabled = true to freeze (e.g. after first click in a menu).
-//
-//   const play = new Button({ name: "play_sign", width: 72, height: 29,
-//                             hover_class: "play_sign_hover", on_click: () => { ... } })
-//   scene.layer(play, 11, 0)
-//   play.move(100, 100)
 
 export class Button extends obj {
     hover_class: string | null

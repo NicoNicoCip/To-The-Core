@@ -52,7 +52,8 @@ async function cacheAssets() {
                 if (response.ok) {
                     await cache.put(url, response)
                 }
-            } catch { /* skip failed assets */ }
+            } catch {
+            }
         }
     }
 

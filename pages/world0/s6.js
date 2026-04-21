@@ -50,7 +50,7 @@ scene.spawn(player, spawn_r, () => true,                   () => { player.facing
 
 scene.camera(player, { lerp: 0.1 })
 
-scene.update(function() {
+function tick() {
     player.update()
     scene.toggle_debug()
     player.apply_force()
@@ -62,6 +62,7 @@ scene.update(function() {
     if (player.x + player.width < 0) {
         send_to("./s7.html")
     }
-})
+}
 
+scene.update(tick)
 scene.run()

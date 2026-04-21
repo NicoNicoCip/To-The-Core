@@ -121,11 +121,6 @@ export class game {
             window.location.href = localStorage.getItem("last_level");
         }
     }
-    // Redirects to the loading page if no cached version is stored in localStorage.
-    // loading.js is the sole owner of fetching the real version and writing it.
-    // Clearing "jump_clone_version" from localStorage (e.g. on deploy detection)
-    // is enough to trigger a full re-download on the next page load.
-    // Called automatically by register_world() on production.
     static check_version() {
         const is_local = location.hostname === "localhost" || location.hostname === "127.0.0.1";
         if (is_local) {
@@ -142,9 +137,6 @@ export class game {
             window.location.href = "/pages/loading/loading.html";
             return;
         }
-        // Background check: detect new deploys via GitHub API.
-        // Non-blocking — player keeps playing. If a new version is found,
-        // sets a flag so the next page navigation triggers the loading screen.
         fetch("https://api.github.com/repos/NicoNicoCip/To-The-Core/commits/main")
             .then(res => res.ok ? res.json() : null)
             .then(data => {
@@ -363,7 +355,6 @@ export class cobj extends obj {
         }
         return col;
     }
-    /** Simple AABB overlap test — use this for triggers and pickups instead of collide(). */
     overlaps(other) {
         if (!other) {
             return false;
@@ -452,9 +443,6 @@ export class pobj extends cobj {
         if (this.y_speed > this.max_gravity) {
             this.y_speed = this.max_gravity;
         }
-        // Move position without updating _prev or DOM.
-        // Collision detection needs the delta (x - _prev_x).
-        // move_and_collide() will call move() afterward to sync everything.
         this.x += this.x_speed;
         this.y += this.y_speed;
     }
@@ -612,13 +600,11 @@ export class level {
         for (let yy = 0; yy < this.height; yy++) {
             this.objects[yy] = [];
             for (let xx = 0; xx < this.width; xx++) {
-                // take the char from the map
                 const char = map[yy].charAt(xx);
                 if (char === " " || char === ".") {
                     this.objects[yy].push(null);
                     continue;
                 }
-                // find its mapping
                 let mapping = null;
                 for (let k of keys) {
                     if (k.char === char) {
@@ -628,12 +614,10 @@ export class level {
                 if (mapping === null) {
                     throw new Error(`The key ${char} does not exist in the keys map.`);
                 }
-                // put an instance copy of the mapping in the array
                 mapping.move(xx * tile_width + this.x, yy * tile_height + this.y);
                 this.objects[yy].push(mapping);
             }
         }
-        // Horizontal pass
         for (let yy = 0; yy < this.height; yy++) {
             let obj = null;
             let start = { x: 0, y: yy };
@@ -659,7 +643,6 @@ export class level {
                 this.objects[start.y][start.x] = obj;
             }
         }
-        // Vertical pass
         for (let xx = 0; xx < this.width; xx++) {
             let obj = null;
             let start = { x: xx, y: 0 };
@@ -744,14 +727,12 @@ export class level {
         }
         const di = this.dynamic_objs.indexOf(other);
         const si = this.static_objs.indexOf(other);
-        // Remove old from whichever list it was in
         if (di !== -1) {
             this.dynamic_objs.splice(di, 1);
         }
         if (si !== -1) {
             this.static_objs.splice(si, 1);
         }
-        // Add new to the appropriate list based on its own properties
         if (obj.dynamic && obj.collides) {
             this.dynamic_objs.push(obj);
         }
@@ -813,34 +794,24 @@ export class emitter {
     x = 0;
     y = 0;
     mode = "pixel";
-    // Emission rate (particles per frame). 0 = burst-only.
     rate = 0;
-    // Spawn velocity — direction in radians (0=right, π/2=down, π=left, 3π/2=up).
     angle_min = 0;
     angle_max = Math.PI * 2;
     speed_min = 1;
     speed_max = 3;
-    // Random x offset applied at spawn (particles spread across x ± x_spread).
     x_spread = 0;
-    // Particle lifetime in frames.
     lifetime_min = 30;
     lifetime_max = 90;
-    // Pixel mode: size of the square drawn on canvas.
     size_min = 2;
     size_max = 6;
     color = "#ffffff";
-    // Sprite mode: image and dimensions per particle.
     sprite_url = null;
     sprite_class = null;
     sprite_w = 10;
     sprite_h = 10;
-    // Per-frame gravity added to y_speed.
     gravity = 0.1;
-    // Fade opacity to 0 over lifetime.
     fade = true;
-    // Shrink size to 0 over lifetime.
     shrink = false;
-    // Rotate particle each frame.
     spin = false;
     spin_speed = 5;
     _particles = [];
@@ -850,7 +821,6 @@ export class emitter {
     static _canvas = null;
     static _ctx = null;
     static _all_pixel = [];
-    // Creates the shared pixel canvas over the world. Called automatically.
     static init_canvas() {
         if (emitter._canvas) {
             return;
@@ -863,12 +833,10 @@ export class emitter {
         emitter._canvas = canvas;
         emitter._ctx = canvas.getContext("2d");
     }
-    // Override the default container (game.world) for sprite-mode particles.
     attach(container) {
         this._container = container;
         return this;
     }
-    // Begin continuous emission at the configured rate.
     start() {
         this._active = true;
         if (this.mode === "pixel") {
@@ -879,12 +847,10 @@ export class emitter {
         }
         return this;
     }
-    // Stop continuous emission. Existing particles finish their lifetime.
     stop() {
         this._active = false;
         return this;
     }
-    // Emit a one-shot burst of particles.
     burst(count = 10) {
         if (this.mode === "pixel") {
             emitter.init_canvas();
@@ -897,7 +863,6 @@ export class emitter {
         }
         return this;
     }
-    // Tick all particles. Call once per frame inside your scene update function.
     update() {
         if (this._active && this.rate > 0) {
             this._rate_acc += this.rate;
@@ -930,7 +895,6 @@ export class emitter {
             }
         }
     }
-    // Remove all active particles and clean up their DOM elements.
     clear() {
         for (const p of this._particles) {
             if (p._el) {
@@ -972,8 +936,6 @@ export class emitter {
         }
         this._particles.push(p);
     }
-    // Redraw the pixel canvas. Call once per frame after all emitter.update() calls
-    // when any emitter is in pixel mode.
     static draw_pixels() {
         if (!emitter._canvas || !emitter._ctx) {
             return;
@@ -1026,16 +988,11 @@ export class Scene {
     _cam_deadzone_y = 0;
     _update_fn = null;
     _debug_visible = false;
-    // ── builder API ──────────────────────────────────────────────────────
-    /** Register a visual layer. z < 0 = behind tiles, z > 0 = in front.
-     *  parallax: number (both axes) or { x, y } to lock individual axes.
-     *  0 = static, 1 = moves with world. */
     layer(visual_obj, z, parallax = 1.0) {
         this._ensure_layer(z, parallax);
         this._layer_objs.push({ obj: visual_obj, z });
         return this;
     }
-    /** Define the tile grid. Eagerly places objects so you can adjust positions immediately after. */
     tiles(tile_w, tile_h, keys, map) {
         this._tile_w = tile_w;
         this._tile_h = tile_h;
@@ -1048,16 +1005,13 @@ export class Scene {
         this._build_tiles();
         return this;
     }
-    /** First surviving placed instance of a char (unique objects). */
     find(char) {
         const arr = this._char_instances[char];
         return arr ? arr[0] : undefined;
     }
-    /** All surviving placed instances of a char, in top-to-bottom left-to-right order. */
     find_all(char) {
         return this._char_instances[char] || [];
     }
-    /** Add a spawn rule. First rule whose when() returns true wins. on_spawn fires after placement. */
     spawn(obj, at, when, on_spawn) {
         this._spawns.push({ obj, at, when, on_spawn });
         if (at instanceof cobj) {
@@ -1065,57 +1019,57 @@ export class Scene {
         }
         return this;
     }
-    /** Show or hide an entire layer by its z value. Useful for scenes that reveal layers progressively (e.g. intro sequences). */
     layer_visible(z, visible) {
         const entry = this._layer_entries.find(l => l.z === z);
-        if (entry)
+        if (entry) {
             entry.el.style.display = visible ? '' : 'none';
+        }
         return this;
     }
-    /** Place a free-standing world object (not a tile, not a spawn). Appended to the main layer so it scrolls with the world. */
     place(obj) {
         this._placed_objs.push(obj);
         return this;
     }
-    /** Register a collectable. Auto-skips if already saved, auto-removes on pickup. id format: "world/item". */
     collectable(obj, id) {
         this._collectables.push({ obj, id, collected: false });
         return this;
     }
-    /** Attach a camera to a target.
-     *  lerp/lerp_x/lerp_y: smoothing 0=instant, 0.1=smooth.
-     *  offset_x/offset_y: shift the camera's focal point in pixels.
-     *  look_ahead: pixels to lead ahead in the target's facing direction (pobj only).
-     *  deadzone_x/deadzone_y: camera only moves when target exits this window (pixels).
-     *  bounds: clamp to level edges (default true). */
     camera(target, opts = {}) {
         this._cam_target = target;
         if (opts.lerp !== undefined) {
             this._cam_lerp_x = opts.lerp;
             this._cam_lerp_y = opts.lerp;
         }
-        if (opts.lerp_x !== undefined)
+        if (opts.lerp_x !== undefined) {
             this._cam_lerp_x = opts.lerp_x;
-        if (opts.lerp_y !== undefined)
+        }
+        if (opts.lerp_y !== undefined) {
             this._cam_lerp_y = opts.lerp_y;
-        if (opts.bounds !== undefined)
+        }
+        if (opts.bounds !== undefined) {
             this._cam_bounds = opts.bounds;
-        if (opts.offset_x !== undefined)
+        }
+        if (opts.offset_x !== undefined) {
             this._cam_offset_x = opts.offset_x;
-        if (opts.offset_y !== undefined)
+        }
+        if (opts.offset_y !== undefined) {
             this._cam_offset_y = opts.offset_y;
-        if (opts.look_ahead !== undefined)
+        }
+        if (opts.look_ahead !== undefined) {
             this._cam_look_ahead = opts.look_ahead;
-        if (opts.deadzone_x !== undefined)
+        }
+        if (opts.deadzone_x !== undefined) {
             this._cam_deadzone_x = opts.deadzone_x;
-        if (opts.deadzone_y !== undefined)
+        }
+        if (opts.deadzone_y !== undefined) {
             this._cam_deadzone_y = opts.deadzone_y;
+        }
         return this;
     }
-    /** Instantly snaps the camera to the target — call after scene.run() to skip the lerp-in. */
     cam_snap() {
-        if (!this._cam_target)
+        if (!this._cam_target) {
             return;
+        }
         this._cam_look_x = 'facing' in this._cam_target
             ? this._cam_target.facing * this._cam_look_ahead
             : 0;
@@ -1128,16 +1082,16 @@ export class Scene {
         this._cam_x = tx;
         this._cam_y = ty;
     }
-    /** Current camera scroll position in world pixels. Useful for HUD placement. */
-    get cam_x() { return this._cam_x; }
-    get cam_y() { return this._cam_y; }
-    /** Register the per-frame update function. */
+    get cam_x() {
+        return this._cam_x;
+    }
+    get cam_y() {
+        return this._cam_y;
+    }
     update(fn) {
         this._update_fn = fn;
         return this;
     }
-    // ── runtime API ──────────────────────────────────────────────────────
-    /** Resolve collisions and sync DOM for all dynamic objects. Call inside your update function. */
     move_and_collide() {
         for (let i = 0; i < this._dynamic_objs.length; i++) {
             this._dynamic_objs[i].grounded = false;
@@ -1150,33 +1104,36 @@ export class Scene {
             this._dynamic_objs[i].move();
         }
     }
-    /** Toggle debug collider visibility on P keydown. Call inside your update function. */
     toggle_debug() {
         if (input.probe('p', input.KEYDOWN)) {
             this._debug_visible = !this._debug_visible;
             const vis = this._debug_visible ? 'visible' : 'hidden';
-            for (const sp of this._spawned_objs)
-                if (sp.collider)
+            for (const sp of this._spawned_objs) {
+                if (sp.collider) {
                     sp.collider.style.visibility = vis;
-            for (const t of this._tile_objs)
-                if (t.shows_debug_col && t.collider)
+                }
+            }
+            for (const t of this._tile_objs) {
+                if (t.shows_debug_col && t.collider) {
                     t.collider.style.visibility = vis;
-            for (const o of this._placed_objs)
-                if (o.shows_debug_col && o.collider)
+                }
+            }
+            for (const o of this._placed_objs) {
+                if (o.shows_debug_col && o.collider) {
                     o.collider.style.visibility = vis;
+                }
+            }
         }
     }
-    /** Build the scene DOM, register the tick, and start the game loop.
-     *  Pass { save_transport: false } for screens like the start menu that should not overwrite the last played level. */
     run({ save_transport = true } = {}) {
         this._setup_dom();
         this.cam_snap();
-        if (save_transport)
+        if (save_transport) {
             game.save_transport();
+        }
         game.update(() => this._tick());
         game.run();
     }
-    // ── private ──────────────────────────────────────────────────────────
     _ensure_layer(z, parallax = 1.0) {
         let entry = this._layer_entries.find(l => l.z === z);
         if (!entry) {
@@ -1198,11 +1155,13 @@ export class Scene {
         for (let yy = 0; yy < H; yy++) {
             for (let xx = 0; xx < W; xx++) {
                 const char = map[yy].charAt(xx);
-                if (char === ' ' || char === '.')
+                if (char === ' ' || char === '.') {
                     continue;
+                }
                 const template = keys[char];
-                if (!template)
+                if (!template) {
                     throw new Error(`Scene.tiles: no key for '${char}'`);
+                }
                 let tile;
                 if (!first_used[char]) {
                     first_used[char] = true;
@@ -1216,7 +1175,6 @@ export class Scene {
                 tile_to_char.set(tile, char);
             }
         }
-        // horizontal merge
         for (let yy = 0; yy < H; yy++) {
             let cur = null;
             for (let xx = 0; xx < W; xx++) {
@@ -1224,15 +1182,16 @@ export class Scene {
                 if (t && cur && t.name === cur.name) {
                     cur.width += t.width;
                     cur.graphic.style.width = cur.width + 'px';
-                    if (cur.collider)
+                    if (cur.collider) {
                         cur.collider.style.width = cur.width + 'px';
+                    }
                     grid[yy][xx] = null;
                 }
-                else
+                else {
                     cur = t;
+                }
             }
         }
-        // vertical merge
         for (let xx = 0; xx < W; xx++) {
             let cur = null;
             for (let yy = 0; yy < H; yy++) {
@@ -1240,30 +1199,35 @@ export class Scene {
                 if (t && cur && t.name === cur.name && t.width === cur.width) {
                     cur.height += t.height;
                     cur.graphic.style.height = cur.height + 'px';
-                    if (cur.collider)
+                    if (cur.collider) {
                         cur.collider.style.height = cur.height + 'px';
+                    }
                     grid[yy][xx] = null;
                 }
-                else
+                else {
                     cur = t;
+                }
             }
         }
-        // flatten — char_instances built from surviving tiles only
         this._char_instances = {};
         for (let yy = 0; yy < H; yy++) {
             for (let xx = 0; xx < W; xx++) {
                 const t = grid[yy][xx];
-                if (!t)
+                if (!t) {
                     continue;
+                }
                 this._tile_objs.push(t);
-                if (t.dynamic && t.collides)
+                if (t.dynamic && t.collides) {
                     this._dynamic_objs.push(t);
-                else if (t.collides)
+                }
+                else if (t.collides) {
                     this._static_objs.push(t);
+                }
                 const char = tile_to_char.get(t);
                 if (char) {
-                    if (!this._char_instances[char])
+                    if (!this._char_instances[char]) {
                         this._char_instances[char] = [];
+                    }
                     this._char_instances[char].push(t);
                 }
             }
@@ -1272,67 +1236,69 @@ export class Scene {
     _setup_dom() {
         this._ensure_layer(0, 1.0);
         this._layer_entries.sort((a, b) => a.z - b.z);
-        // Debug overlay sits above all layers and scrolls with the world.
         this._debug_overlay = document.createElement('div');
         this._debug_overlay.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;z-index:9999;pointer-events:none;';
         game.world.appendChild(this._debug_overlay);
-        // Remove spawn markers from collision lists (position markers only)
         for (const marker of this._spawn_markers) {
             const di = this._dynamic_objs.indexOf(marker);
-            if (di !== -1)
+            if (di !== -1) {
                 this._dynamic_objs.splice(di, 1);
+            }
             const si = this._static_objs.indexOf(marker);
-            if (si !== -1)
+            if (si !== -1) {
                 this._static_objs.splice(si, 1);
+            }
         }
-        // Pre-check collectables — skip ones already saved
         for (const col of this._collectables) {
             const [world, item] = col.id.split('/');
             if (game.check_collectable(world, item)) {
                 col.collected = true;
                 const di = this._dynamic_objs.indexOf(col.obj);
-                if (di !== -1)
+                if (di !== -1) {
                     this._dynamic_objs.splice(di, 1);
+                }
             }
         }
-        // Resolve spawns — first matching condition wins
         for (const s of this._spawns) {
-            if (!s.when())
+            if (!s.when()) {
                 continue;
+            }
             s.obj.move(s.at.x, s.at.y);
             s.obj.y_speed = s.obj.max_gravity;
             s.obj.graphic.classList.add('falling');
-            if (s.obj.dynamic && s.obj.collides)
+            if (s.obj.dynamic && s.obj.collides) {
                 this._dynamic_objs.push(s.obj);
+            }
             this._spawned_objs.push(s.obj);
-            if (s.on_spawn)
+            if (s.on_spawn) {
                 s.on_spawn();
+            }
             break;
         }
-        // Mount layer divs into the world in z order
-        for (const entry of this._layer_entries)
+        for (const entry of this._layer_entries) {
             game.world.appendChild(entry.el);
-        // Append visual layer objects (backgrounds, foregrounds, etc.)
+        }
         for (const lo of this._layer_objs) {
             const layer = this._layer_entries.find(l => l.z === lo.z);
-            if (layer)
+            if (layer) {
                 layer.el.appendChild(lo.obj.graphic);
+            }
         }
         const main = this._layer_entries.find(l => l.z === 0);
-        // Append tile graphics — skip spawn markers and pre-collected collectables
         for (const tile of this._tile_objs) {
-            if (this._spawn_markers.has(tile))
+            if (this._spawn_markers.has(tile)) {
                 continue;
+            }
             const col = this._collectables.find(c => c.obj === tile);
-            if (col && col.collected)
+            if (col && col.collected) {
                 continue;
+            }
             main.el.appendChild(tile.graphic);
             if (tile.shows_debug_col && tile.collider) {
                 tile.collider.style.visibility = 'hidden';
                 this._debug_overlay.appendChild(tile.collider);
             }
         }
-        // Append placed objects (free-standing world objects)
         for (const o of this._placed_objs) {
             main.el.appendChild(o.graphic);
             if (o.shows_debug_col && o.collider) {
@@ -1340,7 +1306,6 @@ export class Scene {
                 this._debug_overlay.appendChild(o.collider);
             }
         }
-        // Append spawned object graphics
         for (const sp of this._spawned_objs) {
             main.el.appendChild(sp.graphic);
             if (sp.shows_debug_col && sp.collider) {
@@ -1350,67 +1315,77 @@ export class Scene {
         }
     }
     _tick() {
-        if (this._update_fn)
+        if (this._update_fn) {
             this._update_fn();
+        }
         this._check_collectables();
         this._update_camera();
     }
     _check_collectables() {
         const main = this._layer_entries.find(l => l.z === 0);
         for (const col of this._collectables) {
-            if (col.collected)
+            if (col.collected) {
                 continue;
+            }
             for (const sp of this._spawned_objs) {
                 if (sp.overlaps(col.obj)) {
                     col.collected = true;
                     const [world, item] = col.id.split('/');
                     game.save_collectable(world, item);
                     if (main) {
-                        if (col.obj.graphic.parentNode === main.el)
+                        if (col.obj.graphic.parentNode === main.el) {
                             main.el.removeChild(col.obj.graphic);
-                        if (col.obj.collider && col.obj.collider.parentNode === main.el)
+                        }
+                        if (col.obj.collider && col.obj.collider.parentNode === main.el) {
                             main.el.removeChild(col.obj.collider);
+                        }
                     }
                     const di = this._dynamic_objs.indexOf(col.obj);
-                    if (di !== -1)
+                    if (di !== -1) {
                         this._dynamic_objs.splice(di, 1);
+                    }
                     break;
                 }
             }
         }
     }
     _update_camera() {
-        if (!this._cam_target)
+        if (!this._cam_target) {
             return;
-        // Smooth look-ahead: drift the camera ahead in the direction the target faces.
+        }
         if (this._cam_look_ahead > 0 && 'facing' in this._cam_target) {
             const desired = this._cam_target.facing * this._cam_look_ahead;
             this._cam_look_x += (desired - this._cam_look_x) * 0.05;
         }
         const base_x = this._cam_target.x + this._cam_offset_x + this._cam_look_x;
         const base_y = this._cam_target.y + this._cam_offset_y;
-        // Deadzone: camera only starts moving once the target exits a window around the screen centre.
         let tx, ty;
         if (this._cam_deadzone_x > 0) {
             const sx = base_x - this._cam_x - game.width / 2;
-            if (sx > this._cam_deadzone_x)
+            if (sx > this._cam_deadzone_x) {
                 tx = base_x - game.width / 2 - this._cam_deadzone_x;
-            else if (sx < -this._cam_deadzone_x)
+            }
+            else if (sx < -this._cam_deadzone_x) {
                 tx = base_x - game.width / 2 + this._cam_deadzone_x;
-            else
+            }
+            else {
                 tx = this._cam_x;
+            }
         }
         else {
             tx = base_x - game.width / 2;
         }
         if (this._cam_deadzone_y > 0) {
             const sy = base_y - this._cam_y - game.height / 2;
-            if (sy > this._cam_deadzone_y)
+            if (sy > this._cam_deadzone_y) {
                 ty = base_y - game.height / 2 - this._cam_deadzone_y;
-            else if (sy < -this._cam_deadzone_y)
+            }
+            else if (sy < -this._cam_deadzone_y) {
                 ty = base_y - game.height / 2 + this._cam_deadzone_y;
-            else
+            }
+            else {
                 ty = this._cam_y;
+            }
         }
         else {
             ty = base_y - game.height / 2;
@@ -1421,17 +1396,16 @@ export class Scene {
         }
         this._cam_x += (tx - this._cam_x) * this._cam_lerp_x;
         this._cam_y += (ty - this._cam_y) * this._cam_lerp_y;
-        if (Math.abs(this._cam_x - tx) < 0.01)
+        if (Math.abs(this._cam_x - tx) < 0.01) {
             this._cam_x = tx;
-        if (Math.abs(this._cam_y - ty) < 0.01)
+        }
+        if (Math.abs(this._cam_y - ty) < 0.01) {
             this._cam_y = ty;
-        // World size (at least one viewport so the division is never zero).
+        }
         const world_w = Math.max(this._level_px_w, game.width);
         const world_h = Math.max(this._level_px_h, game.height);
         for (const l of this._layer_entries) {
             if (l.px < 1.0 || l.py < 1.0) {
-                // Background / mid layer: div stays fixed to screen, image shifts via background-position.
-                // Each axis is independent — set px or py to 0 to lock that axis entirely.
                 l.el.style.transform = '';
                 if (this._cam_target) {
                     const bx = -(this._cam_target.x / world_w) * game.width * l.px;
@@ -1445,7 +1419,6 @@ export class Scene {
                 }
             }
             else {
-                // Foreground / world layer: translate the container with the camera.
                 l.el.style.transform = `translate(${-(this._cam_x * l.px)}px, ${-(this._cam_y * l.py)}px)`;
             }
         }

@@ -44,7 +44,7 @@ scene.tiles(10, 10, {
 scene.spawn(player, spawn, () => true, () => { player.facing = 1 })
 scene.camera(player, { lerp: 0.1 })
 
-scene.update(function() {
+function tick() {
     player.update()
     scene.toggle_debug()
     player.apply_force()
@@ -56,6 +56,7 @@ scene.update(function() {
     if (player.y > game.height) {
         send_to("../world1/level1/s1.html")
     }
-})
+}
 
+scene.update(tick)
 scene.run()

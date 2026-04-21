@@ -63,7 +63,7 @@ scene.camera(player, { lerp: 0.1 })
 
 let boll = false
 
-scene.update(function() {
+function tick() {
     player.update()
     scene.toggle_debug()
 
@@ -81,6 +81,7 @@ scene.update(function() {
     if (player.x + player.width < 0) {
         send_to("./s6.html")
     }
-})
+}
 
+scene.update(tick)
 scene.run()

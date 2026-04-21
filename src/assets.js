@@ -1,5 +1,4 @@
 export const ASSETS = [
-    // Images
     "/pages/assets/background0.webp",
     "/pages/assets/background1.webp",
     "/pages/assets/background2.webp",
@@ -18,7 +17,6 @@ export const ASSETS = [
     "/pages/assets/to_the_core_sign.webp",
     "/pages/assets/undefined.webp",
 
-    // World 0 images
     "/pages/assets/world0/s1.webp",
     "/pages/assets/world0/s1_midground.webp",
     "/pages/assets/world0/s2.webp",
@@ -32,19 +30,16 @@ export const ASSETS = [
     "/pages/assets/world0/s6_midground.webp",
     "/pages/assets/world0/s7.webp",
 
-    // Code
     "/src/system.js",
     "/src/prefabs.js",
     "/src/assets.js",
 
-    // CSS
     "/pages/index.css",
     "/pages/loading/loading.css",
     "/pages/start/start.css",
     "/pages/world0/world0.css",
     "/pages/world1/world1.css",
 
-    // HTML pages
     "/pages/start/start.html",
     "/pages/world0/s1.html",
     "/pages/world0/s2.html",
@@ -56,7 +51,6 @@ export const ASSETS = [
     "/pages/world0/s7.html",
     "/pages/world1/level1/s1.html",
 
-    // Page scripts
     "/pages/start/start.js",
     "/pages/world0/s1.js",
     "/pages/world0/s2.js",
@@ -68,6 +62,5 @@ export const ASSETS = [
     "/pages/world0/s7.js",
     "/pages/world1/level1/s1.js",
 
-    // Service worker
     "/service-worker.js",
 ]

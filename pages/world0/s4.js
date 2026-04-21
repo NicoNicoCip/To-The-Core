@@ -62,7 +62,7 @@ scene.camera(player, { lerp: 0.1 })
 
 const jumper_force = 4
 
-scene.update(function() {
+function tick() {
     player.update()
     scene.toggle_debug()
 
@@ -85,6 +85,7 @@ scene.update(function() {
     if (player.x > game.width) {
         send_to("./s3.html")
     }
-})
+}
 
+scene.update(tick)
 scene.run()

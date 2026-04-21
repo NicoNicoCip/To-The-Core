@@ -72,7 +72,7 @@ if (intro_played) {
     })
 }
 
-scene.update(function () {
+function tick() {
     player.update()
     scene.toggle_debug()
 
@@ -89,6 +89,7 @@ scene.update(function () {
     if (player.y > game.height) {
         send_to("./s2.html")
     }
-})
+}
 
+scene.update(tick)
 scene.run()
