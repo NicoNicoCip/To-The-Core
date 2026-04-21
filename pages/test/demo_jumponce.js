@@ -77,7 +77,6 @@ function make_shard_emitter(cls, angle) {
 const shard_emitters = shard_classes.map((c, i) => make_shard_emitter(c, shard_angles[i]))
 
 function spawn_shards(p) {
-    console.log("spawn_shards", p.x, p.y, p.width, p.height)
     for (let i = 0; i < shard_emitters.length; i++) {
         const e = shard_emitters[i]
         e.x = p.x
@@ -86,7 +85,6 @@ function spawn_shards(p) {
         e.sprite_h = p.height
         e.burst(1)
     }
-    console.log("after burst, shards in DOM:", document.querySelectorAll("[class^=shard-]").length)
 }
 
 const was_gone = platforms.map(() => false)

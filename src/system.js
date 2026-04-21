@@ -923,7 +923,7 @@ export class emitter {
         p.alpha = 1;
         if (this.mode === "sprite") {
             const el = document.createElement("div");
-            el.style.cssText = `position:absolute;left:0;top:0;width:${this.sprite_w}px;height:${this.sprite_h}px;transform:translate(${p.x}px,${p.y}px);image-rendering:pixelated;background-size:cover;transform-origin:center center;`;
+            el.style.cssText = `position:absolute;left:0;top:0;width:${this.sprite_w}px;height:${this.sprite_h}px;transform:translate(${p.x}px,${p.y}px);image-rendering:pixelated;background-size:cover;transform-origin:center center;z-index:9999;pointer-events:none;`;
             if (this.sprite_url) {
                 el.style.backgroundImage = `url(${this.sprite_url})`;
             }

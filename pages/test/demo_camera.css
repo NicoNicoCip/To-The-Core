@@ -1,0 +1,28 @@
+#world {
+    background-color: #1a1a2a;
+}
+
+#player {
+    background-image: url("/pages/assets/dog.webp");
+}
+
+.moving {
+    background-image: url("/pages/assets/dog_walking.webp") !important;
+}
+
+.falling {
+    background-image: url("/pages/assets/dog_falling.webp") !important;
+}
+
+.rising {
+    background-image: url("/pages/assets/dog_rising.webp") !important;
+}
+
+#wall {
+    background-color: #3a2e1a;
+}
+
+#marker {
+    background-color: #6050a0;
+    border-top: 1px solid #a090e0;
+}
