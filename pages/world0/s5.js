@@ -1,4 +1,4 @@
-import { boil_the_plate, bone_tile, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
+import { ActionZone, boil_the_plate, bone_tile, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
 import { bobj, cobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -15,6 +15,8 @@ const bone    = bone_tile()
 const spawn_s = new cobj({ name: "spawn_s",    width: 10, height: 10, collides: false })
 const spawn_t = new cobj({ name: "spawn_t",    width: 10, height: 10, collides: false })
 
+const tp_s6 = new ActionZone({ name: "tp_s6", height: 10, width: 2, on_hit: () => { send_to("./s6.html") } })
+
 const scene = new Scene()
 
 scene.layer(background, -5, 0)
@@ -28,6 +30,7 @@ scene.tiles(10, 10, {
     'B': bone,
     'S': spawn_s,
     'T': spawn_t,
+    'n': tp_s6,
 }, [
     "                                ",
     "                                ",
@@ -41,10 +44,10 @@ scene.tiles(10, 10, {
     "                               x",
     "                               x",
     "                 vvvvvvvv      x",
-    "                               x",
-    "            vvv     vvvv       x",
-    "                               x",
-    "S  y                           x",
+    "n                              x",
+    "n           vvv     vvvv       x",
+    "n                              x",
+    "nS y                           x",
     "xxxx   xxxxxxxxxxxxxxxxxxxxxxxxx",
     "xxxx T xxxxxxxxxxxxxxxxxxxxxxxxx",
 ])
@@ -74,13 +77,6 @@ function tick() {
 
     player.apply_force()
     scene.move_and_collide()
-
-    if (player.y > game.height) {
-        send_to("./s4.html")
-    }
-    if (player.x + player.width < 0) {
-        send_to("./s6.html")
-    }
 }
 
 scene.update(tick)

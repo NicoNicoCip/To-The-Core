@@ -191,10 +191,10 @@ export class Sequencer {
     }
 }
 
-export class DeathZone extends cobj {
+export class ActionZone extends cobj {
     on_hit: () => void
 
-    constructor({ name = "death_zone", width = 10, height = 10, on_hit = null }: {
+    constructor({ name = "action_zone", width = 10, height = 10, on_hit = null }: {
         name?: string, width?: number, height?: number, on_hit?: () => void
     } = {}) {
         super({ name, width, height, collides: false, shows_debug_col: true })
@@ -202,8 +202,8 @@ export class DeathZone extends cobj {
         _tint(this, DEBUG_COLORS.death)
     }
 
-    copy(): DeathZone {
-        const c = new DeathZone({
+    copy(): ActionZone {
+        const c = new ActionZone({
             name: this.name,
             width: this.width,
             height: this.height,

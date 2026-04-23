@@ -156,15 +156,15 @@ export class Sequencer {
         this._started = false;
     }
 }
-export class DeathZone extends cobj {
+export class ActionZone extends cobj {
     on_hit;
-    constructor({ name = "death_zone", width = 10, height = 10, on_hit = null } = {}) {
+    constructor({ name = "action_zone", width = 10, height = 10, on_hit = null } = {}) {
         super({ name, width, height, collides: false, shows_debug_col: true });
         this.on_hit = on_hit;
         _tint(this, DEBUG_COLORS.death);
     }
     copy() {
-        const c = new DeathZone({
+        const c = new ActionZone({
             name: this.name,
             width: this.width,
             height: this.height,

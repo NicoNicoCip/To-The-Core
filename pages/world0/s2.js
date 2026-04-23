@@ -1,4 +1,4 @@
-import { boil_the_plate, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
+import { ActionZone, boil_the_plate, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
 import { bobj, cobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -9,10 +9,15 @@ const foreground = new bobj({ name: "scene_s2" })
 const midground = new bobj({ name: "midground_s2" })
 
 const inviz = invisible_wall_tile()
-const oneway = new cobj({ name: "oneways", width: 10, height: 10, shows_debug_col: true, one_way: true})
+const oneway = new cobj({ name: "oneways", width: 10, height: 10, shows_debug_col: true, one_way: true })
 const spawn_top = new cobj({ name: "spawn_top", width: 10, height: 10, collides: false })
 const spawn_left = new cobj({ name: "spawn_left", width: 10, height: 10, collides: false })
 const spawn_right = new cobj({ name: "spawn_right", width: 10, height: 10, collides: false })
+
+const tp_s2_ext = new ActionZone(
+    { name: "tp_s2_ext", height: 10, width: 2, on_hit: () => { send_to("./s2_EXT.html") } })
+const tp_s3 = new ActionZone(
+    { name: "tp_s3", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
 
 const scene = new Scene()
 
@@ -26,6 +31,8 @@ scene.tiles(10, 10, {
     'T': spawn_top,
     'L': spawn_left,
     'R': spawn_right,
+    'n': tp_s3,
+    'm': tp_s2_ext,
 }, [
     "                         T      ",
     "                                ",
@@ -34,18 +41,20 @@ scene.tiles(10, 10, {
     "                                ",
     "                                ",
     "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-    "  L                             ",
+    "n                               ",
+    "n                               ",
+    "n                               ",
+    "n L                             ",
     "xxxxxx                          ",
     "xx                              ",
-    "xx                              ",
-    "xx   vvvvvvvv                   ",
-    "xxx                             ",
-    "xxxx                         R  ",
+    "xx                             m",
+    "xx   vvvvvvvv                  m",
+    "xxx                            m",
+    "xxxx                         R m",
     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 ])
+
+tp_s2_ext.shift(8,0)
 
 scene.spawn(player, spawn_top, () => come_from("s1.html"))
 scene.spawn(player, spawn_left, () => come_from("s3.html"))
@@ -58,14 +67,6 @@ function tick() {
     scene.toggle_debug()
     player.apply_force()
     scene.move_and_collide()
-
-    if (player.x + player.width < 0) {
-        send_to("./s3.html")
-    }
-    
-    if (player.x > game.width) {
-        send_to("./s2_EXT.html")
-    }
 }
 
 scene.update(tick)

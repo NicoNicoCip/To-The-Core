@@ -1,4 +1,4 @@
-import { boil_the_plate, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
+import { ActionZone, boil_the_plate, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
 import { bobj, cobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -12,6 +12,9 @@ const inviz   = invisible_wall_tile()
 const spawn_l = new cobj({ name: "spawn_l",    width: 10, height: 10, collides: false })
 const spawn_r = new cobj({ name: "spawn_r",    width: 10, height: 10, collides: false })
 
+const tp_s6 = new ActionZone({ name: "tp_s6", height: 10, width: 2, on_hit: () => { send_to("./s6.html") } })
+const tp_s8 = new ActionZone({ name: "tp_s8", height: 10, width: 2, on_hit: () => { send_to("./s8.html") } })
+
 const scene = new Scene()
 
 scene.layer(background, -5, 0)
@@ -22,6 +25,8 @@ scene.tiles(10, 10, {
     'x': inviz,
     'L': spawn_l,
     'R': spawn_r,
+    'n': tp_s6,
+    'm': tp_s8,
 }, [
     "                                ",
     "                                ",
@@ -35,13 +40,15 @@ scene.tiles(10, 10, {
     "                                ",
     "                                ",
     "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-    "  L                          R  ",
+    "m                              n",
+    "m                              n",
+    "m                              n",
+    "m L                          R n",
     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 ])
+
+tp_s6.shift(8,0)
 
 scene.spawn(player, spawn_l, () => come_from("s8.html"),  () => { player.facing =  1 })
 scene.spawn(player, spawn_r, () => true,                   () => { player.facing = -1 })
@@ -53,13 +60,6 @@ function tick() {
     scene.toggle_debug()
     player.apply_force()
     scene.move_and_collide()
-
-    if (player.x > game.width) {
-        send_to("./s6.html")
-    }
-    if (player.x + player.width < 0) {
-        send_to("./s8.html")
-    }
 }
 
 scene.update(tick)

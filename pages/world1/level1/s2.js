@@ -1,4 +1,4 @@
-import { boil_the_plate, come_from, invisible_wall_tile, Player, spawn_tile, send_to, DeathZone  } from "../../../src/prefabs.js"
+import { boil_the_plate, come_from, invisible_wall_tile, Player, spawn_tile, send_to, ActionZone  } from "../../../src/prefabs.js"
 import { bobj, cobj, game, Scene } from "../../../src/system.js"
 
 boil_the_plate()
@@ -8,9 +8,11 @@ const player = new Player(60, 50, false)
 
 const inviz = invisible_wall_tile()
 const spawn = spawn_tile()
-const death = new DeathZone({name: "death", height: 10, width: 10, on_hit: start_timer})
+const death = new ActionZone({name: "death", height: 10, width: 10, on_hit: start_timer})
 const spawn_right = new cobj({ name: "spawn_right", width: 10, height: 10, collides: false })
 const spawn_left = new cobj({ name: "spawn_left", width: 10, height: 10, collides: false })
+const tp_s1 = new ActionZone({ name: "tp_s1", height: 10, width: 2, on_hit: () => { send_to("./s1.html") } })
+const tp_s3 = new ActionZone({ name: "tp_s3", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
 
 const scene = new Scene()
 
@@ -19,10 +21,12 @@ scene.tiles(10, 10, {
     'R': spawn_right,
     'L': spawn_left,
     'D': death,
+    'n': tp_s1,
+    'm': tp_s3
 }, [
     "x       xxxxxxxxxxxxxxxxxxxxxxxx",
-    "x                               ",
-    "x                             R ",
+    "x                              m",
+    "x                            R m",
     "x       xxxxxxxxxxxxxxxxxxxxxxxx",
     "x                            xxx",
     "xxx                            x",
@@ -33,9 +37,9 @@ scene.tiles(10, 10, {
     "x          xxx                 x",
     "x                              x",
     "x                            xxx",
-    "                               D",
-    "                       xxx     D",
-    " L             xxx             D",
+    "n                              D",
+    "n                      xxx     D",
+    "n L            xxx             D",
     "xxxxxxxxxx                     D",
     "xxxxDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ])
@@ -64,13 +68,6 @@ function tick() {
     scene.toggle_debug()
     player.apply_force()
     scene.move_and_collide()
-
-    if (player.x + player.width < 0) {
-        send_to("./s1.html")
-    }
-    if (player.x > game.width) {
-        send_to("./s3.html")
-    }
 
     if(timer > 0) {
         timer--
