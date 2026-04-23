@@ -1,5 +1,5 @@
 import { boil_the_plate, DeathZone, Player } from "../../src/prefabs.js"
-import { cobj, game, Scene } from "../../src/system.js"
+import { cobj, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
@@ -47,15 +47,14 @@ function respawn() {
 }
 
 const pit = new DeathZone({ width: 320, height: 10, on_hit: respawn })
+scene.place(pit)
 pit.move(0, 170)
-game.world.appendChild(pit.graphic)
 
 function tick() {
     player.update()
     scene.toggle_debug()
     player.apply_force()
     scene.move_and_collide()
-    pit.check(player)
 }
 
 scene.update(tick)

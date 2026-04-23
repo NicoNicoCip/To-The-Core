@@ -1,12 +1,14 @@
-import { boil_the_plate, come_from, invisible_wall_tile, Player, spawn_tile, send_to  } from "../../../src/prefabs.js"
+import { boil_the_plate, come_from, invisible_wall_tile, Player, spawn_tile, send_to, DeathZone  } from "../../../src/prefabs.js"
 import { bobj, cobj, game, Scene } from "../../../src/system.js"
 
 boil_the_plate()
 
 const player = new Player(60, 50, false)
 
+
 const inviz = invisible_wall_tile()
 const spawn = spawn_tile()
+const death = new DeathZone({name: "death", height: 10, width: 10, on_hit: start_timer})
 const spawn_right = new cobj({ name: "spawn_right", width: 10, height: 10, collides: false })
 const spawn_left = new cobj({ name: "spawn_left", width: 10, height: 10, collides: false })
 
@@ -16,6 +18,7 @@ scene.tiles(10, 10, {
     'x': inviz,
     'R': spawn_right,
     'L': spawn_left,
+    'D': death,
 }, [
     "x       xxxxxxxxxxxxxxxxxxxxxxxx",
     "x                               ",
@@ -30,15 +33,27 @@ scene.tiles(10, 10, {
     "x          xxx                 x",
     "x                              x",
     "x                            xxx",
-    "                                ",
-    "                       xxx      ",
-    " L             xxx              ",
-    "xxxxxxxxxx                      ",
-    "xxxx                            ",
+    "                               D",
+    "                       xxx     D",
+    " L             xxx             D",
+    "xxxxxxxxxx                     D",
+    "xxxxDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ])
 
+function respawn() {
+    if (come_from("s3.html")) {
+        player.move(spawn_right.x, spawn_right.y);
+    } else {
+        player.move(spawn_left.x, spawn_left.y);
+    }
+    player.x_speed = 0;
+    player.y_speed = 0;
+}
 
-
+let timer = -1
+function start_timer() {
+    timer = 30
+}
 
 scene.spawn(player, spawn_right, () => come_from("s3.html"), () => { player.facing = -1 })
 scene.spawn(player, spawn_left, () => true)
@@ -55,6 +70,13 @@ function tick() {
     }
     if (player.x > game.width) {
         send_to("./s3.html")
+    }
+
+    if(timer > 0) {
+        timer--
+    } else if (timer == 0){
+        respawn()
+        timer = -1;
     }
 }
 

@@ -202,7 +202,18 @@ export class DeathZone extends cobj {
         _tint(this, DEBUG_COLORS.death)
     }
 
-    check(player: cobj) {
+    copy(): DeathZone {
+        const c = new DeathZone({
+            name: this.name,
+            width: this.width,
+            height: this.height,
+            on_hit: this.on_hit,
+        })
+        c.collider.style.border = this.collider.style.border
+        return c
+    }
+
+    tick(player: cobj) {
         if (player.overlaps(this) && this.on_hit) {
             this.on_hit()
         }
@@ -215,18 +226,30 @@ export class CrumblePlatform extends cobj {
     private _timer = 0
     private _gone  = false
 
-    constructor({ name = "crumble_platform", width = 20, height = 4, stay_frames = 90, respawn_frames = 180 }: {
-        name?: string, width?: number, height?: number, stay_frames?: number, respawn_frames?: number
+    constructor({ name = "crumble_platform", width = 20, height = 4, stay_frames = 90, respawn_frames = 180, mergeable = false }: {
+        name?: string, width?: number, height?: number, stay_frames?: number, respawn_frames?: number, mergeable?: boolean
     } = {}) {
-        super({ name, width, height, one_way: true, shows_debug_col: true })
+        super({ name, width, height, one_way: true, shows_debug_col: true, mergeable })
         this.stay_frames    = stay_frames
         this.respawn_frames = respawn_frames
         _tint(this, DEBUG_COLORS.crumble)
     }
 
-    update(player: cobj) {
+    copy(): CrumblePlatform {
+        const c = new CrumblePlatform({
+            name: this.name,
+            width: this.width,
+            height: this.height,
+            stay_frames: this.stay_frames,
+            respawn_frames: this.respawn_frames,
+            mergeable: this.mergeable,
+        })
+        c.collider.style.border = this.collider.style.border
+        return c
+    }
+
+    tick(player: cobj) {
         if (!this._gone) {
-            player.collide(this)
             const horiz = player.x + player.width > this.x && player.x < this.x + this.width
             const on_top = horiz && player.y + player.height === this.y
             if (on_top) {
@@ -237,6 +260,7 @@ export class CrumblePlatform extends cobj {
                 if (this._timer >= this.stay_frames) {
                     this._gone = true
                     this._timer = 0
+                    this.collides = false
                     this.graphic.style.visibility = 'hidden'
                     this.graphic.classList.remove('crumbling')
                     this.collider.style.border = `dashed 1px ${DEBUG_COLORS.crumble_gone}`
@@ -250,6 +274,7 @@ export class CrumblePlatform extends cobj {
             if (this._timer >= this.respawn_frames) {
                 this._gone  = false
                 this._timer = 0
+                this.collides = true
                 this.graphic.style.visibility = 'visible'
                 this.collider.style.border = `solid 1px ${DEBUG_COLORS.crumble}`
             }
@@ -263,23 +288,35 @@ export class JumpOncePlatform extends cobj {
     private _gone    = false
     private _was_on  = false
 
-    constructor({ name = "jump_once_platform", width = 20, height = 4, respawn_frames = 120 }: {
-        name?: string, width?: number, height?: number, respawn_frames?: number
+    constructor({ name = "jump_once_platform", width = 20, height = 4, respawn_frames = 120, mergeable = false }: {
+        name?: string, width?: number, height?: number, respawn_frames?: number, mergeable?: boolean
     } = {}) {
-        super({ name, width, height, one_way: true, shows_debug_col: true })
+        super({ name, width, height, one_way: true, shows_debug_col: true, mergeable })
         this.respawn_frames = respawn_frames
         _tint(this, DEBUG_COLORS.jump_once)
     }
 
-    update(player: cobj) {
+    copy(): JumpOncePlatform {
+        const c = new JumpOncePlatform({
+            name: this.name,
+            width: this.width,
+            height: this.height,
+            respawn_frames: this.respawn_frames,
+            mergeable: this.mergeable,
+        })
+        c.collider.style.border = this.collider.style.border
+        return c
+    }
+
+    tick(player: cobj) {
         if (!this._gone) {
-            player.collide(this)
             const horiz = player.x + player.width > this.x && player.x < this.x + this.width
             const on_now = horiz && player.y + player.height === this.y
             if (this._was_on && !on_now) {
                 this._gone   = true
                 this._timer  = 0
                 this._was_on = false
+                this.collides = false
                 this.graphic.style.visibility = 'hidden'
                 this.collider.style.border = `dashed 1px ${DEBUG_COLORS.jump_once_gone}`
             } else {
@@ -291,6 +328,7 @@ export class JumpOncePlatform extends cobj {
                 this._gone   = false
                 this._timer  = 0
                 this._was_on = false
+                this.collides = true
                 this.graphic.style.visibility = 'visible'
                 this.collider.style.border = `solid 1px ${DEBUG_COLORS.jump_once}`
             }
@@ -311,7 +349,19 @@ export class ForceZone extends cobj {
         _tint(this, DEBUG_COLORS.force)
     }
 
-    update(player: pobj) {
+    copy(): ForceZone {
+        const c = new ForceZone({
+            name: this.name,
+            width: this.width,
+            height: this.height,
+            force_x: this.force_x,
+            force_y: this.force_y,
+        })
+        c.collider.style.border = this.collider.style.border
+        return c
+    }
+
+    pre_tick(player: pobj) {
         if (!player.overlaps(this)) {
             return
         }
@@ -382,6 +432,7 @@ export class Collectable extends cobj {
             height: height,
             dynamic: true,
             shows_debug_col: true,
+            mergeable: false,
         })
 
         _tint(this, DEBUG_COLORS.collectable)
@@ -394,6 +445,16 @@ export class Collectable extends cobj {
 
         game.world.appendChild(this.graphic)
         game.world.appendChild(this.collider)
+    }
+
+    copy(): Collectable {
+        const c = new Collectable({
+            name: this.name,
+            width: this.width,
+            height: this.height,
+        })
+        c.collider.style.border = this.collider.style.border
+        return c
     }
 }
 
@@ -409,6 +470,12 @@ export class Player extends pobj {
 
         this.graphic.style.transformOrigin = "center bottom"
         _tint(this, DEBUG_COLORS.player)
+    }
+
+    copy(): Player {
+        const c = new Player(this.x, this.y)
+        c.collider.style.border = this.collider.style.border
+        return c
     }
 
     update() {

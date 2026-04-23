@@ -323,6 +323,7 @@ export class cobj extends obj {
     shows_debug_col = false
     one_way = false
     drop_through = false
+    mergeable = true
 
     constructor({
         name = null,
@@ -333,7 +334,8 @@ export class cobj extends obj {
         dynamic = null,
         collides = null,
         shows_debug_col = null,
-        one_way = null
+        one_way = null,
+        mergeable = null,
     }) {
         super({ name, x, y, width, height })
         if (width !== null) {
@@ -354,6 +356,9 @@ export class cobj extends obj {
         if (one_way !== null) {
             this.one_way = one_way
         }
+        if (mergeable !== null) {
+            this.mergeable = mergeable
+        }
 
         this.collider = document.createElement("div")
         this.collider.style.border = "solid 1px #FF0000"
@@ -366,6 +371,9 @@ export class cobj extends obj {
 
     collide(other = null, resolve = true) {
         if (other === null) {
+            return false
+        }
+        if (!other.collides) {
             return false
         }
 
@@ -448,24 +456,25 @@ export class cobj extends obj {
                this.y + this.height > other.y
     }
 
-    copy() {
-        return cobj.copy(this)
+    copy(): cobj {
+        const c = new cobj({
+            name: this.name,
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            dynamic: this.dynamic,
+            collides: this.collides,
+            shows_debug_col: this.shows_debug_col,
+            one_way: this.one_way,
+            mergeable: this.mergeable,
+        })
+        c.collider.style.border = this.collider.style.border
+        return c
     }
 
-    static copy(other) {
-        const c = new cobj({
-            name: other.name,
-            x: other.x,
-            y: other.y,
-            width: other.width,
-            height: other.height,
-            dynamic: other.dynamic,
-            collides: other.collides,
-            shows_debug_col: other.shows_debug_col,
-            one_way: other.one_way
-        })
-        c.collider.style.border = other.collider.style.border
-        return c
+    static copy(other: cobj): cobj {
+        return other.copy()
     }
 
     move(x = null, y = null) {
@@ -1193,6 +1202,7 @@ export class Scene {
     private _cam_deadzone_y = 0
     private _update_fn: (() => void) | null = null
     private _debug_visible = false
+    private _tick_target: cobj | null = null
 
     layer(visual_obj: obj, z: number, parallax: number | { x?: number, y?: number } = 1.0): Scene {
         this._ensure_layer(z, parallax)
@@ -1240,6 +1250,13 @@ export class Scene {
 
     place(obj: cobj): Scene {
         this._placed_objs.push(obj)
+        if (obj.collides) {
+            if (obj.dynamic) {
+                this._dynamic_objs.push(obj)
+            } else {
+                this._static_objs.push(obj)
+            }
+        }
         return this
     }
 
@@ -1412,7 +1429,7 @@ export class Scene {
             let cur: cobj | null = null
             for (let xx = 0; xx < W; xx++) {
                 const t = grid[yy][xx]
-                if (t && cur && t.name === cur.name) {
+                if (t && cur && t.name === cur.name && t.mergeable && cur.mergeable) {
                     cur.width += t.width
                     cur.graphic.style.width = cur.width + 'px'
                     if (cur.collider) {
@@ -1429,7 +1446,7 @@ export class Scene {
             let cur: cobj | null = null
             for (let yy = 0; yy < H; yy++) {
                 const t = grid[yy][xx]
-                if (t && cur && t.name === cur.name && t.width === cur.width) {
+                if (t && cur && t.name === cur.name && t.width === cur.width && t.mergeable && cur.mergeable) {
                     cur.height += t.height
                     cur.graphic.style.height = cur.height + 'px'
                     if (cur.collider) {
@@ -1559,11 +1576,38 @@ export class Scene {
     }
 
     private _tick(): void {
+        const target = this._tick_target ?? (this._cam_target as cobj | null)
+        if (target) {
+            this._auto_tick('pre_tick', target)
+        }
         if (this._update_fn) {
             this._update_fn()
         }
+        if (target) {
+            this._auto_tick('tick', target)
+        }
         this._check_collectables()
         this._update_camera()
+    }
+
+    private _auto_tick(method: 'pre_tick' | 'tick', target: cobj): void {
+        for (const t of this._tile_objs) {
+            const fn = (t as any)[method]
+            if (typeof fn === 'function') {
+                fn.call(t, target)
+            }
+        }
+        for (const o of this._placed_objs) {
+            const fn = (o as any)[method]
+            if (typeof fn === 'function') {
+                fn.call(o, target)
+            }
+        }
+    }
+
+    tick_target(obj: cobj): Scene {
+        this._tick_target = obj
+        return this
     }
 
     private _check_collectables(): void {

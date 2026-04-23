@@ -46,8 +46,6 @@ scene.place(updraft)
 updraft.move(220, 80)
 
 function tick() {
-    wind.update(player)
-    updraft.update(player)
     player.update()
     scene.toggle_debug()
     player.apply_force()

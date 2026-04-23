@@ -261,7 +261,8 @@ export class cobj extends obj {
     shows_debug_col = false;
     one_way = false;
     drop_through = false;
-    constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null, collides = null, shows_debug_col = null, one_way = null }) {
+    mergeable = true;
+    constructor({ name = null, x = null, y = null, width = null, height = null, dynamic = null, collides = null, shows_debug_col = null, one_way = null, mergeable = null, }) {
         super({ name, x, y, width, height });
         if (width !== null) {
             this.width = width;
@@ -281,6 +282,9 @@ export class cobj extends obj {
         if (one_way !== null) {
             this.one_way = one_way;
         }
+        if (mergeable !== null) {
+            this.mergeable = mergeable;
+        }
         this.collider = document.createElement("div");
         this.collider.style.border = "solid 1px #FF0000";
         this.collider.style.width = this.width + "px";
@@ -291,6 +295,9 @@ export class cobj extends obj {
     }
     collide(other = null, resolve = true) {
         if (other === null) {
+            return false;
+        }
+        if (!other.collides) {
             return false;
         }
         this.drop_through = input.probe("s", input.KEYHELD);
@@ -365,22 +372,23 @@ export class cobj extends obj {
             this.y + this.height > other.y;
     }
     copy() {
-        return cobj.copy(this);
+        const c = new cobj({
+            name: this.name,
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+            dynamic: this.dynamic,
+            collides: this.collides,
+            shows_debug_col: this.shows_debug_col,
+            one_way: this.one_way,
+            mergeable: this.mergeable,
+        });
+        c.collider.style.border = this.collider.style.border;
+        return c;
     }
     static copy(other) {
-        const c = new cobj({
-            name: other.name,
-            x: other.x,
-            y: other.y,
-            width: other.width,
-            height: other.height,
-            dynamic: other.dynamic,
-            collides: other.collides,
-            shows_debug_col: other.shows_debug_col,
-            one_way: other.one_way
-        });
-        c.collider.style.border = other.collider.style.border;
-        return c;
+        return other.copy();
     }
     move(x = null, y = null) {
         super.move(x, y);
@@ -995,6 +1003,7 @@ export class Scene {
     _cam_deadzone_y = 0;
     _update_fn = null;
     _debug_visible = false;
+    _tick_target = null;
     layer(visual_obj, z, parallax = 1.0) {
         this._ensure_layer(z, parallax);
         this._layer_objs.push({ obj: visual_obj, z });
@@ -1035,6 +1044,14 @@ export class Scene {
     }
     place(obj) {
         this._placed_objs.push(obj);
+        if (obj.collides) {
+            if (obj.dynamic) {
+                this._dynamic_objs.push(obj);
+            }
+            else {
+                this._static_objs.push(obj);
+            }
+        }
         return this;
     }
     collectable(obj, id) {
@@ -1186,7 +1203,7 @@ export class Scene {
             let cur = null;
             for (let xx = 0; xx < W; xx++) {
                 const t = grid[yy][xx];
-                if (t && cur && t.name === cur.name) {
+                if (t && cur && t.name === cur.name && t.mergeable && cur.mergeable) {
                     cur.width += t.width;
                     cur.graphic.style.width = cur.width + 'px';
                     if (cur.collider) {
@@ -1203,7 +1220,7 @@ export class Scene {
             let cur = null;
             for (let yy = 0; yy < H; yy++) {
                 const t = grid[yy][xx];
-                if (t && cur && t.name === cur.name && t.width === cur.width) {
+                if (t && cur && t.name === cur.name && t.width === cur.width && t.mergeable && cur.mergeable) {
                     cur.height += t.height;
                     cur.graphic.style.height = cur.height + 'px';
                     if (cur.collider) {
@@ -1322,11 +1339,36 @@ export class Scene {
         }
     }
     _tick() {
+        const target = this._tick_target ?? this._cam_target;
+        if (target) {
+            this._auto_tick('pre_tick', target);
+        }
         if (this._update_fn) {
             this._update_fn();
         }
+        if (target) {
+            this._auto_tick('tick', target);
+        }
         this._check_collectables();
         this._update_camera();
+    }
+    _auto_tick(method, target) {
+        for (const t of this._tile_objs) {
+            const fn = t[method];
+            if (typeof fn === 'function') {
+                fn.call(t, target);
+            }
+        }
+        for (const o of this._placed_objs) {
+            const fn = o[method];
+            if (typeof fn === 'function') {
+                fn.call(o, target);
+            }
+        }
+    }
+    tick_target(obj) {
+        this._tick_target = obj;
+        return this;
     }
     _check_collectables() {
         const main = this._layer_entries.find(l => l.z === 0);

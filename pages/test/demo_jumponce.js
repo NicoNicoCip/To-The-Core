@@ -93,16 +93,7 @@ function tick() {
     player.update()
     scene.toggle_debug()
     player.apply_force()
-    for (const p of platforms) {
-        p.update(player)
-    }
     scene.move_and_collide()
-    for (const p of platforms) {
-        const horiz = player.x + player.width > p.x && player.x < p.x + p.width
-        if (horiz && player.y + player.height === p.y) {
-            player.grounded = true
-        }
-    }
     for (let i = 0; i < platforms.length; i++) {
         const gone = platforms[i].graphic.style.visibility === "hidden"
         if (gone && !was_gone[i]) {
