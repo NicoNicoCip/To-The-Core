@@ -368,7 +368,7 @@ export class cobj extends obj {
         return cobj.copy(this);
     }
     static copy(other) {
-        return new cobj({
+        const c = new cobj({
             name: other.name,
             x: other.x,
             y: other.y,
@@ -379,6 +379,8 @@ export class cobj extends obj {
             shows_debug_col: other.shows_debug_col,
             one_way: other.one_way
         });
+        c.collider.style.border = other.collider.style.border;
+        return c;
     }
     move(x = null, y = null) {
         super.move(x, y);

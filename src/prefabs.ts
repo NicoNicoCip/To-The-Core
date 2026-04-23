@@ -1,13 +1,13 @@
 import { cobj, game, input, level, obj, pobj } from "./system.js"
 
 export const DEBUG_COLORS = {
-    wall:           "#FF0000",
+    wall:           "#888888",
     platform:       "#FF8800",
     crumble:        "#CC6622",
     crumble_gone:   "#663311",
     jump_once:      "#FF88AA",
     jump_once_gone: "#884455",
-    invisible:      "#888888",
+    invisible:      "#FF0000",
     spawn:          "#00FF00",
     jump_pad:       "#FFFF00",
     collectable:    "#FFD700",
