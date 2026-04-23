@@ -1,12 +1,12 @@
-import { boil_the_plate, ForceZone, Player } from "../../src/prefabs.js"
-import { cobj, game, Scene } from "../../src/system.js"
+import { boil_the_plate, ForceZone, Player, spawn_tile, wall_tile } from "../../src/prefabs.js"
+import { Scene } from "../../src/system.js"
 
 boil_the_plate()
 
 const player = new Player(20, 140, false)
 
-const wall = new cobj({ name: "wall", width: 10, height: 10, shows_debug_col: true })
-const spawn = new cobj({ name: "spawn", width: 10, height: 10, collides: false })
+const wall = wall_tile()
+const spawn = spawn_tile()
 
 const scene = new Scene()
 
@@ -37,21 +37,20 @@ scene.tiles(10, 10, {
 scene.spawn(player, spawn, () => true)
 scene.camera(player, { lerp: 0.1 })
 
-const wind = new ForceZone({ name: "wind_zone", width: 80, height: 40, force_x: 0.4, force_y: 0 })
+const wind = new ForceZone({ name: "wind_zone", width: 80, height: 40, force_x: 1.2, force_y: 0 })
+scene.place(wind)
 wind.move(100, 140)
 
-const updraft = new ForceZone({ name: "updraft_zone", width: 40, height: 100, force_x: 0, force_y: -0.6 })
+const updraft = new ForceZone({ name: "updraft_zone", width: 40, height: 100, force_x: 0, force_y: -0.27 })
+scene.place(updraft)
 updraft.move(220, 80)
 
-game.world.appendChild(wind.graphic)
-game.world.appendChild(updraft.graphic)
-
 function tick() {
+    wind.update(player)
+    updraft.update(player)
     player.update()
     scene.toggle_debug()
     player.apply_force()
-    wind.update(player)
-    updraft.update(player)
     scene.move_and_collide()
 }
 

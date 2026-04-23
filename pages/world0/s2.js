@@ -62,6 +62,7 @@ function tick() {
     if (player.x + player.width < 0) {
         send_to("./s3.html")
     }
+    
     if (player.x > game.width) {
         send_to("./s2_EXT.html")
     }

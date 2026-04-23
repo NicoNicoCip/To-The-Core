@@ -502,6 +502,9 @@ export class pobj extends cobj {
     _force_x_time = 0
     _force_y_time = 0
 
+    _ext_x = 0
+    _ext_y = 0
+
     coyote = 0
     coyote_time = 4
 
@@ -550,8 +553,12 @@ export class pobj extends cobj {
             this.y_speed = this.max_gravity
         }
 
-        this.x += this.x_speed
+        this.y_speed += this._ext_y
+
+        this.x += this.x_speed + this._ext_x
         this.y += this.y_speed
+        this._ext_x = 0
+        this._ext_y = 0
     }
 
     squash(sx, sy) {

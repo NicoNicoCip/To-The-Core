@@ -1,5 +1,5 @@
 import { boil_the_plate, JumpOncePlatform, Player } from "../../src/prefabs.js"
-import { cobj, emitter, game, Scene } from "../../src/system.js"
+import { cobj, emitter, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
@@ -44,14 +44,14 @@ const platforms = [
     new JumpOncePlatform({ width: 30, height: 4, respawn_frames: 120 }),
 ]
 
+for (const p of platforms) {
+    scene.place(p)
+}
+
 platforms[0].move(70,  140)
 platforms[1].move(130, 110)
 platforms[2].move(190, 80)
 platforms[3].move(250, 50)
-
-for (const p of platforms) {
-    game.world.appendChild(p.graphic)
-}
 
 const shard_classes = ["shard-0", "shard-1", "shard-2", "shard-3"]
 const shard_angles  = [Math.PI * 1.15, Math.PI * 1.35, Math.PI * 1.65, Math.PI * 1.85]

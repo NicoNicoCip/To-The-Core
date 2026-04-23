@@ -1,5 +1,5 @@
 import { boil_the_plate, CrumblePlatform, Player } from "../../src/prefabs.js"
-import { cobj, game, Scene } from "../../src/system.js"
+import { cobj, Scene } from "../../src/system.js"
 
 boil_the_plate()
 
@@ -44,14 +44,14 @@ const platforms = [
     new CrumblePlatform({ width: 30, height: 4, stay_frames: 30, respawn_frames: 120 }),
 ]
 
+for (const p of platforms) {
+    scene.place(p)
+}
+
 platforms[0].move(60,  140)
 platforms[1].move(120, 110)
 platforms[2].move(180, 80)
 platforms[3].move(240, 50)
-
-for (const p of platforms) {
-    game.world.appendChild(p.graphic)
-}
 
 function tick() {
     player.update()

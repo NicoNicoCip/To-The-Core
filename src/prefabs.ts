@@ -1,27 +1,48 @@
 import { cobj, game, input, level, obj, pobj } from "./system.js"
 
+export const DEBUG_COLORS = {
+    wall:           "#FF0000",
+    platform:       "#FF8800",
+    crumble:        "#CC6622",
+    crumble_gone:   "#663311",
+    jump_once:      "#FF88AA",
+    jump_once_gone: "#884455",
+    invisible:      "#888888",
+    spawn:          "#00FF00",
+    jump_pad:       "#FFFF00",
+    collectable:    "#FFD700",
+    death:          "#FF00FF",
+    force:          "#00FFFF",
+    player:         "#FFFFFF",
+}
+
+function _tint(c: cobj, color: string): cobj {
+    c.collider.style.border = `solid 1px ${color}`
+    return c
+}
+
 export function wall_tile(): cobj {
-    return new cobj({ name: "wall", width: 10, height: 10, shows_debug_col: true })
+    return _tint(new cobj({ name: "wall", width: 10, height: 10, shows_debug_col: true }), DEBUG_COLORS.wall)
 }
 
 export function platform_tile(): cobj {
-    return new cobj({ name: "platform", width: 10, height: 10, one_way: true, shows_debug_col: true })
+    return _tint(new cobj({ name: "platform", width: 10, height: 10, one_way: true, shows_debug_col: true }), DEBUG_COLORS.platform)
 }
 
 export function spawn_tile(): cobj {
-    return new cobj({ name: "spawn", width: 10, height: 10, collides: false })
+    return _tint(new cobj({ name: "spawn", width: 10, height: 10, collides: false, shows_debug_col: true }), DEBUG_COLORS.spawn)
 }
 
 export function invisible_wall_tile(): cobj {
-    return new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true })
+    return _tint(new cobj({ name: "inviz_wall", width: 10, height: 10, shows_debug_col: true }), DEBUG_COLORS.invisible)
 }
 
 export function jump_pad_tile(): cobj {
-    return new cobj({ name: "jump_pad", width: 10, height: 10, collides: false, shows_debug_col: true })
+    return _tint(new cobj({ name: "jump_pad", width: 10, height: 10, collides: false, shows_debug_col: true }), DEBUG_COLORS.jump_pad)
 }
 
 export function bone_tile(): cobj {
-    return new cobj({ name: "bone", width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true })
+    return _tint(new cobj({ name: "bone", width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true }), DEBUG_COLORS.collectable)
 }
 
 export function make_player(x: number, y: number): Player {
@@ -29,7 +50,7 @@ export function make_player(x: number, y: number): Player {
 }
 
 export function make_bone(x: number, y: number): cobj {
-    const b = new cobj({ name: "bone", width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true })
+    const b = _tint(new cobj({ name: "bone", width: 10, height: 10, dynamic: true, collides: false, shows_debug_col: true }), DEBUG_COLORS.collectable)
     b.move(x, y)
     return b
 }
@@ -178,6 +199,7 @@ export class DeathZone extends cobj {
     } = {}) {
         super({ name, width, height, collides: false, shows_debug_col: true })
         this.on_hit = on_hit
+        _tint(this, DEBUG_COLORS.death)
     }
 
     check(player: cobj) {
@@ -199,6 +221,7 @@ export class CrumblePlatform extends cobj {
         super({ name, width, height, one_way: true, shows_debug_col: true })
         this.stay_frames    = stay_frames
         this.respawn_frames = respawn_frames
+        _tint(this, DEBUG_COLORS.crumble)
     }
 
     update(player: cobj) {
@@ -216,6 +239,7 @@ export class CrumblePlatform extends cobj {
                     this._timer = 0
                     this.graphic.style.visibility = 'hidden'
                     this.graphic.classList.remove('crumbling')
+                    this.collider.style.border = `dashed 1px ${DEBUG_COLORS.crumble_gone}`
                 }
             } else {
                 this._timer = 0
@@ -227,6 +251,7 @@ export class CrumblePlatform extends cobj {
                 this._gone  = false
                 this._timer = 0
                 this.graphic.style.visibility = 'visible'
+                this.collider.style.border = `solid 1px ${DEBUG_COLORS.crumble}`
             }
         }
     }
@@ -243,6 +268,7 @@ export class JumpOncePlatform extends cobj {
     } = {}) {
         super({ name, width, height, one_way: true, shows_debug_col: true })
         this.respawn_frames = respawn_frames
+        _tint(this, DEBUG_COLORS.jump_once)
     }
 
     update(player: cobj) {
@@ -255,6 +281,7 @@ export class JumpOncePlatform extends cobj {
                 this._timer  = 0
                 this._was_on = false
                 this.graphic.style.visibility = 'hidden'
+                this.collider.style.border = `dashed 1px ${DEBUG_COLORS.jump_once_gone}`
             } else {
                 this._was_on = on_now
             }
@@ -265,6 +292,7 @@ export class JumpOncePlatform extends cobj {
                 this._timer  = 0
                 this._was_on = false
                 this.graphic.style.visibility = 'visible'
+                this.collider.style.border = `solid 1px ${DEBUG_COLORS.jump_once}`
             }
         }
     }
@@ -280,14 +308,15 @@ export class ForceZone extends cobj {
         super({ name, width, height, collides: false, shows_debug_col: true })
         this.force_x = force_x
         this.force_y = force_y
+        _tint(this, DEBUG_COLORS.force)
     }
 
-    update(player: cobj) {
+    update(player: pobj) {
         if (!player.overlaps(this)) {
             return
         }
-        player.x_speed += this.force_x
-        player.y_speed += this.force_y
+        player._ext_x += this.force_x
+        player._ext_y += this.force_y
     }
 }
 
@@ -355,6 +384,8 @@ export class Collectable extends cobj {
             shows_debug_col: true,
         })
 
+        _tint(this, DEBUG_COLORS.collectable)
+
         if (level !== null) {
             this.level = level
             this.level.substitute(name, this)
@@ -377,6 +408,7 @@ export class Player extends pobj {
         })
 
         this.graphic.style.transformOrigin = "center bottom"
+        _tint(this, DEBUG_COLORS.player)
     }
 
     update() {
