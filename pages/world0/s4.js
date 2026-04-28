@@ -16,8 +16,8 @@ const spawn_left = new cobj({ name: "spawn_left", width: 10, height: 10, collide
 const spawn_right = new cobj({ name: "spawn_right", width: 10, height: 10, collides: false })
 
 const death = new ActionZone({ name: "death", height: 10, width: 10, on_hit: start_timer })
-const tp_s3 = new ActionZone({ name: "tp_s3", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
-const tp_s5 = new ActionZone({ name: "tp_s5", height: 2, width: 10, on_hit: () => { send_to("./s5.html") } })
+const tp_right = new ActionZone({ name: "tp_right", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
+const tp_top = new ActionZone({ name: "tp_top", height: 2, width: 10, on_hit: () => { send_to("./s5.html") } })
 
 const scene = new Scene()
 
@@ -32,8 +32,8 @@ scene.tiles(10, 10, {
     'j': jumper,
     'L': spawn_left,
     'R': spawn_right,
-    'n': tp_s5,
-    'm': tp_s3,
+    'n': tp_top,
+    'm': tp_right,
     'D': death
 }, [
     "hnnnnnnnnnnn                    ",
@@ -59,8 +59,8 @@ scene.tiles(10, 10, {
 const moved = scene.find_all('v')
 moved[0].shift(6, 0)
 moved[1].shift(-5, 0)
-tp_s5.shift(-8,0)
-tp_s3.shift(8,0)
+tp_top.shift(-8,0)
+tp_right.shift(8,0)
 
 jumper.shift(-5, 7)
 

@@ -13,8 +13,8 @@ const spawn_l = new cobj({ name: "spawn_l",    width: 10, height: 10, collides: 
 const spawn_r = new cobj({ name: "spawn_r",    width: 10, height: 10, collides: false })
 const jumper  = new cobj({ name: "jumper",     width: 10, height: 3,  collides: false, shows_debug_col: true })
 
-const tp_s2 = new ActionZone({ name: "tp_s2", height: 10, width: 2, on_hit: () => { send_to("./s2.html") } })
-const tp_s4 = new ActionZone({ name: "tp_s4", height: 10, width: 2, on_hit: () => { send_to("./s4.html") } })
+const tp_right = new ActionZone({ name: "tp_right", height: 10, width: 2, on_hit: () => { send_to("./s2.html") } })
+const tp_left = new ActionZone({ name: "tp_left", height: 10, width: 2, on_hit: () => { send_to("./s4.html") } })
 
 const scene = new Scene()
 
@@ -27,8 +27,8 @@ scene.tiles(10, 10, {
     'L': spawn_l,
     'R': spawn_r,
     'j': jumper,
-    'n': tp_s2,
-    'm': tp_s4,
+    'n': tp_right,
+    'm': tp_left,
 }, [
     "                                ",
     "                                ",
@@ -51,7 +51,7 @@ scene.tiles(10, 10, {
 ])
 
 jumper.shift(0, 7)
-tp_s2.shift(8,0)
+tp_right.shift(8,0)
 
 scene.spawn(player, spawn_l, () => come_from("s4.html"))
 scene.spawn(player, spawn_r, () => true, () => { player.facing = -1 })

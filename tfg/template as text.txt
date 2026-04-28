@@ -1,0 +1,107 @@
+============================================================
+PLANTILLA OFICIAL DEL DOCUMENTO TFG
+(transcrita del documento que envió el profesor)
+============================================================
+
+
+────────────────────────────────────────────────────────────
+PORTADA
+────────────────────────────────────────────────────────────
+
+To The Core
+
+Tutor: ______________________
+
+Curso Académico: 2025/2026
+
+Trabajo presentado por:
+- Joan García Esbrí
+- Manel Garcés Alcazar
+- Cirnicianu Ciprian Nicolae
+
+
+────────────────────────────────────────────────────────────
+AGRADECIMIENTOS
+────────────────────────────────────────────────────────────
+
+Quisiera agradecer la realización de este proyecto a….
+
+
+────────────────────────────────────────────────────────────
+CITA INICIAL
+────────────────────────────────────────────────────────────
+
+"Hueco destinado a una frase de alguna persona célebre que
+tenga relación con vuestro proyecto"
+            [Autor de la frase] (Año de nacimiento – año de muerte)
+
+
+────────────────────────────────────────────────────────────
+ÍNDICE (estructura obligatoria del documento)
+────────────────────────────────────────────────────────────
+
+1.  Introducción
+    1.1  Justificación del proyecto
+
+2.  Descripción del proyecto
+    2.1  Objetivos
+    2.2  Público objetivo
+    2.3  Funcionalidades principales
+
+3.  Planificación del proyecto
+    3.1  Metodología de trabajo
+    3.2  Asignación de tareas
+
+4.  Desarrollo del proyecto
+    4.1  Tecnologías utilizadas
+    4.2  Arquitectura
+    4.3  Implementación de funcionalidades
+    4.4  Futuras mejoras
+
+5.  Conclusiones
+
+6.  Anexos
+
+7.  Referencias bibliográficas
+
+
+────────────────────────────────────────────────────────────
+SECCIONES VACÍAS (a rellenar)
+────────────────────────────────────────────────────────────
+
+1. Introducción
+   1.1 Justificación del proyecto
+       [vacío]
+
+2. Descripción del proyecto
+   2.1 Objetivos
+       [vacío]
+   2.2 Público objetivo
+       [vacío]
+   2.3 Funcionalidades principales
+       [vacío]
+
+3. Planificación del proyecto
+   3.1 Metodología de trabajo
+       [vacío]
+   3.2 Asignación de tareas
+       [vacío]
+
+4. Desarrollo del proyecto
+   4.1 Tecnologías utilizadas
+       [vacío]
+   4.2 Arquitectura
+       [vacío]
+   4.3 Implementación de funcionalidades
+       [vacío]
+   4.4 Futuras mejoras
+       [vacío]
+
+5. Conclusiones
+   [vacío]
+
+6. Anexos
+   [vacío]
+
+7. Referencias bibliográficas
+   [vacío]

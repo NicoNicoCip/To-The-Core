@@ -17,8 +17,8 @@ const crumble_d = new CrumblePlatform({ width: 30, height: 4, stay_frames: 30, r
 
 const death = new ActionZone({ name: "death", height: 10, width: 10, on_hit: start_timer })
 const death_2 = new ActionZone({ name: "death", height: 10, width: 2, on_hit: respawn })
-const tp_s2 = new ActionZone({ name: "tp_s2", height: 10, width: 2, on_hit: () => { send_to("./s2.html") } })
-const tp_s4 = new ActionZone({ name: "tp_s4", height: 10, width: 2, on_hit: () => { send_to("./s4.html") } })
+const tp_left = new ActionZone({ name: "tp_left", height: 10, width: 2, on_hit: () => { send_to("./s2.html") } })
+const tp_right = new ActionZone({ name: "tp_right", height: 10, width: 2, on_hit: () => { send_to("./s4.html") } })
 
 const scene = new Scene()
 
@@ -32,8 +32,8 @@ scene.tiles(10, 10, {
     '4': crumble_d,
     'D': death,
     'd': death_2,
-    'n': tp_s2,
-    'm': tp_s4
+    'n': tp_left,
+    'm': tp_right
 }, [
     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "n          xx                  m",
@@ -56,7 +56,7 @@ scene.tiles(10, 10, {
 ])
 
 death_2.shift(8, 0)
-tp_s4.shift(8,0)
+tp_right.shift(8,0)
 
 scene.spawn(player, spawn_right, () => come_from("s4.html"), () => { player.facing = -1 })
 scene.spawn(player, spawn_left, () => true)

@@ -11,8 +11,8 @@ const spawn = spawn_tile()
 const death = new ActionZone({name: "death", height: 10, width: 10, on_hit: start_timer})
 const spawn_right = new cobj({ name: "spawn_right", width: 10, height: 10, collides: false })
 const spawn_left = new cobj({ name: "spawn_left", width: 10, height: 10, collides: false })
-const tp_s1 = new ActionZone({ name: "tp_s1", height: 10, width: 2, on_hit: () => { send_to("./s1.html") } })
-const tp_s3 = new ActionZone({ name: "tp_s3", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
+const tp_left = new ActionZone({ name: "tp_left", height: 10, width: 2, on_hit: () => { send_to("./s1.html") } })
+const tp_right = new ActionZone({ name: "tp_right", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
 
 const scene = new Scene()
 
@@ -21,8 +21,8 @@ scene.tiles(10, 10, {
     'R': spawn_right,
     'L': spawn_left,
     'D': death,
-    'n': tp_s1,
-    'm': tp_s3
+    'n': tp_left,
+    'm': tp_right
 }, [
     "x       xxxxxxxxxxxxxxxxxxxxxxxx",
     "x                              m",

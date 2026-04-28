@@ -1,0 +1,1222 @@
+============================================================
+TO THE CORE — TRABAJO FIN DE GRADO
+Borrador del documento (copiar-pegar a Google Docs)
+============================================================
+
+NOTAS PARA EL USUARIO:
+- Este archivo está en texto plano para que se pueda copiar
+  y pegar directamente en Google Docs sin perder formato.
+- Los marcadores como "----" o "===" son para legibilidad
+  aquí; quítalos al pegarlos en el documento real.
+- Los títulos en MAYÚSCULAS deben aplicarse como "Título 1"
+  o "Título 2" en Google Docs (estilos del menú).
+- Las notas entre [CORCHETES] son recordatorios o decisiones
+  pendientes; bórralas antes de la entrega.
+- Los enlaces se mantienen como URL en texto plano y Docs
+  los convertirá en hipervínculos automáticamente.
+
+
+
+============================================================
+PORTADA
+============================================================
+
+To The Core
+
+Tutor: Sergio Gómez García
+
+Curso Académico: 2025/2026
+
+Trabajo presentado por:
+    Joan García Esbrí
+    Manel Garcés Alcazar
+    Cirnicianu Ciprian Nicolae
+
+Grupo: Paper Wings Studio
+
+[Aquí va el logo de Paper Wings Studio si tenéis uno; si no,
+omitir.]
+
+
+
+============================================================
+AGRADECIMIENTOS
+============================================================
+
+Quisiéramos agradecer a nuestro tutor, Sergio Gómez García,
+su orientación y disponibilidad a lo largo del desarrollo de
+este proyecto, así como a todo el profesorado del ciclo de
+Desarrollo de Aplicaciones Multiplataforma de MEDAC, cuya
+formación ha hecho posible llevar este trabajo a cabo.
+
+Agradecemos también a la comunidad de desarrolladores
+independientes cuyo trabajo y documentación pública nos han
+servido de referencia constante: en especial a Maddy Thorson
+y Noel Berry (Celeste) por compartir abiertamente sus
+decisiones de diseño, y a Toby Fox (Undertale) por
+demostrar que un equipo pequeño puede entregar una obra
+completa cuando la visión está clara.
+
+Finalmente, gracias a nuestras familias y compañeros de
+clase por el apoyo durante un curso intenso.
+
+
+
+============================================================
+CITA
+============================================================
+
+    "Solo los valientes deben proseguir.
+    Los audaces, los insensatos.
+    Ninguno transita el camino del medio."
+
+        Toby Fox, Undertale (2015)
+
+    [En original: "Only the fearless may proceed. Brave
+    ones, foolish ones. Both walk not the middle road."]
+
+[NOTA: traducción a discutir con Joan y Manel; pendiente de
+aprobación del equipo. Ver memoria del proyecto si queréis
+recuperar la versión en inglés primaria u otra alternativa.]
+
+
+
+============================================================
+ÍNDICE
+============================================================
+
+[Generar índice automático en Google Docs una vez aplicados
+los estilos de Título 1 y Título 2 a las secciones. Menú:
+Insertar > Índice. NO copiar el listado del template.]
+
+
+
+============================================================
+1. INTRODUCCIÓN
+============================================================
+
+Este documento describe el desarrollo de "To The Core", un
+videojuego de plataformas en 2D con estética pixel art,
+desarrollado íntegramente para navegador web mediante
+tecnologías HTML5, CSS y TypeScript. El proyecto se ha
+realizado a lo largo del curso 2025/2026 como Trabajo Fin
+de Grado del ciclo de Desarrollo de Aplicaciones
+Multiplataforma (DAM) impartido en MEDAC, y está firmado
+por Paper Wings Studio, formado por Joan García Esbrí,
+Manel Garcés Alcazar y Cirnicianu Ciprian Nicolae.
+
+El trabajo cubre todo el ciclo de producción de un
+videojuego de pequeño formato: diseño del motor de juego,
+sistema de físicas y colisiones, generación de niveles,
+producción de assets gráficos, gestión de la persistencia
+y publicación como aplicación web progresiva (PWA). El
+juego se puede jugar en línea en
+https://ttcore.paperwing.studio y su código fuente está
+publicado en https://github.com/NicoNicoCip/To-The-Core.
+
+A lo largo de las siguientes páginas se describe primero la
+idea del proyecto y su público objetivo, después la
+planificación que ha seguido el equipo, y a continuación el
+detalle técnico del desarrollo: las tecnologías escogidas,
+la arquitectura del motor y la implementación de las
+funcionalidades que consideramos más representativas. El
+documento cierra con una valoración del estado actual del
+proyecto y una hoja de ruta de mejoras futuras, ya que la
+intención del equipo es continuar el desarrollo de To The
+Core más allá del marco académico.
+
+El sector del videojuego independiente español vive
+actualmente un momento de crecimiento sostenido. Según los
+informes anuales de la Asociación Española de Videojuegos
+(AEVI), el desarrollo nacional ha consolidado un tejido de
+estudios pequeños que publican principalmente en plataformas
+digitales como Steam, itch.io y navegadores. Este contexto
+ofrece una oportunidad de inserción laboral relevante para
+los perfiles formados en el ciclo DAM, ya que las
+competencias del título (desarrollo multiplataforma,
+arquitectura de software, persistencia, despliegue) son
+directamente aplicables tanto a la programación de juegos
+como a las herramientas internas de un estudio. Paper Wings
+Studio nace en este marco como una iniciativa de
+emprendimiento real: el equipo tiene la intención de
+formalizar el estudio tras la finalización del ciclo y
+continuar el desarrollo de To The Core como su primera
+obra publicada.
+
+
+
+------------------------------------------------------------
+1.1 Justificación del proyecto
+------------------------------------------------------------
+
+La elección de To The Core como Trabajo Fin de Grado
+responde a tres motivaciones, una académica, una técnica y
+una personal.
+
+Desde el punto de vista académico, un videojuego completo
+es un escenario ideal para integrar la mayoría de
+competencias del ciclo DAM. Programar un motor de juego
+exige aplicar simultáneamente programación orientada a
+objetos, estructuras de datos, manipulación del DOM,
+gestión de eventos, persistencia mediante almacenamiento
+local, despliegue web y empaquetado para distribución como
+aplicación progresiva. A diferencia de un proyecto típico
+de gestión de información, un videojuego añade además una
+dimensión en tiempo real (bucle de juego, físicas, entrada
+del jugador) que pone a prueba la capacidad del equipo para
+escribir software determinista y eficiente.
+
+Desde el punto de vista técnico, el equipo decidió
+desarrollar el motor desde cero en lugar de utilizar un
+motor existente como Unity o Godot. Esta decisión tiene
+varias razones. La primera es pedagógica: implementar las
+piezas que un motor comercial oculta (el bucle de
+actualización a paso fijo, la detección de colisiones por
+barrido AABB, el sistema de cámara con interpolación, el
+parallax) obliga a comprenderlas de verdad y no solamente a
+configurarlas. La segunda razón es de ecodiseño: un juego
+pequeño que se ejecuta en el navegador como un conjunto de
+elementos del DOM tiene una huella de cómputo y de descarga
+significativamente menor que el mismo juego empaquetado con
+un motor de propósito general, especialmente comparado con
+las exportaciones web de motores como Unity, que arrastran
+runtimes de varios megabytes. Esta cuestión se desarrolla
+más adelante en el apartado de tecnologías. La tercera
+razón es estratégica para Paper Wings Studio: disponer de un
+motor propio, ligero y entendido al cien por cien por el
+equipo, es un activo reutilizable para futuros proyectos del
+estudio.
+
+Desde el punto de vista personal, el equipo comparte una
+afición por el género de plataformas, especialmente por
+títulos que combinan dificultad exigente con un trato
+generoso al jugador, como Celeste (Maddy Thorson y Noel
+Berry, 2018) o Hollow Knight (Team Cherry, 2017). To The
+Core toma de estos referentes la idea de que un juego puede
+ser difícil sin ser injusto: las pequeñas ayudas mecánicas
+(ventana de salto al borde de una plataforma, suavizado de
+la cámara, retroalimentación visual al aterrizar) hacen que
+la dificultad se sienta justa. La cita que abre este
+documento, extraída de Undertale (Toby Fox, 2015), recoge
+ese espíritu: el juego invita a quien se atreva a avanzar,
+sea por valentía o por insensatez, pero no premia el camino
+medio. Construir el motor desde cero es, en cierto modo, el
+mismo tipo de decisión: un camino más largo y exigente,
+pero más significativo.
+
+[NOTA: este apartado integra parcialmente las RA siguientes,
+sin nombrarlas explícitamente:
+- IPE I RA2.a (análisis de oportunidades del sector
+  profesional) - mención al sector indie español y AEVI.
+- IPE II RA4.a/b/c (emprendimiento) - mención a Paper Wings
+  como emprendimiento real.
+- Sostenibilidad RA4.d / RA5.e (ecodiseño) - introducción al
+  ecodiseño como motivación técnica; se desarrolla en §4.1.
+Más RA se cubrirán en sus apartados correspondientes.]
+
+
+
+============================================================
+2. DESCRIPCIÓN DEL PROYECTO
+============================================================
+
+To The Core es un videojuego de plataformas en 2D de
+estética pixel art, jugable directamente desde el navegador
+sin necesidad de instalación. El jugador controla a un
+pequeño perro que cae por una serie de cuevas conectadas en
+busca del núcleo del mundo. Cada nivel es una habitación de
+una sola pantalla en resolución nativa de 320 por 180
+píxeles, escalada al tamaño de la ventana del navegador
+mediante una transformación CSS que mantiene el aspecto
+pixelado.
+
+La progresión es lineal: el jugador entra por un lado de la
+habitación, debe alcanzar la salida correspondiente y, al
+hacerlo, se desplaza al siguiente nivel. Existen también
+caminos secundarios opcionales que requieren explorar antes
+de avanzar (por ejemplo, niveles "EXT" que ramifican desde
+otro nivel principal y contienen objetos coleccionables).
+La partida del jugador queda guardada automáticamente en
+cada cambio de nivel, de forma que cerrar el navegador y
+volver más tarde retoma el juego en el último punto de
+control alcanzado.
+
+El proyecto se estructura en dos mundos. El primer mundo
+("world0") está completo y abarca nueve escenas (s0 a s8),
+incluyendo una secuencia introductoria sin jugabilidad y un
+nivel secreto. El segundo mundo ("world1") está en
+desarrollo activo y contiene actualmente tres escenas
+jugables. La intención del estudio es ampliar el contenido
+hasta tener al menos cuatro mundos completos antes de
+considerar el juego comercialmente publicable.
+
+
+
+------------------------------------------------------------
+2.1 Objetivos
+------------------------------------------------------------
+
+Los objetivos del proyecto se dividen en dos planos: los
+objetivos del propio videojuego como producto, y los
+objetivos estratégicos del estudio Paper Wings Studio como
+iniciativa de emprendimiento.
+
+
+Objetivos del producto
+
+1. Entregar un videojuego de plataformas jugable de
+principio a fin en al menos un mundo completo, con bucle de
+juego estable a 60 cuadros por segundo y sin
+bloqueos perceptibles para el jugador.
+
+2. Construir un motor de juego propio, ligero y reutilizable,
+que sirva como base para los próximos proyectos del estudio.
+El motor debe cubrir las funcionalidades habituales de un
+plataformas (físicas, colisiones, cámara, parallax,
+partículas, persistencia) sin depender de motores externos
+como Unity o Godot.
+
+3. Hacer el juego accesible sin instalación, para reducir la
+fricción entre el jugador y el producto. La elección del
+navegador como plataforma de destino implica que el juego
+se pueda probar en cualquier dispositivo con un navegador
+moderno, sin descarga previa.
+
+4. Integrar prácticas de ecodiseño en la totalidad de la
+cadena de producción y distribución, como se desarrolla en
+el apartado 4.1 (Tecnologías utilizadas).
+
+5. Mantener una experiencia de juego justa: la dificultad
+debe surgir del diseño de niveles, no de carencias del
+control. Para ello el motor implementa ayudas mecánicas
+estándar del género, como tiempo de coyote, suavizado de la
+cámara, y retroalimentación visual al aterrizar (squash and
+stretch).
+
+
+Objetivos estratégicos de Paper Wings Studio
+
+Paper Wings Studio es una iniciativa de emprendimiento real
+del equipo. El estudio se encuentra actualmente en fase de
+prototipado: aún no está formalmente constituido como
+empresa, pero los miembros tienen la intención de hacerlo a
+medio plazo, una vez finalizado el ciclo formativo. Los
+objetivos estratégicos a los que responde este proyecto son:
+
+1. Validar el proceso de desarrollo. Antes de constituir el
+estudio formalmente, el equipo necesita comprobar que es
+capaz de llevar un proyecto desde la idea hasta una versión
+publicable, manteniendo una calidad técnica y artística
+homogénea. To The Core es esa validación.
+
+2. Construir una marca reconocible. Paper Wings Studio
+necesita una primera obra que lo distinga del resto de
+estudios independientes. To The Core, por su estética
+distintiva (pixel art en formato 320 por 180, paleta
+limitada, animaciones con squash and stretch) y por su
+canal de distribución (web abierta, sin tiendas
+intermediarias), pretende cumplir esa función.
+
+3. Crear un motor reutilizable. Cada hora invertida en
+construir el motor de To The Core es una hora menos
+necesaria para los siguientes proyectos del estudio. Los
+sistemas implementados (escenas, físicas, parallax,
+partículas, persistencia) están diseñados como una API
+genérica que se puede reaprovechar.
+
+4. Establecer una presencia digital sólida. La publicación
+del juego como aplicación web instalable
+(https://ttcore.paperwing.studio) bajo el dominio del
+estudio sirve simultáneamente como producto y como tarjeta
+de presentación pública del estudio.
+
+5. Sentar precedentes operativos. La forma de trabajo de
+este proyecto (control de versiones en GitHub, despliegue
+continuo, división de tareas explícita por especialidad) es
+deliberadamente la misma que se mantendrá cuando el estudio
+empiece a operar formalmente. Lo aprendido aquí es
+directamente aplicable.
+
+
+
+------------------------------------------------------------
+2.2 Público objetivo
+------------------------------------------------------------
+
+El público objetivo principal de To The Core son personas de
+entre 14 y 35 años aficionadas a los videojuegos de
+plataformas en 2D, especialmente a los títulos del subgénero
+"plataformas precisas" (precision platformer) representado
+por obras como Celeste, Super Meat Boy, Hollow Knight o N++.
+Este público se caracteriza por:
+
+- Familiaridad previa con el género. Comprende sin
+necesidad de explicación las convenciones del juego (saltar,
+moverse, atravesar plataformas en una dirección), por lo que
+el juego puede prescindir de tutoriales explícitos y enseñar
+sus mecánicas a través del propio diseño de niveles.
+
+- Tolerancia y aprecio por la dificultad. Este perfil de
+jugador busca el reto como parte de la experiencia, no como
+un obstáculo, siempre que la dificultad sea justa.
+
+- Hábito de descubrimiento de juegos a través de canales
+digitales gratuitos: itch.io, navegador, vídeos cortos en
+redes sociales, recomendaciones de creadores de contenido
+especializado.
+
+- Sensibilidad estética por el pixel art y por las
+producciones de equipos pequeños. Este público valora la
+coherencia artística de un proyecto independiente por encima
+de la espectacularidad gráfica de las grandes producciones.
+
+Como público secundario, el equipo identifica a personas
+ajenas al género que podrían descubrir el juego de forma
+casual a través del navegador. La barrera de entrada baja
+(no requiere instalación, no requiere cuenta, se carga en
+segundos) hace que parte de este público pueda acabar
+jugando sin haber buscado activamente un plataformas.
+
+El juego es accesible en castellano y en inglés (los textos
+en pantalla son mínimos y se han escrito de forma que no
+suponen una barrera para jugadores no hispanohablantes), y
+está pensado para sesiones cortas: la duración estimada del
+contenido actual es de entre 20 y 40 minutos según la
+habilidad del jugador, lo que lo hace adecuado para un perfil
+de consumo casual aunque exigente.
+
+[NOTA: el rango de edad y los datos de duración son
+estimaciones del equipo basadas en pruebas internas. Si en
+algún momento se realiza un playtest formal con usuarios
+externos, sustituir estas estimaciones por datos reales.]
+
+
+
+------------------------------------------------------------
+2.3 Funcionalidades principales
+------------------------------------------------------------
+
+A continuación se enumeran las funcionalidades principales
+del juego en su estado actual. Todas ellas están
+implementadas y funcionando en la versión publicada en
+https://ttcore.paperwing.studio. La descripción técnica
+detallada de cada una se desarrolla en el apartado 4.3
+(Implementación de funcionalidades).
+
+
+Bucle de juego en tiempo real
+El motor ejecuta un bucle de actualización a paso fijo de
+60 cuadros por segundo, desacoplado de la frecuencia de
+refresco de la pantalla. Esto garantiza que la física y la
+lógica del juego se comporten de forma idéntica
+independientemente del dispositivo en el que se ejecute.
+
+Sistema de físicas y colisiones
+Implementación propia de detección de colisiones por
+barrido AABB (Axis-Aligned Bounding Box) que resuelve
+correctamente colisiones a alta velocidad sin que el jugador
+atraviese paredes. El sistema soporta plataformas sólidas,
+plataformas atravesables (one-way) y plataformas que se
+pueden esquivar manteniendo pulsada la tecla de descenso.
+
+Sistema de escenas declarativo
+Cada nivel se define como un archivo JavaScript con una
+matriz ASCII en la que cada carácter representa un tipo de
+elemento (pared, plataforma, punto de aparición,
+coleccionable, zona de teletransporte, etc.). El motor
+construye la escena a partir de esa matriz y, además, agrupa
+automáticamente bloques contiguos del mismo tipo en un solo
+elemento del DOM, reduciendo significativamente el coste de
+renderizado.
+
+Cámara con seguimiento suave
+La cámara sigue al jugador con interpolación lineal
+configurable, soporta zonas muertas (deadzones) horizontales
+y verticales, y permite avanzar la mirada en la dirección en
+la que se mueve el jugador (look-ahead) para anticipar el
+terreno.
+
+Sistema de parallax de doble modo
+El motor soporta dos tipos de capas de fondo: capas en
+espacio de pantalla (con factor de paralaje menor que 1) que
+desplazan su imagen mediante background-position, y capas en
+espacio del mundo (factor mayor o igual que 1) que se
+mueven con la cámara. El primer modo evita los bordes negros
+en niveles pequeños y produce el efecto de profundidad
+característico del género.
+
+Sistema de partículas
+Emisor configurable con dos modos de renderizado: modo píxel
+(usa un canvas compartido para todas las partículas, ligero
+y adecuado para efectos pequeños como chispas o polvo) y
+modo sprite (cada partícula es un div del DOM con su propio
+sprite, para efectos más vistosos). Soporta gravedad,
+fundido, encogimiento y rotación.
+
+Sistema de prefabs
+El motor incluye una colección de "piezas" reutilizables
+(plataformas que se desmoronan, plataformas de un solo uso,
+zonas de fuerza, zonas de acción para teletransportes y
+muertes, botones de interfaz, secuenciador de animaciones)
+que cualquier escena puede instanciar con una sola línea.
+
+Persistencia automática
+El juego guarda en el almacenamiento local del navegador
+(localStorage) el último nivel alcanzado y los objetos
+coleccionables recogidos. Al volver a abrir el juego, la
+partida se retoma automáticamente desde el último punto de
+control.
+
+Aplicación web progresiva (PWA)
+El juego se distribuye como una PWA con un service worker
+que cachea todos los recursos en la primera visita. A partir
+de ese momento, el juego se puede jugar sin conexión. El
+service worker comprueba en cada arranque la versión publicada
+en GitHub: si detecta una nueva versión, redescarga
+únicamente los recursos que han cambiado y avisa al jugador.
+
+Pantalla de inicio y secuencia introductoria
+El juego incluye un menú de inicio con animación de entrada,
+una pantalla de carga que descarga y cachea los recursos en
+paralelo, y una secuencia cinemática introductoria sin
+jugabilidad que presenta el contexto del juego antes de
+ceder el control al jugador.
+
+Modo depuración
+Pulsando la tecla P se activa un modo de depuración que
+muestra los contornos de colisión de todos los elementos de
+la escena. Cada tipo de objeto tiene un color distintivo,
+lo que ha resultado fundamental para el diseño y depuración
+de niveles.
+
+
+
+============================================================
+3. PLANIFICACIÓN DEL PROYECTO
+============================================================
+
+El proyecto se ha desarrollado entre enero y mayo de 2026,
+en paralelo a la formación reglada del ciclo y al periodo de
+prácticas en empresa (FCT/FFE). Esta circunstancia es
+relevante para entender la planificación: el equipo no ha
+trabajado a tiempo completo en el proyecto, sino en franjas
+discontinuas, principalmente fuera del horario laboral y de
+clase. La planificación que se describe a continuación
+refleja esa realidad y se ha gestionado con criterios ágiles
+adaptados al tamaño y disponibilidad del equipo.
+
+
+
+------------------------------------------------------------
+3.1 Metodología de trabajo
+------------------------------------------------------------
+
+Paper Wings Studio ha trabajado con una metodología ágil
+ligera, inspirada en Scrum y Kanban pero sin formalizar
+ceremonias rígidas. Las decisiones metodológicas se
+tomaron al inicio del proyecto y se han mantenido durante
+todo el desarrollo.
+
+
+Control de versiones y trazabilidad
+
+Todo el código, los recursos gráficos y la documentación
+del proyecto se han gestionado mediante Git, con repositorio
+remoto alojado en GitHub
+(https://github.com/NicoNicoCip/To-The-Core). El equipo ha
+trabajado sobre la rama principal "main" con un flujo
+simplificado de pull-then-push, sin ramas de larga duración
+ni pull requests internos, dado el tamaño reducido del
+equipo y la coordinación verbal continua. Cada commit lleva
+un número de versión semántico (formato 0.X.Y) y un mensaje
+descriptivo que resume la intención del cambio. Esto
+permite reconstruir la cronología del proyecto con
+precisión mensual a posteriori.
+
+A fecha de redacción de esta memoria (28 de abril de 2026),
+el proyecto suma 87 commits, distribuidos en cuatro fases
+claramente diferenciadas que se describen más abajo.
+
+
+Iteraciones cortas y entrega continua
+
+En lugar de planificar el desarrollo en sprints fijos, el
+equipo ha trabajado con iteraciones cortas dirigidas por
+versión. Cada incremento numerado (de 0.1.0 a la actual
+0.3.12) corresponde a un avance concreto: una nueva
+mecánica, un nivel terminado, una refactorización del motor
+o una corrección de errores agrupada. Esta forma de trabajar
+hace que cada commit sea una entrega potencialmente jugable,
+y que en cualquier momento del desarrollo exista una
+versión estable del juego.
+
+El despliegue es continuo: cada commit en main se publica
+automáticamente en https://ttcore.paperwing.studio mediante
+GitHub Pages, y el service worker del juego detecta los
+cambios y notifica a los jugadores que la próxima vez que
+abran el juego se descargará la versión nueva. Esta
+infraestructura de despliegue continuo, cuyo coste de
+configuración es prácticamente cero, ha sido un acelerador
+fundamental: el equipo prueba siempre sobre la versión
+publicada, en condiciones idénticas a las del usuario final.
+
+
+Comunicación y coordinación
+
+La coordinación entre los miembros del equipo se ha
+realizado principalmente por canales asíncronos (Discord
+para discusión técnica continua, mensajería privada para
+decisiones puntuales) y por reuniones presenciales semanales
+durante las clases del ciclo. No se ha utilizado ninguna
+herramienta formal de gestión de tareas (tipo Jira o Trello),
+ya que la división de responsabilidades por especialidad
+(motor, niveles, música y documentación) reduce el solapamiento
+y, con él, la necesidad de coordinación granular. El
+seguimiento del trabajo pendiente se ha mantenido en un
+archivo TODO.md dentro del propio repositorio, visible para
+todo el equipo.
+
+
+Fases del desarrollo
+
+El análisis del histórico de commits permite identificar
+cuatro fases naturales en el desarrollo del proyecto:
+
+Fase 1 — Prototipo inicial (enero 2026). Implementación
+mínima del bucle de juego, render DOM básico y primera
+versión del motor de colisiones. Pocos commits, muchos
+cambios estructurales por commit. Objetivo: validar la
+viabilidad técnica de hacer un plataformas con DOM puro.
+
+Fase 2 — Construcción del motor y del primer mundo
+(febrero 2026). Fase más intensa del proyecto, con la
+mayoría de los commits del proyecto concentrados en este
+mes. Se implementan en paralelo el sistema de escenas, el
+parallax, la cámara, la persistencia, los coleccionables y
+los primeros niveles del mundo 0. Al finalizar la fase, el
+juego es jugable de principio a fin en su primer mundo.
+
+Fase 3 — Pausa y consolidación (marzo 2026). Mes de mucha
+menor actividad debido a la coincidencia con el periodo más
+intenso de prácticas en empresa de los miembros del equipo.
+La fase termina con una refactorización profunda del motor
+("architecture rewrite sweep") que limpia el código antes
+de retomar el desarrollo a alto ritmo.
+
+Fase 4 — Pulido, segundo mundo y preparación de la entrega
+(abril 2026). Reincorporación al ritmo de la fase 2. Se
+refina el motor (sistema de prefabs, secuenciador de
+animaciones, ActionZone unificado), se inicia el segundo
+mundo y se preparan los materiales de entrega del TFG.
+
+
+Gestión del riesgo y deuda técnica
+
+Una decisión deliberada del equipo desde el principio del
+proyecto ha sido aceptar deuda técnica controlada durante
+las fases de exploración (1 y 2) y dedicar fases enteras a
+saldarla (final de la fase 3, comienzo de la fase 4). La
+refactorización profunda de la arquitectura (commits 0.2.48
+y 0.2.49 en abril de 2026) eliminó duplicaciones acumuladas
+y unificó la API del motor antes de empezar el segundo
+mundo. Sin esa pausa, los nuevos niveles habrían heredado
+los problemas de los antiguos.
+
+Esta forma de gestionar la deuda (acumular durante el
+desarrollo, saldar antes de cada nueva expansión) es
+deliberada y se documenta aquí porque es uno de los
+aprendizajes que el equipo trasladará a los próximos
+proyectos del estudio.
+
+
+[NOTA: si el documento incluye un anexo con un diagrama de
+Gantt o cronograma visual, referenciarlo aquí. Por ahora se
+entrega solo en formato textual; un diagrama mejoraría la
+calidad del apartado según la rúbrica.]
+
+
+
+------------------------------------------------------------
+3.2 Asignación de tareas
+------------------------------------------------------------
+
+La asignación de responsabilidades en Paper Wings Studio se
+ha hecho por especialidad, no por reparto equitativo de
+todas las tareas. Esta decisión se tomó al inicio del
+proyecto por dos razones: cada miembro del equipo aporta un
+perfil distinto y complementario, y un proyecto de este
+tamaño se beneficia más de tener una sola persona
+responsable de cada área que de repartir cada decisión entre
+tres. Lo que sigue es la división real, no una división
+ideal: el documento es honesto sobre quién ha hecho qué.
+
+
+Cirnicianu Ciprian Nicolae — Programación del motor, arte
+y dirección técnica
+
+Responsable principal del motor de juego (archivos
+src/system.ts y src/prefabs.ts), incluyendo el bucle de
+juego, el sistema de físicas y colisiones, el sistema de
+escenas, la cámara, el parallax, los prefabs reutilizables,
+el sistema de partículas y la persistencia. También a cargo
+de la infraestructura de la web (loading screen, service
+worker, despliegue continuo en GitHub Pages) y del menú de
+inicio.
+
+En el plano artístico, ha dibujado todos los sprites del
+juego (perro y sus estados de animación, fondos, niveles)
+en Aseprite. La paleta de colores y el estilo visual general
+del juego son obra suya.
+
+El diseño de sonido es de su responsabilidad, aunque a fecha
+de cierre de esta memoria está pendiente de implementación
+(se desarrolla en el apartado 4.4 Futuras mejoras).
+
+Su perfil profesional, orientado a programación y dirección
+técnica de proyectos pequeños, encaja con los puestos de
+desarrollador de motor o de programador generalista en
+estudios indie del sector videojuego, así como con perfiles
+full-stack en desarrollo web por la naturaleza del stack
+empleado.
+
+
+Manel Garcés Alcazar — Diseño de niveles
+
+Responsable principal del diseño de todos los niveles del
+juego, tanto del mundo 0 (escenas s0 a s8 más el nivel
+secreto s2_EXT) como del mundo 1 actualmente en desarrollo.
+Esto incluye la composición de cada habitación en formato
+ASCII, la colocación de plataformas, zonas de teletransporte,
+coleccionables y puntos de aparición, así como la
+parametrización de cada nivel (qué tipos de prefabs se
+instancian y con qué configuración).
+
+El diseño de niveles en un plataformas no es solo un trabajo
+visual, es también un trabajo de ritmo y dificultad: la
+curva de aprendizaje del jugador, la introducción gradual de
+nuevas mecánicas y la sensación de progresión son
+responsabilidad del diseñador de niveles. Manel ha trabajado
+sobre los prefabs que el motor le iba ofreciendo y, en
+varios casos, ha solicitado nuevos prefabs (zonas de fuerza,
+plataformas de un solo uso) que después se han incorporado
+al motor de forma genérica. Este flujo de trabajo
+(diseñador pide → programador implementa → diseñador
+reutiliza) es típico de equipos pequeños y ha funcionado
+bien en este proyecto.
+
+Su perfil encaja con los puestos de diseñador de niveles, o
+de diseñador-programador (technical designer) en estudios
+indie.
+
+
+Joan García Esbrí — Música y documentación
+
+Responsable de la música del juego y de la coordinación de
+los entregables académicos del TFG (esta memoria, la
+presentación de defensa, los formularios de coevaluación).
+
+La asignación de Joan a las tareas académicas y de música ha
+sido una decisión consciente del equipo para liberar tiempo
+de los miembros encargados de las áreas más extensas
+(programación del motor y diseño de niveles). En un equipo
+pequeño, dedicar a una persona a las tareas transversales
+(documentación, comunicación, presentación) es más eficiente
+que repartirlas entre los otros miembros, ya que evita
+cambios de contexto y mantiene la calidad uniforme de los
+materiales de comunicación.
+
+A fecha de cierre de esta memoria, una primera pista de
+música del menú de inicio está lista para integrarse en la
+versión publicada. El resto de la banda sonora (música de
+niveles, ambiente, transiciones) está en la planificación de
+mejoras futuras (4.4).
+
+Su perfil encaja con los puestos de diseñador de sonido,
+compositor para videojuegos, o documentalista técnico en
+proyectos de software.
+
+
+Tabla resumen
+
+Área                            Responsable
+-----------------------------   -----------------------------
+Motor de juego                  Cirnicianu Ciprian Nicolae
+Arte (sprites, fondos)          Cirnicianu Ciprian Nicolae
+Interfaz de usuario             Cirnicianu Ciprian Nicolae
+Diseño de sonido (pendiente)    Cirnicianu Ciprian Nicolae
+Diseño de niveles               Manel Garcés Alcazar
+Música                          Joan García Esbrí
+Memoria del TFG                 Joan García Esbrí
+Presentación de defensa         Joan García Esbrí
+Coevaluación                    Joan García Esbrí
+
+
+
+============================================================
+4. DESARROLLO DEL PROYECTO
+============================================================
+
+Este capítulo es el más técnico y extenso del documento.
+Describe las tecnologías sobre las que se ha construido el
+juego, la arquitectura general del motor, las
+funcionalidades concretas que consideramos más
+representativas (con fragmentos del código real) y, por
+último, las mejoras pendientes para próximas versiones.
+
+[NOTA: en este apartado se referencia el cronograma del
+proyecto incluido como Figura 1 en el cuerpo del documento.
+Comprobar que la figura aparece correctamente antes de la
+entrega.]
+
+
+
+------------------------------------------------------------
+4.1 Tecnologías utilizadas
+------------------------------------------------------------
+
+Una de las decisiones técnicas más relevantes del proyecto
+es no haber utilizado un motor de juegos comercial. To The
+Core está construido directamente sobre las tecnologías
+nativas del navegador, sin frameworks pesados ni
+dependencias de terceros más allá del compilador de
+TypeScript. Este apartado describe las tecnologías escogidas,
+las razones detrás de cada elección y las implicaciones de
+esas decisiones (incluido su impacto medioambiental).
+
+
+TypeScript como lenguaje principal
+
+El motor del juego (archivos src/system.ts y src/prefabs.ts,
+unas 2.250 líneas en total) está escrito en TypeScript, un
+superconjunto tipado de JavaScript. La razón es práctica: un
+motor de juego maneja estructuras de datos relativamente
+complejas (objetos con muchas propiedades, jerarquías de
+clases, callbacks que circulan por varios sistemas) y el
+sistema de tipos detecta en tiempo de compilación una
+cantidad importante de errores que en JavaScript puro se
+convertirían en fallos en tiempo de ejecución. Para un motor
+que se ejecuta en un bucle de 60 cuadros por segundo, ese
+tipo de fallos son especialmente molestos porque se
+manifiestan como bloqueos visibles para el jugador.
+
+La compilación a JavaScript se hace con el compilador
+oficial (tsc, versión 5.9), configurado para producir
+JavaScript ES moderno (target esnext). No se utiliza ningún
+empaquetador (Webpack, Vite, esbuild, etc.). Esta es una
+decisión deliberada: para un proyecto de este tamaño, el
+empaquetador añade complejidad de configuración, alarga los
+tiempos de compilación y oscurece la relación entre el
+código fuente y el código que se ejecuta. Sin empaquetador,
+cada archivo .ts se compila a un archivo .js del mismo
+nombre y los módulos se cargan mediante import nativo del
+navegador.
+
+
+Renderizado mediante DOM
+
+El juego no utiliza canvas para el renderizado de la escena
+(salvo, opcionalmente, el sistema de partículas en su modo
+píxel). Cada elemento del juego, desde el jugador hasta cada
+bloque del escenario, es un elemento <div> del DOM con un
+fondo CSS y una transformación translate() que lo posiciona
+en la pantalla.
+
+Esta decisión es contraria a la práctica habitual en
+desarrollo de videojuegos web, que casi siempre utiliza
+canvas o WebGL. Las razones para haber elegido DOM son:
+
+1. Estilos vivos. El motor puede cambiar el estado visual de
+un objeto añadiendo o quitando una clase CSS, sin tocar
+código de renderizado. Por ejemplo, las animaciones del
+personaje (idle, caminando, saltando, cayendo) son sprites
+distintos asociados a clases CSS distintas; el motor sólo
+gestiona qué clase está activa en cada momento.
+
+2. Pixel-perfect sin esfuerzo. El navegador escala el
+contenido del juego con la propiedad image-rendering:
+pixelated. La resolución nativa de 320 por 180 píxeles se
+amplía a la ventana del navegador manteniendo bordes
+nítidos, sin necesidad de implementar manualmente un buffer
+de renderizado.
+
+3. Menor coste de computación en estado de reposo. Cuando
+el jugador no se mueve y no cambia nada en la escena, el
+navegador no repinta nada. Un bucle de canvas, en cambio,
+limpia y redibuja toda la pantalla en cada cuadro,
+independientemente de si ha habido cambios. Para un juego
+con escenas pequeñas y mucho contenido estático (la mayoría
+de los niveles de To The Core), esto se traduce en menor
+consumo de CPU y de batería.
+
+4. Optimización por fusión de azulejos. El motor detecta en
+tiempo de carga los grupos de azulejos contiguos del mismo
+tipo y los fusiona en un solo elemento del DOM. Una fila de
+treinta bloques de pared se convierte en un único <div> de
+300 píxeles de ancho. Esto reduce drásticamente el número de
+elementos que el navegador tiene que mantener en memoria.
+
+La principal limitación del enfoque DOM es la cantidad de
+elementos que se pueden mantener en pantalla simultáneamente
+sin que el rendimiento se degrade: del orden de unos pocos
+cientos en condiciones cómodas. Para un juego de plataformas
+de salas pequeñas como To The Core no es una restricción
+real, pero sí lo sería para un juego de scroll lateral
+extenso o para un shooter con muchos proyectiles. La
+elección de DOM, por lo tanto, está acoplada a las
+características del juego.
+
+
+CSS para todos los efectos visuales
+
+Toda la presentación visual del juego está implementada en
+CSS estándar: sprites mediante background-image, animaciones
+del personaje mediante clases que cambian la imagen,
+animaciones de fondo (el cielo cayendo en la introducción)
+mediante @keyframes, transformaciones (squash and stretch
+del personaje, rotación de partículas) mediante
+transform: scale() y transform: rotate().
+
+No se ha utilizado ningún preprocesador (Sass, Less,
+PostCSS) ni marco CSS (Tailwind, Bootstrap). Las hojas de
+estilo del juego son archivos CSS planos, organizados por
+escena y por mundo, lo que mantiene una correspondencia
+directa entre la estructura de archivos del proyecto y la
+estructura de assets del juego.
+
+
+Producción de gráficos con Aseprite
+
+Todos los sprites, fondos y elementos visuales del juego se
+han creado con Aseprite, un editor de pixel art comercial
+ampliamente utilizado en la industria del videojuego
+independiente. Los archivos fuente .aseprite se conservan
+en el repositorio (carpeta pages/assets/) junto a los
+archivos exportados, lo que permite editar cualquier sprite
+sin pérdida de información.
+
+El formato de exportación elegido para los assets entregados
+al navegador es WebP, no PNG. WebP es un formato moderno con
+compresión sin pérdida que produce archivos
+significativamente más pequeños (típicamente entre un 25 y
+un 35 por ciento menos peso) que un PNG equivalente. Para un
+juego web, esto significa descargas más rápidas y menos
+consumo de datos para el jugador.
+
+
+Persistencia mediante Web Storage
+
+El juego no utiliza ninguna base de datos remota ni servidor
+de aplicaciones. Toda la persistencia se gestiona con la API
+Web Storage del navegador (localStorage para datos
+permanentes, sessionStorage para datos transitorios). Lo
+que se guarda es mínimo: el último nivel alcanzado, los
+objetos coleccionables recogidos, y la versión cacheada del
+juego. Esta arquitectura sin servidor (serverless en sentido
+estricto, no en el sentido de "funciones lambda") tiene
+implicaciones importantes:
+
+- El juego respeta la privacidad del jugador por diseño. No
+hay comunicación con ningún servidor, no hay analítica, no
+hay cookies de seguimiento, no hay cuentas de usuario. Todo
+lo que el juego sabe del jugador se queda en el navegador
+del jugador.
+
+- El coste de operación del estudio para mantener el juego
+publicado es prácticamente cero: GitHub Pages aloja archivos
+estáticos sin coste para repositorios públicos.
+
+- El equipo no tiene que gestionar incidencias de
+disponibilidad de servidores, copias de seguridad de bases
+de datos ni cumplimiento normativo de protección de datos
+personales.
+
+
+Despliegue continuo con GitHub Pages
+
+El repositorio está configurado para que cada cambio en la
+rama principal se publique automáticamente en
+https://ttcore.paperwing.studio. El dominio personalizado
+está vinculado al repositorio mediante un archivo CNAME en
+la raíz del proyecto y un registro DNS adecuado del dominio
+paperwing.studio. Esta infraestructura no requiere un
+servidor de integración continua adicional: el propio GitHub
+sirve el contenido estático y aplica los cambios en cuestión
+de segundos tras cada push.
+
+
+Aplicación web progresiva (PWA)
+
+To The Core es una aplicación web progresiva. Esto se
+consigue con dos componentes: un manifiesto del navegador
+(en este proyecto incorporado de forma mínima en la página
+de carga) y un service worker que gestiona el cacheado de
+recursos. La consecuencia para el jugador es que, tras la
+primera visita, el juego se puede jugar sin conexión a
+internet. La consecuencia para el ecodiseño es relevante y
+se desarrolla a continuación.
+
+
+Ecodiseño aplicado al proyecto
+
+Una de las motivaciones técnicas declaradas en el apartado
+1.1 fue minimizar la huella de cómputo y de descarga del
+juego. El conjunto de decisiones tomadas a lo largo del
+desarrollo persigue ese objetivo y se puede resumir aquí:
+
+1. No se ha utilizado un motor de juego comercial. Las
+exportaciones web de motores como Unity arrastran un runtime
+de varios megabytes que el jugador tiene que descargar
+incluso para jugar a un juego pequeño. To The Core no tiene
+runtime: el código del motor se carga junto con el código
+del juego, en total unas pocas decenas de kilobytes
+comprimidos.
+
+2. Los recursos gráficos están en formato WebP, lo que
+reduce el peso total de la descarga inicial.
+
+3. El service worker cachea todos los recursos en la primera
+visita. A partir de ese momento, el jugador no vuelve a
+descargar nada salvo cuando cambia la versión publicada del
+juego, y en ese caso sólo se descargan los archivos que han
+cambiado. La transferencia de datos por sesión, después de
+la primera, es prácticamente nula.
+
+4. La infraestructura no incluye servidores de aplicación,
+bases de datos ni servicios externos en tiempo de ejecución.
+La huella de operación del juego, una vez publicado, es la
+de un sitio estático en GitHub Pages, cuyo coste energético
+por visita es órdenes de magnitud inferior al de
+arquitecturas con backend.
+
+5. El renderizado en DOM, frente a un bucle continuo de
+canvas, evita repintar la pantalla cuando no hay cambios en
+escena, lo que se traduce en menos uso de CPU y, sobre todo,
+menos consumo de batería en dispositivos portátiles.
+
+Estas decisiones se alinean con dos Objetivos de Desarrollo
+Sostenible de la Agenda 2030 de las Naciones Unidas: el
+ODS 12 (Producción y consumo responsables), por la
+minimización de recursos consumidos por el producto a lo
+largo de su ciclo de vida, y el ODS 13 (Acción por el clima),
+por la reducción del coste energético asociado a la
+distribución y uso del juego. Estas decisiones constituyen,
+en términos de la rúbrica de evaluación, un ejercicio de
+ecodiseño aplicado al producto.
+
+[NOTA: el listado anterior cubre el RA1 c) de Sostenibilidad
+(ODS / Agenda 2030) y los RA4.d y RA5.e (ecodiseño). Si
+algún tribunal pide datos cuantitativos concretos (kilobytes
+exactos, vatios consumidos), los datos están disponibles en
+el repositorio o se pueden medir; pero el desarrollo
+cualitativo es suficiente para los criterios de la rúbrica.]
+
+
+
+------------------------------------------------------------
+4.2 Arquitectura
+------------------------------------------------------------
+
+La arquitectura del proyecto se ha diseñado con dos
+objetivos: que cada nivel del juego sea un fichero pequeño y
+fácil de leer, y que el motor sea reutilizable para futuros
+proyectos del estudio. Estos dos objetivos son
+complementarios: cuanto más sólido sea el motor, menos
+código necesita cada nivel, y cuanto más simple sea el
+código de cada nivel, más fácil es para el diseñador (en
+este caso Manel) trabajar sin tener que tocar el motor.
+
+
+Estructura de directorios
+
+El proyecto se organiza en cuatro carpetas principales en la
+raíz del repositorio:
+
+- src/ contiene el motor de juego. Tres ficheros: system.ts
+con todos los sistemas del motor, prefabs.ts con las piezas
+reutilizables construidas sobre el motor, y assets.js con la
+lista de recursos a cachear. Estos archivos se compilan a
+sus equivalentes .js que son los que ejecuta el navegador.
+
+- pages/ contiene cada pantalla del juego como un trío de
+ficheros: un .html con la estructura mínima, un .css con
+los sprites y estilos de esa pantalla, y un .js con la
+lógica de la escena. La carpeta pages/ está organizada por
+mundos (world0, world1) y dentro de cada mundo hay una
+escena por archivo. Las escenas no jugables del juego (menú
+de inicio, pantalla de carga, secuencia introductoria) viven
+también en pages/, en sus carpetas correspondientes.
+
+- pages/assets/ contiene los recursos gráficos del juego,
+tanto los archivos fuente (.aseprite) como los exportados
+(.webp). Los recursos compartidos entre varias escenas
+(personaje, hueso coleccionable, suelo) están en la raíz de
+assets/; los específicos de un mundo están en su subcarpeta.
+
+- tfg/ (esta carpeta) contiene los entregables académicos
+del trabajo: la rúbrica del profesor, los mensajes
+relevantes del tutor, el cronograma, esta memoria.
+
+Esta separación tiene una consecuencia útil: una persona que
+quiera entender cómo está hecho un nivel sólo necesita leer
+tres ficheros (los .html/.css/.js de ese nivel) y, como
+mucho, consultar la documentación del motor. No tiene que
+recorrer una jerarquía profunda.
+
+
+Capas del motor
+
+El motor está estructurado en capas con dependencias
+estrictamente dirigidas hacia abajo. Cada capa puede usar lo
+que está en la capa inferior, pero no al revés. De arriba a
+abajo:
+
+Capa 4 — Escenas del juego. Es la capa que escribe el
+diseñador. Cada nivel del juego es una escena. Una escena
+configura qué hay en el nivel, dónde aparece el jugador, qué
+ocurre cuando llega al final, y poco más. La capa de
+escenas no implementa físicas, ni renderizado, ni
+detección de colisiones; sólo llama a la capa inferior.
+
+Capa 3 — Prefabs reutilizables. Son piezas de juego con
+comportamiento propio que el motor ofrece como "ladrillos"
+para que las escenas los compongan: el jugador, plataformas
+que se desmoronan, plataformas de un solo uso, zonas de
+fuerza, zonas de acción para teletransportes, botones de
+interfaz, secuenciador de animaciones. Cada prefab está
+construido sobre la capa inferior.
+
+Capa 2 — Sistemas de motor. Es el núcleo del motor. Aquí
+viven el bucle de juego, el sistema de objetos genéricos
+(obj, cobj, pobj), el gestor de escenas (Scene), el sistema
+de entrada de teclado (input), el sistema de partículas y
+las utilidades matemáticas. Esta capa no sabe nada del juego
+concreto: podría ser usada para construir un juego
+totalmente distinto.
+
+Capa 1 — Plataforma del navegador. Las API nativas que el
+motor utiliza: el DOM, el sistema de eventos, los
+temporizadores (requestAnimationFrame), Web Storage,
+Service Workers. El motor encapsula su uso para que las
+capas superiores no tengan que tocarlas directamente.
+
+Esta separación se traduce literalmente en la organización
+de los archivos: la capa 2 está en src/system.ts, la capa 3
+está en src/prefabs.ts, la capa 4 son los archivos .js de
+cada escena en pages/, y la capa 1 es lo que provee el
+navegador. Las dependencias entre archivos son acíclicas y
+respetan el orden de las capas.
+
+
+Jerarquía de clases del motor
+
+El motor está escrito en estilo orientado a objetos. La
+jerarquía principal de clases parte de un objeto genérico
+del que heredan las especializaciones, lo que permite añadir
+funcionalidad por capas sin duplicar código. La jerarquía
+es la siguiente:
+
+obj — clase base. Todo elemento del juego es un obj. Tiene
+una posición (x, y), unas dimensiones (width, height) y un
+elemento <div> asociado al DOM. Implementa los métodos
+move() y shift() para reposicionarse y mantener la
+representación visual sincronizada con la posición lógica.
+
+bobj (background obj) — extiende obj. Es un objeto de fondo
+que por defecto ocupa toda la pantalla. Lo utilizan las
+capas de fondo y los efectos de pantalla completa.
+
+cobj (collision obj) — extiende obj. Es un objeto con
+colisión. Añade velocidad horizontal y vertical, un colider
+visualizable en modo depuración, soporte para plataformas
+unidireccionales y el método collide() que implementa la
+detección y resolución de colisiones por barrido.
+
+pobj (physics obj) — extiende cobj. Es un objeto con física
+completa: gravedad, fricción, fuerza de salto, tiempo de
+coyote, fuerzas externas configurables y squash and stretch
+en eje x e y. Es la base sobre la que se construye el
+jugador.
+
+Player — extiende pobj. Es el jugador concreto: lee la
+entrada del teclado, gestiona los estados de animación
+(idle, caminando, cayendo, subiendo, aterrizando), y
+configura los parámetros de física a los valores ajustados
+para sentir bien.
+
+Sobre cobj heredan también los prefabs especializados que el
+motor ofrece (CrumblePlatform, JumpOncePlatform, ForceZone,
+ActionZone, Collectable). Cada uno añade su comportamiento
+específico encima del esqueleto de colisión y se puede
+instanciar libremente desde cualquier escena. La clase
+Button hereda directamente de obj, ya que es un elemento de
+interfaz sin colisión.
+
+Esta jerarquía está diseñada para que cada clase sea
+sustituible por una versión más rica de sí misma sin que el
+resto del código se tenga que cambiar. Por ejemplo, si en el
+futuro se decide hacer un enemigo, la clase Enemy podría
+extender pobj exactamente igual que Player y reutilizar todo
+el sistema de física sin escribir una línea nueva.
+
+[NOTA: si la rúbrica o el tribunal piden un diagrama UML de
+clases, conviene incluir uno como figura en este apartado.
+Está pendiente de generar como diagrama; por ahora la
+descripción textual cubre el contenido y la representación
+visual se puede añadir como anexo. Ver bracket en §3.1 sobre
+herramientas de diagramación.]
+
+
+El bucle de juego
+
+El motor mantiene un único bucle de juego centralizado en la
+clase game (src/system.ts). El bucle se llama una vez por
+cuadro a través de requestAnimationFrame, mide el tiempo
+transcurrido desde el cuadro anterior y ejecuta las
+funciones de actualización registradas tantas veces como
+sea necesario para mantener una velocidad de simulación
+constante de 60 actualizaciones por segundo, independiente
+de la velocidad real de la pantalla.
+
+Esta técnica se conoce como bucle a paso fijo con
+acumulador. La diferencia con un bucle ingenuo (en el que
+cada cuadro avanza la simulación una vez, dependiendo de la
+frecuencia de la pantalla) es que en un bucle a paso fijo la
+física se comporta exactamente igual en una pantalla de
+60 Hz que en una de 144 Hz, y se recupera correctamente
+cuando el navegador pierde el foco durante varios segundos.
+La función del bucle se cierra con un límite máximo de 200
+milisegundos por cuadro, lo que evita que tras una pausa muy
+larga el motor intente recuperar miles de cuadros de
+simulación a la vez (la espiral de la muerte de los bucles
+de juego).
+
+
+Comunicación entre sistemas
+
+Los sistemas del motor (físicas, escenas, entrada,
+partículas, persistencia) se comunican entre sí por dos
+mecanismos. El primero son las llamadas directas: la escena
+llama al sistema de físicas para resolver las colisiones de
+este cuadro, el jugador consulta directamente al sistema de
+entrada qué teclas están pulsadas, etc. El segundo es un
+mecanismo de "tick automático": la clase Scene recorre cada
+cuadro todos los objetos colocados en la escena y, para cada
+uno, llama a sus métodos pre_tick() y tick() si están
+definidos. Esto permite que los prefabs encapsulen su propio
+comportamiento sin que la escena tenga que cablearlos
+manualmente. Por ejemplo, una plataforma que se desmorona
+implementa su lógica en su método tick() y la escena no
+necesita saber nada al respecto: basta con haberla colocado.
+
+
+
+============================================================
+[FIN DEL BORRADOR ACTUAL — 2026-04-28]
+
+Próxima sección a redactar: 4.3 Implementación de
+funcionalidades. Esta es la sección donde van los
+fragmentos de código real (la rúbrica lo pide
+explícitamente).
+
+Avísame cuando hayas revisado §4.2 y continúo.
+============================================================

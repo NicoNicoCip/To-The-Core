@@ -1,0 +1,230 @@
+============================================================
+MENSAJES DEL PROFESOR — TFG
+Profesor: Sergio Gómez García (SG)
+Asignatura: Proyecto intermodular - 2º curso - 41524MA
+============================================================
+(Ordenados de más recientes a más antiguos.)
+
+
+────────────────────────────────────────────────────────────
+28 de abril de 2026, 10:33 — Sergio Gómez García
+Asunto: Indicaciones TFG — diagramas
+────────────────────────────────────────────────────────────
+Buenos días,
+
+Aclaro una duda que me ha llegado sobre los diagramas. La
+duda es si estos deben incluirse en el cuerpo del documento
+o en los anexos. La respuesta es DEPENDE:
+
+- Si es un diagrama clave para entender el contenido y vais
+  a desarrollar una explicación sobre el mismo → SÍ, en el
+  cuerpo.
+- Si es un diagrama del cual no vais a hablar en detalle, no
+  es necesario para seguir el hilo conductor, o es demasiado
+  detallado y ocupa mucho → mejor en los anexos, y
+  referenciarlo desde el cuerpo.
+
+Un saludo :)
+
+
+────────────────────────────────────────────────────────────
+27 de abril de 2026, 9:03 — Sergio Gómez García
+Asunto: Coevaluación
+────────────────────────────────────────────────────────────
+Os escribo de nuevo para pediros que, por favor, me
+compartáis los documentos sobre la coevaluación cuanto
+antes. Necesito tenerlos esta semana :)
+
+¡Nos vemos!
+
+
+────────────────────────────────────────────────────────────
+27 de abril de 2026, 9:00 — Sergio Gómez García
+Asunto: Presentación + entrega final
+────────────────────────────────────────────────────────────
+Buenos días,
+
+Un par de cositas:
+
+- En cuanto a la PRESENTACIÓN: tenéis libertad creativa, no
+  hace falta que utilicéis una plantilla de Medac o similar.
+
+- MUY IMPORTANTE: mañana se abre una tarea en el aula
+  virtual para la ENTREGA FINAL del proyecto. Dicha entrega
+  será UN ÚNICO DOCUMENTO, el que habéis estado
+  desarrollando hasta ahora. NO hay que subir la
+  presentación. Acordaos de añadir un ENLACE A VUESTRO
+  PROYECTO en alguna parte del documento que subáis a la
+  tarea.
+
+Un saludo ;)
+
+
+────────────────────────────────────────────────────────────
+25 de abril de 2026, 14:47 — Sergio Gómez García
+Asunto: Re: presentaciones (respuesta a Valeria)
+────────────────────────────────────────────────────────────
+Hola Valeria,
+
+Tenéis libertad creativa :)
+
+Un saludo.
+
+
+────────────────────────────────────────────────────────────
+25 de abril de 2026, 11:13 — Valeria Cristina De Barros Sciacca
+Asunto: Pregunta sobre presentaciones
+────────────────────────────────────────────────────────────
+Hola Sergio buen día, tenemos libertad creativa para las
+presentaciones o van con plantilla estrictamente.
+
+
+────────────────────────────────────────────────────────────
+24 de abril de 2026, 11:03 — Sergio Gómez García
+Asunto: Horarios de defensa
+────────────────────────────────────────────────────────────
+Buenos días,
+
+Las defensas de los proyectos van a ser TODAS el día
+5 de mayo.
+
+Horarios exactos por grupo:
+- Buffs & Co.            8:30 – 9:00
+- Castellón al alza      9:00 – 9:30
+- Los 4 fantásticos      9:30 – 10:00
+- Los criptobros        10:00 – 10:30
+- Paper Wings Studio    10:30 – 11:00   ← NUESTRO GRUPO
+
+¡Un saludo!
+
+
+────────────────────────────────────────────────────────────
+23 de abril de 2026, 12:15 — Sergio Gómez García
+Asunto: Indicaciones del día de las defensas
+────────────────────────────────────────────────────────────
+Buenos días,
+
+Os escribo para daros nuevas indicaciones del día de las
+defensas:
+
+- Duración de la EXPOSICIÓN: 15 minutos máximo.
+
+- Tras la exposición, el TRIBUNAL tendrá 5 MINUTOS para
+  plantear cuantas cuestiones estime oportunas relacionadas
+  con el trabajo presentado.
+
+- Para dar la NOTA FINAL, se dispondrá de 5 minutos de
+  deliberación por parte del tribunal.
+
+- Entre un grupo y otro se contará con 5 MINUTOS para hacer
+  el cambio.
+
+- El alumnado faltará a sus prácticas (FFE) el tiempo que
+  esté en el centro, pero el resto del día deberá acudir a
+  la empresa. Esas horas que pase en el centro se cuentan
+  como horas de práctica, y así lo pueden anotar en el
+  diario de prácticas.
+
+- Es responsabilidad de los/as tutores/as de prácticas
+  avisar sobre esto al alumnado. Es responsabilidad del
+  alumnado avisar a la empresa.
+
+Un saludo :)
+
+
+────────────────────────────────────────────────────────────
+23 de abril de 2026, 12:08 — Sergio Gómez García
+Asunto: Sobre el 25% de CE de los RA
+────────────────────────────────────────────────────────────
+Buenos días,
+
+El primer 25% de la nota en la rúbrica son cuestiones que
+deben estar INTEGRADAS Y RELACIONADAS al proyecto. Por
+ejemplo:
+- En el apartado de "Desarrollo del proyecto", podéis hablar
+  del uso de IA o de temas relacionados con el impacto al
+  medio ambiente.
+- En el apartado de "Objetivos", podéis hablar de los
+  objetivos de la supuesta empresa.
+- Etc.
+
+Espero que se entienda el concepto :)
+
+¡Un saludo!
+
+
+────────────────────────────────────────────────────────────
+22 de abril de 2026, 11:13 — Sergio Gómez García
+Asunto: RECOPILACIÓN DE INFO SOBRE EL TFG (mensaje base)
+────────────────────────────────────────────────────────────
+Buenos días,
+
+Dado que hay ciertas dudas, quiero recopilaros información
+sobre el TFG:
+
+1. La nota del TFG se basa tanto en el DOCUMENTO como en
+   las COMPETENCIAS ESPECÍFICAS, la DEFENSA y la
+   COEVALUACIÓN.
+
+2. En el apartado de INTRODUCCIÓN, poned el enlace al
+   repositorio del proyecto.
+
+3. En la plantilla del documento que os envió está el
+   apartado "Implementación de funcionalidades" en el cual
+   podéis poner fragmentos de código relevantes y
+   explicarlos. Si necesitáis poner mucho código, podéis
+   hacer uso de los ANEXOS y, en el cuerpo del documento,
+   reflejar una referencia a los mismos.
+
+4. Sobre los ASPECTOS DE NEGOCIO, tenéis los apartados del
+   punto "Descripción del proyecto", dentro del cual podéis
+   añadir más apartados si lo consideráis.
+
+5. LONGITUD DEL DOCUMENTO: entre 30–40 páginas, sin contar
+   los anexos.
+
+6. PRESENTACIÓN: duración máxima 15 minutos.
+
+7. La nota de la EXPOSICIÓN es INDIVIDUAL.
+
+8. Fechas exactas:
+   - Plazo de entrega del proyecto de 2.º curso:
+     desde el martes 28 de abril hasta el viernes 1 de mayo.
+   - Defensas de los proyectos: del lunes 4 al viernes 8
+     de mayo, en horario de mañana.
+
+
+============================================================
+RESUMEN EJECUTIVO (extraído por Claude)
+============================================================
+
+DEADLINES:
+- Entrega del documento:  28 abr → 1 may 2026
+- Defensa (Paper Wings):  5 may 2026, 10:30 – 11:00
+
+DOCUMENTO:
+- 30–40 páginas SIN contar anexos
+- Un único documento PDF
+- Incluir ENLACE al repositorio en la introducción
+- Tener apartado "Implementación de funcionalidades" con
+  fragmentos de código relevantes (más código → anexos)
+- Diagramas: en cuerpo si se explican; en anexos si no
+
+PRESENTACIÓN:
+- Máximo 15 minutos
+- Libertad creativa (sin plantilla obligatoria)
+- 5 min de preguntas + 5 min de deliberación del tribunal
+- La nota de la exposición es INDIVIDUAL
+- NO hay que subir la presentación al aula virtual
+
+EL 25% DE "CE DE LOS RA" debe estar INTEGRADO en el
+documento, no como capítulo aparte:
+- Digitalización (RA1, RA4, RA6)
+- Sostenibilidad (RA1, RA4, RA5) — IA, ODS Agenda 2030,
+  ecodiseño
+- IPE I (RA2) — análisis del sector profesional
+- IPE II (RA1, RA4) — marca personal, idea de
+  emprendimiento, modelo de negocio
+
+GRUPO: Paper Wings Studio
+PROFESOR/TUTOR: Sergio Gómez García

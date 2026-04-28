@@ -10,7 +10,7 @@ const background   = new bobj({ name: "background3" })
 const midground    = new bobj({ name: "midground_s1" })
 const foreground   = new bobj({ name: "scene_s1" })
 
-const tp_s2 = new ActionZone({ name: "tp_s2", height: 2, width: 10, on_hit: () => { send_to("./s2.html") } })
+const tp_bottom = new ActionZone({ name: "tp_bottom", height: 2, width: 10, on_hit: () => { send_to("./s2.html") } })
 
 let landing = false
 
@@ -26,7 +26,7 @@ scene.layer(foreground,  2, 0)
 scene.tiles(10, 10, {
     'x': inviz,
     'S': spawn,
-    'n': tp_s2
+    'n': tp_bottom
 }, [
     "                               x",
     "                               x",
@@ -48,7 +48,7 @@ scene.tiles(10, 10, {
     "xxxxxxxxxxxxxxxxxxxxxnnnnnnnnnnx",
 ])
 
-tp_s2.shift(0,8)
+tp_bottom.shift(0,8)
 
 scene.spawn(player, spawn, () => true, () => {
     if (intro_played) {

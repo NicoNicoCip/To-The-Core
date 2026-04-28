@@ -7,8 +7,8 @@ const player     = new Player(10, 10, false)
 const background = new bobj({ name: "background3" })
 const foreground = new bobj({ name: "scene_s2_ext" })
 
-const tp_s2 = new ActionZone(
-    { name: "tp_s2", height: 10, width: 2, on_hit: () => { send_to("./s2.html") } })
+const tp_left = new ActionZone(
+    { name: "tp_left", height: 10, width: 2, on_hit: () => { send_to("./s2.html") } })
 
 const inviz = invisible_wall_tile()
 const spawn = spawn_tile()
@@ -23,7 +23,7 @@ scene.tiles(10, 10, {
     'x': inviz,
     'S': spawn,
     'B': bone,
-    'n': tp_s2
+    'n': tp_left
 }, [
     "                                ",
     "                                ",

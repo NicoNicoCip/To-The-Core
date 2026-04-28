@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Gantt — To The Core</title>
+<style>
+    :root {
+        --bg: #ffffff;
+        --ink: #1a1a1a;
+        --muted: #666;
+        --grid: #e6e6e6;
+        --grid-strong: #cccccc;
+        --f1: #5b8def;
+        --f2: #3aa370;
+        --f3: #d99a3c;
+        --f4: #c25b8c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        padding: 40px 50px;
+    }
+
+    h1 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .subtitle {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 28px;
+    }
+
+    .gantt {
+        display: grid;
+        grid-template-columns: 220px repeat(5, 1fr);
+        font-size: 13px;
+        border: 1px solid var(--grid-strong);
+    }
+
+    .gantt > div {
+        padding: 10px 12px;
+        border-right: 1px solid var(--grid);
+        border-bottom: 1px solid var(--grid);
+    }
+
+    .gantt > div:nth-child(6n) {
+        border-right: none;
+    }
+
+    .header {
+        background: #f7f7f7;
+        font-weight: 600;
+        text-align: center;
+        font-size: 12px;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 8px 12px !important;
+    }
+
+    .header.task-col {
+        text-align: left;
+    }
+
+    .task {
+        font-weight: 500;
+        background: #fafafa;
+    }
+
+    .task small {
+        display: block;
+        color: var(--muted);
+        font-weight: 400;
+        font-size: 11px;
+        margin-top: 2px;
+    }
+
+    .cell {
+        position: relative;
+        padding: 0 !important;
+        height: 38px;
+    }
+
+    .bar {
+        position: absolute;
+        top: 8px;
+        bottom: 8px;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        padding: 0 8px;
+    }
+
+    .f1 { background: var(--f1); }
+    .f2 { background: var(--f2); }
+    .f3 { background: var(--f3); }
+    .f4 { background: var(--f4); }
+
+    /* bar widths/positions per cell — full = full month, else fraction */
+    .full   { left: 0; right: 0; }
+    .left75 { left: 0; right: 25%; }
+    .right60 { left: 40%; right: 0; }
+    .mid    { left: 10%; right: 10%; }
+
+    .legend {
+        display: flex;
+        gap: 24px;
+        margin-top: 24px;
+        font-size: 12px;
+        flex-wrap: wrap;
+    }
+
+    .legend .swatch {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+
+    .meta {
+        margin-top: 22px;
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.6;
+    }
+
+    .meta strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<h1>Cronograma del proyecto — To The Core</h1>
+<div class="subtitle">Paper Wings Studio &nbsp;·&nbsp; Curso 2025/2026 &nbsp;·&nbsp; Datos extraídos del histórico de commits del repositorio</div>
+
+<div class="gantt">
+
+    <!-- header row -->
+    <div class="header task-col">Tarea / Área</div>
+    <div class="header">Enero 2026</div>
+    <div class="header">Febrero 2026</div>
+    <div class="header">Marzo 2026</div>
+    <div class="header">Abril 2026</div>
+    <div class="header">Mayo 2026</div>
+
+    <!-- Phase 1 -->
+    <div class="task">Fase 1 — Prototipo<small>Bucle de juego, render DOM, primer motor de colisiones</small></div>
+    <div class="cell"><div class="bar f1 right60">F1</div></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+
+    <!-- Phase 2 -->
+    <div class="task">Fase 2 — Motor + Mundo 0<small>Escenas, cámara, parallax, persistencia, niveles s0–s8</small></div>
+    <div class="cell"></div>
+    <div class="cell"><div class="bar f2 full">F2 — fase más intensa</div></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+
+    <!-- Phase 3 -->
+    <div class="task">Fase 3 — Pausa + refactor<small>Bajo ritmo por prácticas FCT/FFE; refactorización del motor</small></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"><div class="bar f3 full">F3</div></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+
+    <!-- Phase 4 -->
+    <div class="task">Fase 4 — Pulido + Mundo 1<small>Prefabs, secuenciador, inicio de world1, preparación TFG</small></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"><div class="bar f4 full">F4</div></div>
+    <div class="cell"></div>
+
+    <!-- Doc + defense -->
+    <div class="task">Memoria + defensa<small>Redacción del documento, presentación, coevaluación</small></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"></div>
+    <div class="cell"><div class="bar f4 right60">Doc.</div></div>
+    <div class="cell"><div class="bar f4 left75">Defensa</div></div>
+
+</div>
+
+<div class="legend">
+    <div><span class="swatch f1"></span>Fase 1 · Prototipo</div>
+    <div><span class="swatch f2"></span>Fase 2 · Motor y Mundo 0</div>
+    <div><span class="swatch f3"></span>Fase 3 · Pausa y refactor</div>
+    <div><span class="swatch f4"></span>Fase 4 · Pulido y Mundo 1</div>
+</div>
+
+<div class="meta">
+    <strong>Volumen de trabajo (commits por mes):</strong>
+    enero — 3 &nbsp;·&nbsp; febrero — 67 &nbsp;·&nbsp; marzo — 1 &nbsp;·&nbsp; abril — 16 (a fecha 28 de abril) &nbsp;·&nbsp; total — 87.
+    <br>
+    <strong>Hito principal:</strong> defensa del proyecto el 5 de mayo de 2026, 10:30–11:00.
+</div>
+
+</body>
+</html>

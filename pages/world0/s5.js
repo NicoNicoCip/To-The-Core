@@ -15,7 +15,7 @@ const bone    = bone_tile()
 const spawn_s = new cobj({ name: "spawn_s",    width: 10, height: 10, collides: false })
 const spawn_t = new cobj({ name: "spawn_t",    width: 10, height: 10, collides: false })
 
-const tp_s6 = new ActionZone({ name: "tp_s6", height: 10, width: 2, on_hit: () => { send_to("./s6.html") } })
+const tp_left = new ActionZone({ name: "tp_left", height: 10, width: 2, on_hit: () => { send_to("./s6.html") } })
 
 const scene = new Scene()
 
@@ -30,7 +30,7 @@ scene.tiles(10, 10, {
     'B': bone,
     'S': spawn_s,
     'T': spawn_t,
-    'n': tp_s6,
+    'n': tp_left,
 }, [
     "                                ",
     "                                ",

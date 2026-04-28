@@ -14,10 +14,10 @@ const spawn_top = new cobj({ name: "spawn_top", width: 10, height: 10, collides:
 const spawn_left = new cobj({ name: "spawn_left", width: 10, height: 10, collides: false })
 const spawn_right = new cobj({ name: "spawn_right", width: 10, height: 10, collides: false })
 
-const tp_s2_ext = new ActionZone(
-    { name: "tp_s2_ext", height: 10, width: 2, on_hit: () => { send_to("./s2_EXT.html") } })
-const tp_s3 = new ActionZone(
-    { name: "tp_s3", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
+const tp_right = new ActionZone(
+    { name: "tp_right", height: 10, width: 2, on_hit: () => { send_to("./s2_EXT.html") } })
+const tp_left = new ActionZone(
+    { name: "tp_left", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
 
 const scene = new Scene()
 
@@ -31,8 +31,8 @@ scene.tiles(10, 10, {
     'T': spawn_top,
     'L': spawn_left,
     'R': spawn_right,
-    'n': tp_s3,
-    'm': tp_s2_ext,
+    'n': tp_left,
+    'm': tp_right,
 }, [
     "                         T      ",
     "                                ",
@@ -54,7 +54,7 @@ scene.tiles(10, 10, {
     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 ])
 
-tp_s2_ext.shift(8,0)
+tp_right.shift(8,0)
 
 scene.spawn(player, spawn_top, () => come_from("s1.html"))
 scene.spawn(player, spawn_left, () => come_from("s3.html"))

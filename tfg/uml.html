@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>UML — Jerarquía de clases del motor de To The Core</title>
+<style>
+    :root {
+        --bg: #ffffff;
+        --ink: #1a1a1a;
+        --muted: #666;
+        --line: #555;
+        --base-fill: #eef3fb;
+        --base-border: #5b8def;
+        --visual-fill: #ecf6ef;
+        --visual-border: #3aa370;
+        --collision-fill: #fdf3e3;
+        --collision-border: #d99a3c;
+        --physics-fill: #fbe9f1;
+        --physics-border: #c25b8c;
+        --player-fill: #f0e9fa;
+        --player-border: #8e63cc;
+        --prefab-fill: #f5f5f5;
+        --prefab-border: #888;
+        --ui-fill: #fff5e6;
+        --ui-border: #c08030;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        padding: 40px 50px;
+    }
+
+    h1 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .subtitle {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 36px;
+    }
+
+    .canvas {
+        position: relative;
+        width: 1100px;
+        height: 1020px;
+        margin: 0 auto;
+    }
+
+    .cls {
+        position: absolute;
+        border: 1.5px solid var(--line);
+        border-radius: 4px;
+        background: white;
+        font-size: 12px;
+        z-index: 2;
+    }
+
+    .cls .name {
+        font-weight: 700;
+        text-align: center;
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--line);
+        font-size: 13px;
+    }
+
+    .cls .body {
+        padding: 6px 10px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 11px;
+        line-height: 1.55;
+        color: #333;
+    }
+
+    .cls .body div + div.sep {
+        border-top: 1px solid #ddd;
+        margin-top: 4px;
+        padding-top: 4px;
+    }
+
+    .cls.base { background: var(--base-fill); border-color: var(--base-border); }
+    .cls.base .name { background: var(--base-border); color: white; border-bottom-color: var(--base-border); }
+
+    .cls.visual { background: var(--visual-fill); border-color: var(--visual-border); }
+    .cls.visual .name { background: var(--visual-border); color: white; border-bottom-color: var(--visual-border); }
+
+    .cls.collision { background: var(--collision-fill); border-color: var(--collision-border); }
+    .cls.collision .name { background: var(--collision-border); color: white; border-bottom-color: var(--collision-border); }
+
+    .cls.physics { background: var(--physics-fill); border-color: var(--physics-border); }
+    .cls.physics .name { background: var(--physics-border); color: white; border-bottom-color: var(--physics-border); }
+
+    .cls.player { background: var(--player-fill); border-color: var(--player-border); }
+    .cls.player .name { background: var(--player-border); color: white; border-bottom-color: var(--player-border); }
+
+    .cls.prefab { background: var(--prefab-fill); border-color: var(--prefab-border); }
+    .cls.prefab .name { background: var(--prefab-border); color: white; border-bottom-color: var(--prefab-border); font-size: 12px; }
+    .cls.prefab .body { font-size: 10px; }
+
+    .cls.ui { background: var(--ui-fill); border-color: var(--ui-border); }
+    .cls.ui .name { background: var(--ui-border); color: white; border-bottom-color: var(--ui-border); }
+
+    /* SVG layer for inheritance arrows */
+    svg.lines {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: visible;
+    }
+
+    svg.lines path {
+        fill: none;
+        stroke: var(--line);
+        stroke-width: 1.5;
+    }
+
+    .legend {
+        display: flex;
+        gap: 22px;
+        margin-top: 28px;
+        font-size: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .legend .swatch {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        margin-right: 6px;
+        vertical-align: middle;
+    }
+
+    .meta {
+        margin-top: 18px;
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.6;
+        text-align: center;
+    }
+
+    .arrow-label {
+        font-size: 10px;
+        fill: var(--muted);
+        font-style: italic;
+    }
+</style>
+</head>
+<body>
+
+<h1>Jerarquía de clases del motor — To The Core</h1>
+<div class="subtitle">Diagrama UML simplificado &nbsp;·&nbsp; Las flechas con triángulo blanco representan herencia (extends). Archivo fuente: src/system.ts y src/prefabs.ts.</div>
+
+<div class="canvas">
+
+    <!-- Layout (top = y origin):
+         Row A — obj                top:30,   bottom ≈ 175
+         Row B — bobj/cobj/Button   top:230,  cobj bottom ≈ 460
+         Row C — pobj               top:520,  bottom ≈ 770
+         Row D — Player             top:830,  bottom ≈ 985
+         Prefab row (4 cards)       top:520,  bottom ≈ 700
+         Collectable                top:760,  bottom ≈ 900
+    -->
+    <svg class="lines" viewBox="0 0 1100 1020" preserveAspectRatio="xMidYMid meet">
+        <defs>
+            <!-- hollow triangle marker for UML "extends" -->
+            <marker id="inh" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+                <path d="M 0 0 L 11 6 L 0 12 z" fill="white" stroke="#555" stroke-width="1.2"/>
+            </marker>
+        </defs>
+
+        <!-- obj bottom: y≈175. cobj top: y=230. pobj top: y=520. -->
+
+        <!-- bobj inherits from obj. bobj at left:140 width:200 → mid x=240, top y=230 -->
+        <path d="M 240 230 L 240 200 L 550 200 L 550 175" marker-end="url(#inh)"/>
+
+        <!-- cobj inherits from obj. cobj at left:470 width:160 → mid x=550 -->
+        <path d="M 550 230 L 550 175" marker-end="url(#inh)"/>
+
+        <!-- Button inherits from obj. Button at left:820 width:200 → mid x=920 -->
+        <path d="M 920 230 L 920 200 L 550 200 L 550 175" marker-end="url(#inh)"/>
+
+        <!-- pobj inherits from cobj. pobj top y=520, cobj bottom y≈460. -->
+        <path d="M 550 520 L 550 460" marker-end="url(#inh)"/>
+
+        <!-- Player inherits from pobj. Player top y=830, pobj bottom y≈770. -->
+        <path d="M 550 830 L 550 770" marker-end="url(#inh)"/>
+
+        <!-- Prefab classes inherit from cobj.
+             Bus line at y=490 (between cobj bottom 460 and prefab tops 520).
+             Each prefab top connects up to bus, bus connects to cobj center bottom. -->
+
+        <!-- ActionZone at left:40 width:180 → mid x=130 -->
+        <path d="M 130 520 L 130 490 L 550 490 L 550 460" marker-end="url(#inh)"/>
+        <!-- CrumblePlatform at left:240 width:200 → mid x=340 -->
+        <path d="M 340 520 L 340 490 L 550 490 L 550 460" marker-end="url(#inh)"/>
+        <!-- JumpOncePlatform at left:760 width:200 → mid x=860 -->
+        <path d="M 860 520 L 860 490 L 550 490 L 550 460" marker-end="url(#inh)"/>
+        <!-- ForceZone at left:930 width:150 → mid x=1005 -->
+        <path d="M 1005 520 L 1005 490 L 550 490 L 550 460" marker-end="url(#inh)"/>
+        <!-- Collectable at left:760 width:200, top y=760 → mid x=860, top y=760.
+             Connects up to bus y=490 (also from cobj). -->
+        <path d="M 860 760 L 860 490" marker-end="url(#inh)"/>
+    </svg>
+
+    <!-- obj — base class -->
+    <div class="cls base" style="left: 470px; top: 30px; width: 160px;">
+        <div class="name">obj</div>
+        <div class="body">
+            <div>+ x, y : number</div>
+            <div>+ width, height : number</div>
+            <div>+ graphic : HTMLDivElement</div>
+            <div class="sep">+ move(x, y)</div>
+            <div>+ shift(x, y)</div>
+        </div>
+    </div>
+
+    <!-- bobj — background -->
+    <div class="cls visual" style="left: 140px; top: 230px; width: 200px;">
+        <div class="name">bobj</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende obj</div>
+            <div class="sep">Objeto de fondo.<br>Por defecto ocupa toda la pantalla.</div>
+        </div>
+    </div>
+
+    <!-- cobj — collision -->
+    <div class="cls collision" style="left: 470px; top: 230px; width: 160px;">
+        <div class="name">cobj</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende obj</div>
+            <div class="sep">+ x_speed, y_speed</div>
+            <div>+ grounded, dynamic</div>
+            <div>+ collides, one_way</div>
+            <div>+ mergeable</div>
+            <div>+ collider : HTMLDivElement</div>
+            <div class="sep">+ collide(other)</div>
+            <div>+ overlaps(other)</div>
+        </div>
+    </div>
+
+    <!-- Button -->
+    <div class="cls ui" style="left: 820px; top: 230px; width: 200px;">
+        <div class="name">Button</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende obj</div>
+            <div class="sep">+ hover_class, on_click</div>
+            <div>+ disabled, hovered</div>
+            <div class="sep">+ disable()</div>
+        </div>
+    </div>
+
+    <!-- pobj — physics -->
+    <div class="cls physics" style="left: 470px; top: 520px; width: 160px;">
+        <div class="name">pobj</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende cobj</div>
+            <div class="sep">+ gravity, max_gravity</div>
+            <div>+ jump_force, friction</div>
+            <div>+ coyote, coyote_time</div>
+            <div>+ facing, movedir</div>
+            <div class="sep">+ update()</div>
+            <div>+ squash(sx, sy)</div>
+            <div>+ call_force({...})</div>
+            <div>+ apply_force()</div>
+        </div>
+    </div>
+
+    <!-- Player -->
+    <div class="cls player" style="left: 470px; top: 830px; width: 160px;">
+        <div class="name">Player</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende pobj</div>
+            <div class="sep">Lee teclado A/D/Space/S.</div>
+            <div>Gestiona estados:</div>
+            <div>moving, falling, rising</div>
+            <div>landing, falling_in</div>
+        </div>
+    </div>
+
+    <!-- Prefabs (children of cobj).
+         Canvas is 1100px wide. Layout: 4 prefab cards in a row.
+         All cards 175px wide. Centers placed at x = 130, 340, 760, 970.
+         Gap between cards 1-2 (340 to 470 i.e. cobj space): pobj sits between them.
+         Gap between cards 3-4 (970 - 840 = 130px gap from card 2 right-edge 427 to card 3 left 760):
+         pobj column owns the middle (mid x=550, width 160 → spans 470–630). -->
+
+    <div class="cls prefab" style="left: 40px; top: 520px; width: 180px;">
+        <div class="name">ActionZone</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende cobj</div>
+            <div class="sep">+ on_hit : Function</div>
+            <div>tick(player) → dispara on_hit<br>cuando el jugador entra.</div>
+            <div class="sep">Usado para teleportes,<br>zonas de muerte, triggers.</div>
+        </div>
+    </div>
+
+    <div class="cls prefab" style="left: 245px; top: 520px; width: 195px;">
+        <div class="name">CrumblePlatform</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende cobj</div>
+            <div class="sep">+ stay_frames, respawn_frames</div>
+            <div>tick(player) gestiona el<br>contador y el reset.</div>
+            <div class="sep">Plataforma de un solo uso<br>que se vuelve a regenerar.</div>
+        </div>
+    </div>
+
+    <div class="cls prefab" style="left: 660px; top: 520px; width: 195px;">
+        <div class="name">JumpOncePlatform</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende cobj</div>
+            <div class="sep">+ respawn_frames</div>
+            <div>Desaparece al saltar de ella.<br>Reaparece tras N cuadros.</div>
+        </div>
+    </div>
+
+    <div class="cls prefab" style="left: 880px; top: 520px; width: 175px;">
+        <div class="name">ForceZone</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende cobj</div>
+            <div class="sep">+ force_x, force_y</div>
+            <div>pre_tick(player)<br>aplica fuerza por cuadro.</div>
+        </div>
+    </div>
+
+    <div class="cls prefab" style="left: 770px; top: 760px; width: 195px;">
+        <div class="name">Collectable</div>
+        <div class="body">
+            <div style="font-style: italic; color: #666;">extiende cobj</div>
+            <div class="sep">Objeto recogible.<br>Persistencia automática<br>vía Scene.collectable().</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="legend">
+    <div><span class="swatch" style="background: var(--base-border);"></span>Clase base</div>
+    <div><span class="swatch" style="background: var(--visual-border);"></span>Visual (sin colisión)</div>
+    <div><span class="swatch" style="background: var(--collision-border);"></span>Colisión</div>
+    <div><span class="swatch" style="background: var(--physics-border);"></span>Física</div>
+    <div><span class="swatch" style="background: var(--player-border);"></span>Jugador</div>
+    <div><span class="swatch" style="background: var(--prefab-border);"></span>Prefab</div>
+    <div><span class="swatch" style="background: var(--ui-border);"></span>Interfaz</div>
+</div>
+
+<div class="meta">
+    Diagrama simplificado: se muestran las clases principales y los atributos / métodos más relevantes.
+    Para una vista completa de la API consultar el código fuente en
+    <strong>src/system.ts</strong> (1.719 líneas) y <strong>src/prefabs.ts</strong> (534 líneas).
+</div>
+
+</body>
+</html>

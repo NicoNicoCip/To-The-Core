@@ -12,8 +12,8 @@ const inviz   = invisible_wall_tile()
 const spawn_l = new cobj({ name: "spawn_l",    width: 10, height: 10, collides: false })
 const spawn_r = new cobj({ name: "spawn_r",    width: 10, height: 10, collides: false })
 
-const tp_s6 = new ActionZone({ name: "tp_s6", height: 10, width: 2, on_hit: () => { send_to("./s6.html") } })
-const tp_s8 = new ActionZone({ name: "tp_s8", height: 10, width: 2, on_hit: () => { send_to("./s8.html") } })
+const tp_right = new ActionZone({ name: "tp_right", height: 10, width: 2, on_hit: () => { send_to("./s6.html") } })
+const tp_left = new ActionZone({ name: "tp_left", height: 10, width: 2, on_hit: () => { send_to("./s8.html") } })
 
 const scene = new Scene()
 
@@ -25,8 +25,8 @@ scene.tiles(10, 10, {
     'x': inviz,
     'L': spawn_l,
     'R': spawn_r,
-    'n': tp_s6,
-    'm': tp_s8,
+    'n': tp_right,
+    'm': tp_left,
 }, [
     "                                ",
     "                                ",
@@ -48,7 +48,7 @@ scene.tiles(10, 10, {
     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
 ])
 
-tp_s6.shift(8,0)
+tp_right.shift(8,0)
 
 scene.spawn(player, spawn_l, () => come_from("s8.html"),  () => { player.facing =  1 })
 scene.spawn(player, spawn_r, () => true,                   () => { player.facing = -1 })
