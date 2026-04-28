@@ -49,7 +49,7 @@
     .canvas {
         position: relative;
         width: 1100px;
-        height: 1020px;
+        height: 1070px;
         margin: 0 auto;
     }
 
@@ -164,14 +164,14 @@
 <div class="canvas">
 
     <!-- Layout (top = y origin):
-         Row A — obj                top:30,   bottom ≈ 175
-         Row B — bobj/cobj/Button   top:230,  cobj bottom ≈ 460
-         Row C — pobj               top:520,  bottom ≈ 770
-         Row D — Player             top:830,  bottom ≈ 985
-         Prefab row (4 cards)       top:520,  bottom ≈ 700
-         Collectable                top:760,  bottom ≈ 900
+         Row A — obj                top:30,   bottom ≈ 165
+         Row B — bobj/cobj/Button   top:280,  cobj bottom ≈ 510
+         Row C — pobj               top:570,  bottom ≈ 820
+         Row D — Player             top:880,  bottom ≈ 1035
+         Prefab row (4 cards)       top:570,  bottom ≈ 750
+         Collectable                top:810,  bottom ≈ 950
     -->
-    <svg class="lines" viewBox="0 0 1100 1020" preserveAspectRatio="xMidYMid meet">
+    <svg class="lines" viewBox="0 0 1100 1070" preserveAspectRatio="xMidYMid meet">
         <defs>
             <!-- hollow triangle marker for UML "extends" -->
             <marker id="inh" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
@@ -179,38 +179,38 @@
             </marker>
         </defs>
 
-        <!-- obj bottom: y≈175. cobj top: y=230. pobj top: y=520. -->
+        <!-- obj bottom: y≈165. Row B top: y=280. Bus line at y=225 (centered in the gap). -->
 
-        <!-- bobj inherits from obj. bobj at left:140 width:200 → mid x=240, top y=230 -->
-        <path d="M 240 230 L 240 200 L 550 200 L 550 175" marker-end="url(#inh)"/>
+        <!-- bobj inherits from obj. bobj at left:140 width:200 → mid x=240, top y=280 -->
+        <path d="M 240 280 L 240 225 L 550 225 L 550 165" marker-end="url(#inh)"/>
 
         <!-- cobj inherits from obj. cobj at left:470 width:160 → mid x=550 -->
-        <path d="M 550 230 L 550 175" marker-end="url(#inh)"/>
+        <path d="M 550 280 L 550 165" marker-end="url(#inh)"/>
 
         <!-- Button inherits from obj. Button at left:820 width:200 → mid x=920 -->
-        <path d="M 920 230 L 920 200 L 550 200 L 550 175" marker-end="url(#inh)"/>
+        <path d="M 920 280 L 920 225 L 550 225 L 550 165" marker-end="url(#inh)"/>
 
-        <!-- pobj inherits from cobj. pobj top y=520, cobj bottom y≈460. -->
-        <path d="M 550 520 L 550 460" marker-end="url(#inh)"/>
+        <!-- pobj inherits from cobj. pobj top y=570, cobj bottom y≈510. -->
+        <path d="M 550 570 L 550 510" marker-end="url(#inh)"/>
 
-        <!-- Player inherits from pobj. Player top y=830, pobj bottom y≈770. -->
-        <path d="M 550 830 L 550 770" marker-end="url(#inh)"/>
+        <!-- Player inherits from pobj. Player top y=880, pobj bottom y≈820. -->
+        <path d="M 550 880 L 550 820" marker-end="url(#inh)"/>
 
         <!-- Prefab classes inherit from cobj.
-             Bus line at y=490 (between cobj bottom 460 and prefab tops 520).
+             Bus line at y=540 (between cobj bottom 510 and prefab tops 570).
              Each prefab top connects up to bus, bus connects to cobj center bottom. -->
 
         <!-- ActionZone at left:40 width:180 → mid x=130 -->
-        <path d="M 130 520 L 130 490 L 550 490 L 550 460" marker-end="url(#inh)"/>
-        <!-- CrumblePlatform at left:240 width:200 → mid x=340 -->
-        <path d="M 340 520 L 340 490 L 550 490 L 550 460" marker-end="url(#inh)"/>
-        <!-- JumpOncePlatform at left:760 width:200 → mid x=860 -->
-        <path d="M 860 520 L 860 490 L 550 490 L 550 460" marker-end="url(#inh)"/>
-        <!-- ForceZone at left:930 width:150 → mid x=1005 -->
-        <path d="M 1005 520 L 1005 490 L 550 490 L 550 460" marker-end="url(#inh)"/>
-        <!-- Collectable at left:760 width:200, top y=760 → mid x=860, top y=760.
-             Connects up to bus y=490 (also from cobj). -->
-        <path d="M 860 760 L 860 490" marker-end="url(#inh)"/>
+        <path d="M 130 570 L 130 540 L 550 540 L 550 510" marker-end="url(#inh)"/>
+        <!-- CrumblePlatform at left:245 width:195 → mid x=342.5 -->
+        <path d="M 342 570 L 342 540 L 550 540 L 550 510" marker-end="url(#inh)"/>
+        <!-- JumpOncePlatform at left:660 width:195 → mid x=757.5 -->
+        <path d="M 757 570 L 757 540 L 550 540 L 550 510" marker-end="url(#inh)"/>
+        <!-- ForceZone at left:880 width:175 → mid x=967.5 -->
+        <path d="M 967 570 L 967 540 L 550 540 L 550 510" marker-end="url(#inh)"/>
+        <!-- Collectable at left:770 width:195, top y=810 → mid x=867.5.
+             Connects up to bus y=540 (also from cobj). -->
+        <path d="M 867 810 L 867 540" marker-end="url(#inh)"/>
     </svg>
 
     <!-- obj — base class -->
@@ -226,7 +226,7 @@
     </div>
 
     <!-- bobj — background -->
-    <div class="cls visual" style="left: 140px; top: 230px; width: 200px;">
+    <div class="cls visual" style="left: 140px; top: 280px; width: 200px;">
         <div class="name">bobj</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende obj</div>
@@ -235,7 +235,7 @@
     </div>
 
     <!-- cobj — collision -->
-    <div class="cls collision" style="left: 470px; top: 230px; width: 160px;">
+    <div class="cls collision" style="left: 470px; top: 280px; width: 160px;">
         <div class="name">cobj</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende obj</div>
@@ -250,7 +250,7 @@
     </div>
 
     <!-- Button -->
-    <div class="cls ui" style="left: 820px; top: 230px; width: 200px;">
+    <div class="cls ui" style="left: 820px; top: 280px; width: 200px;">
         <div class="name">Button</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende obj</div>
@@ -261,7 +261,7 @@
     </div>
 
     <!-- pobj — physics -->
-    <div class="cls physics" style="left: 470px; top: 520px; width: 160px;">
+    <div class="cls physics" style="left: 470px; top: 570px; width: 160px;">
         <div class="name">pobj</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende cobj</div>
@@ -277,7 +277,7 @@
     </div>
 
     <!-- Player -->
-    <div class="cls player" style="left: 470px; top: 830px; width: 160px;">
+    <div class="cls player" style="left: 470px; top: 880px; width: 160px;">
         <div class="name">Player</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende pobj</div>
@@ -295,7 +295,7 @@
          Gap between cards 3-4 (970 - 840 = 130px gap from card 2 right-edge 427 to card 3 left 760):
          pobj column owns the middle (mid x=550, width 160 → spans 470–630). -->
 
-    <div class="cls prefab" style="left: 40px; top: 520px; width: 180px;">
+    <div class="cls prefab" style="left: 40px; top: 570px; width: 180px;">
         <div class="name">ActionZone</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende cobj</div>
@@ -305,7 +305,7 @@
         </div>
     </div>
 
-    <div class="cls prefab" style="left: 245px; top: 520px; width: 195px;">
+    <div class="cls prefab" style="left: 245px; top: 570px; width: 195px;">
         <div class="name">CrumblePlatform</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende cobj</div>
@@ -315,7 +315,7 @@
         </div>
     </div>
 
-    <div class="cls prefab" style="left: 660px; top: 520px; width: 195px;">
+    <div class="cls prefab" style="left: 660px; top: 570px; width: 195px;">
         <div class="name">JumpOncePlatform</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende cobj</div>
@@ -324,7 +324,7 @@
         </div>
     </div>
 
-    <div class="cls prefab" style="left: 880px; top: 520px; width: 175px;">
+    <div class="cls prefab" style="left: 880px; top: 570px; width: 175px;">
         <div class="name">ForceZone</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende cobj</div>
@@ -333,7 +333,7 @@
         </div>
     </div>
 
-    <div class="cls prefab" style="left: 770px; top: 760px; width: 195px;">
+    <div class="cls prefab" style="left: 770px; top: 810px; width: 195px;">
         <div class="name">Collectable</div>
         <div class="body">
             <div style="font-style: italic; color: #666;">extiende cobj</div>

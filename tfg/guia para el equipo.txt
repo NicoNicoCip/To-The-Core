@@ -1,0 +1,689 @@
+============================================================
+GUÍA PARA EL EQUIPO — TFG "TO THE CORE"
+Paper Wings Studio
+Última actualización: 28 de abril de 2026
+============================================================
+
+Este archivo es una recopilación de todo lo que el equipo
+necesita saber para llevar el TFG hasta la entrega y la
+defensa. Está pensado para que cualquier miembro del equipo
+pueda leerlo y entender el estado del proyecto sin tener
+que reconstruir el contexto desde cero.
+
+Si tenéis dudas sobre algo que no esté aquí, mirad también:
+- tfg/messages from teacher.txt   (mensajes oficiales)
+- tfg/template as text.txt        (estructura obligatoria)
+- tfg/RÚBRICA TFG.pdf             (rúbrica completa)
+- tfg/TFG document.txt            (borrador del documento)
+- tfg/gantt.html                  (cronograma para imagen)
+- tfg/uml.html                    (UML para imagen)
+
+
+
+============================================================
+1. FECHAS CLAVE — NO OLVIDAR
+============================================================
+
+- Plazo de entrega del documento:
+    martes 28 de abril → viernes 1 de mayo de 2026.
+    Sólo se entrega UN documento PDF en el aula virtual.
+    NO se sube la presentación.
+
+- Defensa del proyecto:
+    martes 5 de mayo de 2026
+    Horario de Paper Wings Studio: 10:30 – 11:00.
+    Estructura:
+      - 15 minutos máximo de exposición
+      - 5 minutos de preguntas del tribunal
+      - 5 minutos de deliberación del tribunal
+      - 5 minutos de cambio entre grupos
+
+- Coevaluación:
+    YA ENTREGADA por el equipo.
+
+- Asistencia ese día:
+    El alumnado falta a las prácticas (FFE) sólo el tiempo
+    que esté en el centro. Las horas en el centro cuentan
+    como horas de práctica y se anotan en el diario.
+    Es responsabilidad del equipo avisar a la empresa.
+
+
+
+============================================================
+2. REGLAS QUE TIENE QUE CUMPLIR EL DOCUMENTO
+============================================================
+
+Reglas explícitas del profesor:
+
+a) LONGITUD: entre 30 y 40 páginas, SIN contar los anexos.
+   Estamos apuntando a unas 31 páginas estimadas. La rúbrica
+   no penaliza estar en cualquier punto del rango.
+
+b) FORMATO DE ENTREGA: un único documento (PDF). NO se
+   entrega la presentación.
+
+c) EN LA INTRODUCCIÓN debe aparecer el ENLACE AL REPOSITORIO
+   del proyecto. Ya está incluido en el borrador
+   (https://github.com/NicoNicoCip/To-The-Core).
+
+d) EL APARTADO "Implementación de funcionalidades" (4.3)
+   debe contener fragmentos de código relevantes con
+   explicación. Si el código es muy largo, ponerlo en
+   anexos y referenciarlo desde el cuerpo. Ya hecho en el
+   borrador.
+
+e) LOS DIAGRAMAS van en el cuerpo si los explicamos. Si no
+   los vamos a explicar, mejor en anexos. Nuestro Gantt va
+   en §3.1 y el UML va en §4.2 porque los explicamos. Las
+   versiones grandes/ampliadas van también en los anexos.
+
+f) ASPECTOS DE NEGOCIO van dentro de §2 "Descripción del
+   proyecto". El borrador ya los tiene integrados.
+
+g) PRESENTACIÓN: libertad creativa. NO hay que usar plantilla
+   de Medac. Pero la presentación NO se entrega como archivo.
+
+h) NOTA DE LA EXPOSICIÓN: ES INDIVIDUAL. Cada miembro del
+   equipo recibe su propia nota por la defensa.
+
+Reglas implícitas (sentido común académico):
+
+- Estilo de citas: APA 7. Las referencias del borrador ya
+  están en este formato.
+- Idioma: castellano. La cita inicial puede mantenerse en
+  ambos idiomas (versión original entre paréntesis o en
+  pie).
+- Coherencia tipográfica: una sola fuente para todo el
+  cuerpo (Arial recomendado), una sola para títulos (puede
+  ser la misma).
+- Numeración automática de páginas y de secciones.
+- Índice automático (NO escrito a mano).
+
+
+
+============================================================
+3. CÓMO PASAR EL BORRADOR A GOOGLE DOCS
+============================================================
+
+El borrador (tfg/TFG document.txt) está en texto plano para
+que se pueda copiar y pegar sin problemas. Pasos:
+
+PASO 1 — Crear documento en Google Docs.
+    Crear un Google Doc nuevo, configurar idioma a Español,
+    tamaño de página Letter o A4 (Letter recomendado, es lo
+    que usé para calcular el número de páginas).
+
+PASO 2 — Configurar formato global.
+    - Fuente: Arial, tamaño 11.
+    - Interlineado: 1,5 (Formato → Interlineado y espaciado
+      → 1,5). NOTA: si el documento queda corto al final,
+      probar con 1,5; si queda largo, bajar a 1,15.
+    - Márgenes: 1 pulgada / 2,54 cm en los cuatro lados
+      (Archivo → Configuración de página).
+
+PASO 3 — Pegar el contenido del borrador.
+    Abrir tfg/TFG document.txt, copiar TODO el contenido,
+    pegarlo en el Google Doc. Va a quedar feo, eso es normal.
+
+PASO 4 — Limpiar los artefactos del borrador.
+    Borrar manualmente:
+    - El bloque "NOTAS PARA EL USUARIO" del principio.
+    - Todas las líneas con "============" y "------".
+    - Todos los textos entre [CORCHETES] que NO queráis
+      mantener (los hay que sí: las que dicen "[Insertar
+      captura de XXX]" son recordatorios para insertar la
+      imagen ahí).
+    - El bloque "[FIN DEL BORRADOR — ...]" del final.
+
+PASO 5 — Aplicar estilos de título.
+    En cada nombre de sección numerada:
+    - "1. INTRODUCCIÓN", "2. DESCRIPCIÓN DEL PROYECTO",
+      "3. PLANIFICACIÓN DEL PROYECTO", "4. DESARROLLO
+      DEL PROYECTO", "5. CONCLUSIONES", "6. ANEXOS",
+      "7. REFERENCIAS BIBLIOGRÁFICAS"
+      → aplicar estilo "Título 1".
+    - "1.1 Justificación del proyecto", "2.1 Objetivos",
+      etc. → aplicar estilo "Título 2".
+    - Los nombres de funcionalidades dentro de §4.3 (por
+      ejemplo "Funcionalidad 1 — Bucle de juego a paso
+      fijo") → aplicar estilo "Título 3".
+
+PASO 6 — Aplicar formato de código a los fragmentos.
+    Cada bloque de código del documento (los que tienen
+    indentado de 4 espacios) debería verse con tipo de
+    letra monoespaciada. Seleccionarlos y cambiar la
+    fuente a "Consolas" o "Roboto Mono" o "Courier New",
+    tamaño 9 o 10. Esto los diferencia visualmente del
+    resto del texto.
+
+PASO 7 — Insertar las figuras.
+    Donde diga "[Aquí se inserta la captura de pantalla
+    del archivo tfg/gantt.html]" o equivalente:
+    - Abrir el archivo en el navegador (doble clic).
+    - Hacer una captura de pantalla del contenido.
+    - Recortar para que quede sólo el diagrama.
+    - Insertar la imagen en Google Docs en ese punto.
+    - Añadir una pie de figura debajo: "Figura 1.
+      Cronograma del proyecto." y "Figura 2. Diagrama UML
+      de clases del motor."
+
+PASO 8 — Insertar capturas del juego.
+    En el anexo A.7 hay una indicación de meter 3-5 capturas
+    del juego en marcha. Sugerencia:
+    - Una del menú principal.
+    - Una del nivel s1 (representativa).
+    - Una con el modo depuración activado (tecla P).
+    - Una del nivel actual de world1 en desarrollo.
+    Cada captura con su pie: "Figura 3. Menú principal de
+    To The Core.", etc.
+
+PASO 9 — Generar el índice automático.
+    En el lugar donde el documento dice "[Generar índice
+    automático ...]":
+    - Borrar ese marcador.
+    - Insertar → Tabla de contenidos → estilo enlazado.
+    Como hemos aplicado los estilos Título 1 / Título 2,
+    el índice se rellenará automáticamente.
+
+PASO 10 — Numeración de páginas.
+    Insertar → Números de página → seleccionar formato
+    "1, 2, 3 ..." en la parte inferior. Si la portada y
+    agradecimientos NO deben llevar número, usar la opción
+    de "Mostrar en la primera página: NO" y empezar la
+    numeración desde la página 4 (introducción).
+
+PASO 11 — Saltos de página.
+    Antes de cada apartado principal (Título 1) que NO
+    arranque ya en una página nueva, meter un salto de
+    página (Insertar → Salto → Salto de página). Esto hace
+    que cada capítulo empiece en una página limpia, lo cual
+    queda mucho más profesional.
+
+PASO 12 — Comprobación final.
+    Refrescar el índice (clic derecho sobre el índice →
+    Actualizar tabla de contenidos). Hacer una pasada visual
+    completa, repasar ortografía. Exportar como PDF
+    (Archivo → Descargar → PDF).
+
+
+
+============================================================
+4. AJUSTAR EL NÚMERO DE PÁGINAS
+============================================================
+
+Estimación actual: ~31 páginas de cuerpo.
+
+Si después de pegar y dar formato salimos POR DEBAJO de 30:
+
+a) Subir el interlineado a 1,5 (si estaba en 1,15) → suma
+   unas 5 páginas.
+b) Insertar las figuras de Gantt y UML a tamaño grande, no
+   miniatura → suma 1-2 páginas.
+c) Añadir capturas del juego en el cuerpo (no sólo en
+   anexos) → suma 1-2 páginas.
+d) Aplicar saltos de página antes de cada apartado
+   principal → suma 1-3 páginas.
+e) NO bajar la fuente del cuerpo de 11 puntos. NO subir los
+   márgenes por encima de 1 pulgada (queda como
+   "rellenado").
+
+Si salimos POR ENCIMA de 40:
+
+a) Bajar el interlineado a 1,15.
+b) Reducir el tamaño de las figuras.
+c) Eliminar capturas del cuerpo, dejar sólo en anexos.
+d) Como último recurso, recortar fragmentos de código
+   no esenciales. Mejor mantener los del bucle, las
+   colisiones y el auto-tick (los más representativos),
+   y mover los demás a anexos.
+
+
+
+============================================================
+5. RESUMEN DEL DOCUMENTO POR APARTADOS
+============================================================
+
+Esto es una guía rápida de qué contiene cada apartado del
+documento, para poder consultar de un vistazo dónde está
+cada cosa cuando el tribunal pregunte.
+
+
+§1 INTRODUCCIÓN
+    Presentación del proyecto, autores, repositorio, dominio
+    público. Mención al sector indie español.
+
+    §1.1 Justificación del proyecto
+        Por qué hacemos To The Core. Tres motivos: académico
+        (integra competencias), técnico (motor desde cero por
+        razones pedagógicas y de ecodiseño), personal (afición
+        por el género plataformas).
+
+
+§2 DESCRIPCIÓN DEL PROYECTO
+    Descripción general del juego: qué es, cómo se juega,
+    cuántos mundos tiene.
+
+    §2.1 Objetivos
+        Cinco objetivos del producto + cinco objetivos
+        estratégicos de Paper Wings Studio. Aquí entra el
+        contenido de "objetivos de la empresa" que pide la
+        rúbrica (RA6 Digitalización).
+
+    §2.2 Público objetivo
+        Aficionados al género, 14-35 años. Característica
+        principal: tolerancia a la dificultad. Público
+        secundario: descubrimiento casual.
+
+    §2.3 Funcionalidades principales
+        Cuatro grupos: núcleo del motor, diseño y
+        presentación, persistencia y distribución, otros
+        elementos. Esto es la lista alta; el detalle técnico
+        está en §4.3.
+
+
+§3 PLANIFICACIÓN DEL PROYECTO
+
+    §3.1 Metodología de trabajo
+        Metodología ágil ligera (Scrum/Kanban híbrido pero
+        sin ceremonias formales). Control de versiones en
+        Git, despliegue continuo en GitHub Pages, cuatro
+        fases de desarrollo derivadas del histórico real
+        de commits (3 en enero, 67 en febrero, 1 en marzo,
+        16 en abril). Aquí va la Figura 1 (Gantt).
+
+    §3.2 Asignación de tareas
+        División del trabajo por especialidad:
+        - Nico: motor, arte, UI, diseño de sonido (pendiente)
+        - Manel: diseño de niveles
+        - Joan: música y documentación académica
+        Tabla resumen al final del apartado. Aquí entra la
+        marca personal de cada miembro (RA1 IPE II).
+
+
+§4 DESARROLLO DEL PROYECTO
+
+    §4.1 Tecnologías utilizadas
+        Cada tecnología con su justificación: TypeScript,
+        DOM como render (no canvas), CSS sin frameworks,
+        Aseprite, WebP, Web Storage, GitHub Pages, PWA.
+        Apartado de ECODISEÑO al final con cinco decisiones
+        concretas que reducen huella, ligadas a ODS 12 y 13
+        de la Agenda 2030. Aquí entran RA1 c, RA4 d, RA5 e
+        de Sostenibilidad.
+
+    §4.2 Arquitectura
+        Estructura de directorios del repositorio. Cuatro
+        capas del motor (navegador → sistemas → prefabs →
+        escenas). Jerarquía de clases (obj → bobj/cobj/Button,
+        cobj → pobj → Player, prefabs heredando de cobj).
+        Bucle de juego con acumulador. Comunicación entre
+        sistemas (llamadas directas + auto-tick).
+        Aquí va la Figura 2 (UML).
+
+    §4.3 Implementación de funcionalidades
+        Esta es la sección MÁS LARGA y la más técnica.
+        Cubre:
+        1. Bucle de juego a paso fijo (con código)
+        2. Detección de colisiones por barrido (con código)
+        3. Auto-tick de objetos en escena (con código)
+        4. Cámara con interpolación, deadzone, look-ahead
+           (con código)
+        5. Sistema de escenas con tilemaps ASCII (con código)
+        6. Parallax de doble modo (con código)
+        7. Persistencia y service worker (con código)
+        8. Secuenciador de animaciones (con código)
+        Más una mención corta a otras funcionalidades
+        (partículas, modo depuración) y una subsección
+        sobre el USO DE IA durante el desarrollo (RA4 c
+        Digitalización).
+
+    §4.4 Futuras mejoras
+        Cuatro bloques: sonido y música, pulido y producción
+        de contenido, interfaz y guardado, extensiones a
+        largo plazo. Esto es lo que el equipo va a hacer
+        después de la entrega del TFG, dentro del plan de
+        Paper Wings Studio.
+
+
+§5 CONCLUSIONES
+    Cinco párrafos. Lo que se ha cumplido, lo que se ha
+    aprendido, cómo el proyecto integra las dimensiones
+    no técnicas de la rúbrica (ecodiseño, marca personal,
+    emprendimiento, IA), las limitaciones reconocidas, y
+    una nota final del equipo sobre la diferencia entre
+    "suficientemente bueno para entregar" y "suficientemente
+    bueno para seguir construyéndolo".
+
+
+§6 ANEXOS (no cuentan para las 30 páginas)
+    A.1 Estructura de archivos del repositorio
+    A.2 Cronograma ampliado (Figura 1 grande)
+    A.3 Diagrama UML ampliado (Figura 2 grande)
+    A.4 Listado completo de niveles
+    A.5 Documentación de la API del motor (referencia)
+    A.6 Fragmentos de código extensos (referencia al repo)
+    A.7 Capturas del juego (a sacar)
+
+
+§7 REFERENCIAS BIBLIOGRÁFICAS
+    Quince entradas en estilo APA 7. Incluye AEVI, DEV,
+    Celeste, Undertale, MDN para Web Storage y Service
+    Worker, ONU para Agenda 2030, Aseprite, TypeScript,
+    Game Programming Patterns de Nystrom, Design Patterns
+    del Gang of Four, "Fix Your Timestep" de Fiedler.
+
+
+
+============================================================
+6. CÓMO ESTÁN INTEGRADOS LOS RA EN EL DOCUMENTO
+============================================================
+
+La rúbrica pide que el 25% de la nota (los CE de los RA)
+estén INTEGRADOS en el documento, no en una sección aparte.
+Esta es la correspondencia:
+
+DIGITALIZACIÓN
+- RA1 b (relación entre tecnología y empresa)
+    → §1.1 Justificación + §3.2 Asignación de tareas
+    (cómo el stack se ajusta a un equipo distribuido)
+- RA4 c (importancia presente y futura de la IA)
+    → §4.3 (subsección "Uso de IA durante el desarrollo")
+- RA6 a (objetivos estratégicos de la empresa)
+    → §2.1 (subsección "Objetivos estratégicos de Paper
+    Wings Studio")
+
+SOSTENIBILIDAD
+- RA1 c (ODS / Agenda 2030)
+    → §4.1 (al final del apartado de ecodiseño)
+- RA4 d / RA5 e (ecodiseño)
+    → §4.1 (apartado entero "Ecodiseño aplicado al
+    proyecto")
+
+IPE I
+- RA2 a (análisis del sector profesional)
+    → §1 Introducción (párrafo sobre AEVI y el sector
+    indie español)
+
+IPE II
+- RA1 d (marca personal)
+    → §3.2 Asignación de tareas (cada miembro con su rol y
+    perfil profesional asociado)
+- RA4 a/b/c (emprendimiento)
+    → §2.1 (objetivos estratégicos como iniciativa real, no
+    hipotética) + §5 Conclusiones (mención al plan posterior
+    a la entrega)
+
+Si el tribunal pregunta DÓNDE está cada RA, ESTA es la
+respuesta a tener preparada. NO los señalamos explícitamente
+en el documento (la rúbrica pide que estén integrados, no
+nombrados), pero internamente sí sabemos dónde está cada uno.
+
+
+
+============================================================
+7. PREGUNTAS PROBABLES DEL TRIBUNAL Y CÓMO RESPONDER
+============================================================
+
+Estas son preguntas que el tribunal podría hacer en los
+5 minutos posteriores a la exposición. Para cada una,
+una respuesta sugerida y la sección del documento donde
+se apoya.
+
+
+P: ¿Por qué no habéis usado Unity, Godot o un motor
+   comercial?
+R: Por tres motivos. Primero, pedagógico: implementar el
+   motor desde cero nos ha forzado a entender de verdad
+   los sistemas internos (bucle a paso fijo, colisiones por
+   barrido, parallax) que un motor comercial oculta.
+   Segundo, ecodiseño: las exportaciones web de Unity
+   arrastran un runtime de varios megabytes; nuestro juego
+   pesa decenas de kilobytes. Tercero, estratégico: el motor
+   queda como activo reutilizable para los próximos proyectos
+   del estudio.
+   → Ver §1.1 Justificación y §4.1 Tecnologías.
+
+P: ¿Por qué DOM en lugar de canvas?
+R: Cuatro motivos: (1) podemos cambiar el estado visual de
+   un objeto sólo añadiendo o quitando una clase CSS, sin
+   tocar código de renderizado; (2) escalado pixel-perfect
+   con image-rendering: pixelated, sin implementar nuestro
+   propio buffer; (3) menor consumo de CPU en estado de
+   reposo (canvas redibuja toda la pantalla cada cuadro
+   aunque no haya cambios); (4) el motor puede fusionar
+   azulejos contiguos en un solo div, reduciendo
+   drásticamente el coste de renderizado.
+   La limitación es el número máximo de elementos en
+   pantalla, pero para un plataformas de salas pequeñas
+   no es un problema.
+   → Ver §4.1 sección DOM.
+
+P: ¿Cómo gestionáis la dificultad para que el juego sea
+   justo y no frustrante?
+R: Implementamos las ayudas mecánicas estándar del género:
+   tiempo de coyote (4 cuadros para saltar tras dejar la
+   plataforma), suavizado de la cámara, deadzone para que
+   no se mueva con cada paso del jugador, retroalimentación
+   visual con squash and stretch en saltos y aterrizajes.
+   La filosofía es la de Celeste: "el juego quiere que
+   ganes".
+   → Ver §1.1 (cita de apertura), §2.1 (objetivos), §4.3
+   funcionalidad 4 (cámara).
+
+P: ¿Cómo habéis dividido el trabajo entre vosotros?
+R: Por especialidad, no a partes iguales. Nico se ha
+   encargado del motor, el arte, la interfaz y el diseño
+   de sonido (pendiente). Manel ha hecho TODO el diseño de
+   niveles (tanto del mundo 0 como del mundo 1 en marcha).
+   Joan ha producido la música y ha llevado toda la
+   documentación académica. La división por especialidad
+   hace que un equipo pequeño se coordine mejor.
+   → Ver §3.2 con la tabla resumen al final.
+
+P: ¿Habéis usado IA para el desarrollo?
+R: Sí, pero como herramienta de asistencia, no como
+   sustituto. Tres usos concretos: revisión crítica de
+   fragmentos del motor con detalles sutiles (la detección
+   de colisiones, el bucle con acumulador), apoyo en
+   refactorizaciones grandes que tocan muchos archivos a
+   la vez, y la elaboración de documentación a partir del
+   código real. Consideramos que el uso responsable de IA
+   es ya, en 2026, una competencia profesional
+   indispensable, pero nunca sustituye la comprensión
+   técnica del código que entregamos.
+   → Ver §4.3 subsección sobre IA.
+
+P: ¿Cómo se puede ver el código?
+R: El repositorio es público en GitHub:
+   https://github.com/NicoNicoCip/To-The-Core. El juego
+   está jugable en https://ttcore.paperwing.studio. El
+   motor está en src/system.ts y src/prefabs.ts; los
+   niveles están en pages/world0 y pages/world1.
+   → Ver §1 Introducción (con los enlaces) y §6 A.1.
+
+P: ¿Por qué Paper Wings Studio? ¿Es un estudio de verdad?
+R: Es una iniciativa de emprendimiento real. Aún no está
+   formalmente constituido como empresa, pero el equipo
+   tiene la intención de hacerlo a medio plazo, una vez
+   finalizado el ciclo, y continuar el desarrollo de To The
+   Core como su primera obra publicada. To The Core es la
+   validación del proceso de desarrollo que el estudio
+   utilizará en sus siguientes proyectos.
+   → Ver §2.1 sub "Objetivos estratégicos".
+
+P: ¿Cómo es el plan de sostenibilidad / ecodiseño?
+R: Cinco decisiones concretas: no usar motor comercial (sin
+   runtime que descargar), recursos en formato WebP (más
+   pequeños que PNG), service worker que cachea todo
+   localmente (descarga única tras primera visita), sin
+   servidor ni base de datos (huella de operación
+   prácticamente nula), renderizado en DOM que evita
+   repintar la pantalla cuando no hay cambios. Esto se
+   alinea con los Objetivos de Desarrollo Sostenible 12
+   (consumo responsable) y 13 (acción por el clima).
+   → Ver §4.1 apartado de ecodiseño.
+
+P: ¿Qué falta por hacer?
+R: Lo más visible es el sonido (efectos de sonido y música
+   completa). Después: pulido del primer mundo, completar
+   el segundo mundo (actualmente con tres niveles), menú
+   de pausa y selector de mundo, sistema de guardado con
+   slots. A más largo plazo: enemigos, internacionalización,
+   accesibilidad ampliada (mando, modo daltónico).
+   → Ver §4.4 Futuras mejoras.
+
+P: ¿Cuántas líneas de código tiene el motor?
+R: src/system.ts tiene 1.719 líneas y src/prefabs.ts tiene
+   534 líneas. En total el motor son unas 2.250 líneas de
+   TypeScript. Cada nivel del juego añade entre 60 y 120
+   líneas más en su archivo de escena.
+   → Ver §4.1 (TypeScript) y A.1 (estructura de archivos).
+
+
+
+============================================================
+8. PREPARACIÓN DE LA DEFENSA
+============================================================
+
+La defensa son 15 minutos máximo de exposición. La nota es
+INDIVIDUAL, así que cada miembro debe dominar tanto su
+parte como las generalidades del resto.
+
+ESTRUCTURA SUGERIDA DE LA EXPOSICIÓN:
+
+1. Apertura (1 min)
+    Presentación del equipo, del proyecto, y de la cita
+    inicial como gancho temático.
+
+2. Idea y motivación (2 min)
+    Qué es To The Core, por qué lo hemos hecho, qué
+    referentes lo inspiran (Celeste, Hollow Knight).
+
+3. Demostración del juego (2-3 min)
+    Tener el juego abierto en
+    https://ttcore.paperwing.studio. Jugar un nivel
+    representativo en directo. Activar el modo depuración
+    (tecla P) para mostrar los contornos de colisión y
+    explicar cómo está construido un nivel.
+
+4. Recorrido técnico del motor (4-5 min)
+    Lo más interesante del motor: bucle a paso fijo,
+    colisiones por barrido, sistema de escenas con tilemaps
+    ASCII. NO entrar en código línea a línea: explicar el
+    qué y el por qué, no el cómo. Mostrar el UML como
+    diapositiva durante esta parte.
+
+5. División del trabajo y proceso (1-2 min)
+    Quién hizo qué, cronograma de cuatro fases, decisión
+    deliberada de aceptar deuda técnica y refactorizar
+    entre fases.
+
+6. Aspectos de empresa y sostenibilidad (2 min)
+    Paper Wings Studio como iniciativa real, ecodiseño como
+    decisión técnica con impacto medioambiental, uso
+    responsable de IA durante el desarrollo.
+
+7. Cierre (1 min)
+    Lo que está hecho, lo que falta, hacia dónde va el
+    proyecto después del TFG.
+
+CONSEJOS:
+
+- NO leer las diapositivas. La rúbrica de defensa lo
+  penaliza explícitamente.
+- Llevar un guion DE APOYO en una hoja, pero hablar de
+  memoria.
+- Ensayar la defensa COMPLETA al menos dos veces antes del
+  día.
+- Cronometrar los ensayos: 15 minutos pasan rápido.
+- Llevar el juego corriendo en local o publicado en la web,
+  POR SI FALLA INTERNET en el centro. Tener una versión
+  descargada localmente como respaldo.
+- Vestir limpio y formal, no necesariamente traje. El
+  tribunal valora la actitud profesional.
+- Saludar al tribunal al entrar y al salir.
+- Si una pregunta no se sabe responder, decir "es una buena
+  pregunta, no tenemos los datos exactos pero la línea de
+  pensamiento sería X" en lugar de inventar.
+
+
+
+============================================================
+9. CHECKLIST DE ENTREGA
+============================================================
+
+Antes de subir el PDF al aula virtual:
+
+[ ] El repositorio GitHub está en PÚBLICO.
+[ ] La URL https://ttcore.paperwing.studio carga sin errores.
+[ ] El documento tiene entre 30 y 40 páginas (sin contar
+    anexos).
+[ ] El enlace al repositorio aparece en §1 Introducción.
+[ ] La cita inicial está revisada y aprobada por el equipo.
+[ ] La portada tiene el nombre correcto del tutor: Sergio
+    Gómez García.
+[ ] El año académico es 2025/2026.
+[ ] Los tres autores aparecen en la portada con sus nombres
+    completos.
+[ ] El índice es automático y refleja la estructura real.
+[ ] Las figuras de Gantt y UML están insertadas y tienen
+    pie ("Figura 1.", "Figura 2.").
+[ ] Hay capturas del juego en el anexo A.7.
+[ ] Las líneas referenciadas en §4.3 (por ejemplo
+    "src/system.ts líneas 65-100") siguen siendo correctas
+    después de cualquier commit reciente.
+[ ] Las referencias bibliográficas están en orden
+    alfabético.
+[ ] El PDF está exportado a calidad legible (no comprimido
+    a la fuerza).
+[ ] Los nombres de los archivos de los entregables son
+    claros (por ejemplo "TFG_PaperWings_ToTheCore.pdf").
+
+Antes de la defensa:
+
+[ ] Defensa ensayada al menos dos veces, cronometrada.
+[ ] Diapositivas listas y revisadas.
+[ ] Juego accesible online.
+[ ] Versión local del juego como plan B por si falla internet.
+[ ] Cada miembro del equipo conoce las generalidades del
+    proyecto, no sólo su parte.
+[ ] Cada miembro tiene preparada una respuesta corta para
+    cada pregunta probable del apartado 7.
+[ ] El tutor en el centro de prácticas (FFE) está avisado
+    de que el equipo va a faltar el 5 de mayo de 10:30 a
+    11:00.
+
+
+
+============================================================
+10. INFORMACIÓN DEL EQUIPO
+============================================================
+
+Estudio: Paper Wings Studio
+Tutor del TFG: Sergio Gómez García
+Asignatura: Proyecto intermodular - 2º curso - 41524MA
+Curso: 2025/2026
+Centro: MEDAC
+
+Miembros del equipo:
+- Cirnicianu Ciprian Nicolae ("Nico")
+    Motor, arte, UI, diseño de sonido
+- Manel Garcés Alcazar ("Manel")
+    Diseño de niveles
+- Joan García Esbrí ("Joan")
+    Música, documentación académica, presentaciones
+
+Repositorio: https://github.com/NicoNicoCip/To-The-Core
+Juego: https://ttcore.paperwing.studio
+
+
+
+============================================================
+FIN DE LA GUÍA
+============================================================
+
+Si encontráis algo que falta en este documento, añadidlo.
+Si algo cambia (por ejemplo, una fecha o un dato), tachad
+y poned la versión actualizada con la fecha.
+
+¡Suerte con la defensa! :)

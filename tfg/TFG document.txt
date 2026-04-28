@@ -396,98 +396,41 @@ externos, sustituir estas estimaciones por datos reales.]
 2.3 Funcionalidades principales
 ------------------------------------------------------------
 
-A continuación se enumeran las funcionalidades principales
-del juego en su estado actual. Todas ellas están
-implementadas y funcionando en la versión publicada en
-https://ttcore.paperwing.studio. La descripción técnica
-detallada de cada una se desarrolla en el apartado 4.3
-(Implementación de funcionalidades).
+Las funcionalidades principales del juego en su estado
+actual se agrupan en cuatro bloques. La descripción técnica
+detallada de cada una se desarrolla en el apartado 4.3.
 
+Núcleo del motor. Bucle de juego a paso fijo de 60 cuadros
+por segundo desacoplado de la frecuencia de refresco;
+detección de colisiones por barrido AABB con soporte para
+plataformas sólidas, plataformas atravesables (one-way) y
+plataformas que se pueden esquivar manteniendo pulsada la
+tecla de descenso; sistema de prefabs reutilizables
+(plataformas que se desmoronan, zonas de fuerza, zonas de
+acción, secuenciador de animaciones) que cualquier escena
+instancia con una sola línea.
 
-Bucle de juego en tiempo real
-El motor ejecuta un bucle de actualización a paso fijo de
-60 cuadros por segundo, desacoplado de la frecuencia de
-refresco de la pantalla. Esto garantiza que la física y la
-lógica del juego se comporten de forma idéntica
-independientemente del dispositivo en el que se ejecute.
+Diseño de niveles y presentación. Sistema de escenas
+declarativo basado en matrices ASCII en JavaScript, con
+fusión automática de azulejos contiguos para reducir el
+coste de renderizado; cámara con interpolación, zona muerta
+y look-ahead; parallax de doble modo (espacio de pantalla
+para fondos, espacio de mundo para capas cercanas); sistema
+de partículas con modos píxel y sprite.
 
-Sistema de físicas y colisiones
-Implementación propia de detección de colisiones por
-barrido AABB (Axis-Aligned Bounding Box) que resuelve
-correctamente colisiones a alta velocidad sin que el jugador
-atraviese paredes. El sistema soporta plataformas sólidas,
-plataformas atravesables (one-way) y plataformas que se
-pueden esquivar manteniendo pulsada la tecla de descenso.
+Persistencia y distribución. Guardado automático del
+progreso y los coleccionables en el almacenamiento local;
+distribución como aplicación web progresiva (PWA) con
+service worker que cachea los recursos para juego sin
+conexión; comprobación automática de nuevas versiones contra
+el repositorio público en GitHub.
 
-Sistema de escenas declarativo
-Cada nivel se define como un archivo JavaScript con una
-matriz ASCII en la que cada carácter representa un tipo de
-elemento (pared, plataforma, punto de aparición,
-coleccionable, zona de teletransporte, etc.). El motor
-construye la escena a partir de esa matriz y, además, agrupa
-automáticamente bloques contiguos del mismo tipo en un solo
-elemento del DOM, reduciendo significativamente el coste de
-renderizado.
-
-Cámara con seguimiento suave
-La cámara sigue al jugador con interpolación lineal
-configurable, soporta zonas muertas (deadzones) horizontales
-y verticales, y permite avanzar la mirada en la dirección en
-la que se mueve el jugador (look-ahead) para anticipar el
-terreno.
-
-Sistema de parallax de doble modo
-El motor soporta dos tipos de capas de fondo: capas en
-espacio de pantalla (con factor de paralaje menor que 1) que
-desplazan su imagen mediante background-position, y capas en
-espacio del mundo (factor mayor o igual que 1) que se
-mueven con la cámara. El primer modo evita los bordes negros
-en niveles pequeños y produce el efecto de profundidad
-característico del género.
-
-Sistema de partículas
-Emisor configurable con dos modos de renderizado: modo píxel
-(usa un canvas compartido para todas las partículas, ligero
-y adecuado para efectos pequeños como chispas o polvo) y
-modo sprite (cada partícula es un div del DOM con su propio
-sprite, para efectos más vistosos). Soporta gravedad,
-fundido, encogimiento y rotación.
-
-Sistema de prefabs
-El motor incluye una colección de "piezas" reutilizables
-(plataformas que se desmoronan, plataformas de un solo uso,
-zonas de fuerza, zonas de acción para teletransportes y
-muertes, botones de interfaz, secuenciador de animaciones)
-que cualquier escena puede instanciar con una sola línea.
-
-Persistencia automática
-El juego guarda en el almacenamiento local del navegador
-(localStorage) el último nivel alcanzado y los objetos
-coleccionables recogidos. Al volver a abrir el juego, la
-partida se retoma automáticamente desde el último punto de
-control.
-
-Aplicación web progresiva (PWA)
-El juego se distribuye como una PWA con un service worker
-que cachea todos los recursos en la primera visita. A partir
-de ese momento, el juego se puede jugar sin conexión. El
-service worker comprueba en cada arranque la versión publicada
-en GitHub: si detecta una nueva versión, redescarga
-únicamente los recursos que han cambiado y avisa al jugador.
-
-Pantalla de inicio y secuencia introductoria
-El juego incluye un menú de inicio con animación de entrada,
-una pantalla de carga que descarga y cachea los recursos en
-paralelo, y una secuencia cinemática introductoria sin
-jugabilidad que presenta el contexto del juego antes de
-ceder el control al jugador.
-
-Modo depuración
-Pulsando la tecla P se activa un modo de depuración que
-muestra los contornos de colisión de todos los elementos de
-la escena. Cada tipo de objeto tiene un color distintivo,
-lo que ha resultado fundamental para el diseño y depuración
-de niveles.
+Otros elementos del producto. Menú de inicio animado;
+pantalla de carga con descarga concurrente de assets;
+secuencia cinemática introductoria sin jugabilidad; modo
+depuración (tecla P) que muestra los contornos de colisión
+de todos los elementos con colores diferenciados por tipo,
+fundamental durante el desarrollo de niveles.
 
 
 
@@ -610,29 +553,8 @@ animaciones, ActionZone unificado), se inicia el segundo
 mundo y se preparan los materiales de entrega del TFG.
 
 
-Gestión del riesgo y deuda técnica
-
-Una decisión deliberada del equipo desde el principio del
-proyecto ha sido aceptar deuda técnica controlada durante
-las fases de exploración (1 y 2) y dedicar fases enteras a
-saldarla (final de la fase 3, comienzo de la fase 4). La
-refactorización profunda de la arquitectura (commits 0.2.48
-y 0.2.49 en abril de 2026) eliminó duplicaciones acumuladas
-y unificó la API del motor antes de empezar el segundo
-mundo. Sin esa pausa, los nuevos niveles habrían heredado
-los problemas de los antiguos.
-
-Esta forma de gestionar la deuda (acumular durante el
-desarrollo, saldar antes de cada nueva expansión) es
-deliberada y se documenta aquí porque es uno de los
-aprendizajes que el equipo trasladará a los próximos
-proyectos del estudio.
-
-
 [NOTA: si el documento incluye un anexo con un diagrama de
-Gantt o cronograma visual, referenciarlo aquí. Por ahora se
-entrega solo en formato textual; un diagrama mejoraría la
-calidad del apartado según la rúbrica.]
+Gantt o cronograma visual, referenciarlo aquí.]
 
 
 
@@ -1210,13 +1132,900 @@ necesita saber nada al respecto: basta con haberla colocado.
 
 
 
+------------------------------------------------------------
+4.3 Implementación de funcionalidades
+------------------------------------------------------------
+
+Este apartado describe con detalle técnico la implementación
+de las funcionalidades que consideramos más representativas
+del proyecto. Para cada una se incluye un fragmento del
+código real del repositorio, una explicación de qué hace y
+una justificación de por qué se ha implementado de esa
+forma. Las funcionalidades seleccionadas no son todas las
+del motor, sino las que mejor ilustran las decisiones
+técnicas no triviales del proyecto. Para el resto de
+funcionalidades, el código completo está disponible en el
+repositorio público y los anexos recogen los archivos más
+extensos.
+
+Las referencias entre paréntesis tras cada bloque (por
+ejemplo, "src/system.ts líneas 65–100") permiten localizar
+el código en el repositorio.
+
+
+Funcionalidad 1 — Bucle de juego a paso fijo
+
+El corazón del motor es un bucle de actualización que se
+ejecuta 60 veces por segundo, independientemente de la
+frecuencia de refresco de la pantalla del jugador. Esta
+independencia entre simulación y renderizado es lo que
+garantiza que las físicas se comporten igual en cualquier
+dispositivo. La implementación es la siguiente:
+
+    static run() {
+        requestAnimationFrame(game.run)
+
+        game.now = performance.now()
+        game.delta = game.now - game.then
+        game.then = game.now
+
+        if (game.delta > 200) {
+            game.delta = 200
+        }
+
+        game.accumulator += game.delta
+
+        while (game.accumulator >= game.fixed_delta) {
+            game.updates.forEach(m => m())
+            while (game.deferred.length > 0) {
+                game.deferred.shift()()
+            }
+            game.accumulator -= game.fixed_delta
+        }
+    }
+
+    (src/system.ts líneas 65–100, simplificado para legibilidad)
+
+La técnica utilizada se conoce como bucle a paso fijo con
+acumulador. Cada vez que se ejecuta el bucle se calcula el
+tiempo transcurrido desde la llamada anterior (delta), se
+acumula en una variable global (accumulator) y, mientras el
+acumulador sea mayor o igual al paso fijo (fixed_delta de
+1000/60 milisegundos, es decir, 16,66 ms por cuadro), se
+ejecuta una iteración de simulación.
+
+El detalle clave es la línea "if (game.delta > 200)
+game.delta = 200". Este límite evita un problema clásico de
+los bucles de juego: si la pestaña del navegador pierde el
+foco durante varios segundos, requestAnimationFrame deja de
+ejecutarse, y al recuperar el foco el delta acumulado puede
+ser de varios miles de milisegundos. Sin el límite, el bucle
+intentaría ejecutar cientos de iteraciones de simulación de
+golpe, bloqueando el navegador. Con el límite, como mucho se
+ejecutan 12 iteraciones de recuperación (200 / 16,66) y el
+juego sigue siendo responsivo. Este patrón es estándar en
+desarrollo de juegos y se conoce como "evitar la espiral de
+la muerte".
+
+
+Funcionalidad 2 — Detección de colisiones por barrido
+
+La detección de colisiones es la función del motor que más
+condiciona la sensación de juego. Una mala detección produce
+síntomas obvios (el jugador atraviesa paredes a alta
+velocidad, se queda atascado en esquinas, "vibra" cuando
+está apoyado en el suelo) que son inmediatamente percibidos
+por el jugador, incluso sin saber que el problema es de
+colisiones.
+
+El motor implementa una detección de colisiones por barrido
+de cajas alineadas con los ejes (Swept AABB). En lugar de
+preguntar "¿hay solapamiento ahora mismo entre A y B?", el
+algoritmo pregunta "¿en qué momento del intervalo entre la
+posición anterior y la nueva habrá solapamiento entre A y
+B?". Esto evita que un objeto que se mueve muy rápido (por
+ejemplo, después de caer durante varios cuadros) atraviese
+una pared delgada antes de que el motor se dé cuenta. El
+fragmento más relevante del algoritmo es el siguiente:
+
+    const dx = this.x - this._prev_x
+    const dy = this.y - this._prev_y
+
+    let x_entry_t = Number.NEGATIVE_INFINITY
+    let x_exit_t  = Infinity
+
+    if (dx > 0) {
+        x_entry_t = (other.x - (this._prev_x + this.width)) / dx
+        x_exit_t  = (other.x + other.width - this._prev_x) / dx
+    } else if (dx < 0) {
+        x_entry_t = (other.x + other.width - this._prev_x) / dx
+        x_exit_t  = (other.x - (this._prev_x + this.width)) / dx
+    }
+
+    // (cálculo análogo para el eje Y)
+
+    const entry_t = Math.max(x_entry_t, y_entry_t)
+    const exit_t  = Math.min(x_exit_t,  y_exit_t)
+
+    const col = entry_t < exit_t && entry_t >= 0 && entry_t < 1
+
+    if (col && resolve) {
+        if (x_entry_t > y_entry_t) {
+            this.x = this._prev_x + dx * entry_t
+            this.x_speed = 0
+        } else {
+            this.y = this._prev_y + dy * entry_t
+            this.y_speed = 0
+            if (dy > 0) {
+                this.grounded = true
+            }
+        }
+    }
+
+    (src/system.ts líneas 372–447, función cobj.collide)
+
+La interpretación del cálculo es la siguiente. Los valores
+x_entry_t y x_exit_t representan los instantes (parametrizados
+entre 0 y 1, donde 0 es la posición anterior y 1 la nueva)
+en que las dos cajas empiezan y dejan de solaparse en el eje
+X. Lo mismo en el eje Y. Hay colisión efectiva cuando el
+mayor de los entry_t (la última proyección en empezar a
+solaparse) es menor que el menor de los exit_t (la primera
+proyección en dejar de solaparse), y el primero está dentro
+del intervalo del cuadro actual.
+
+Cuando hay colisión, el algoritmo resuelve sólo el eje en el
+que la colisión ha ocurrido primero (el de mayor entry_t),
+desplazando el objeto hasta el momento exacto del contacto y
+anulando su velocidad en ese eje. Esto produce un
+comportamiento intuitivo: si el jugador cae sobre una
+plataforma mientras se mueve lateralmente, el motor lo
+detiene en Y y lo deja seguir moviéndose en X, en lugar de
+bloquearlo en ambos ejes.
+
+La detección de "estar en el suelo" (grounded) se hace en el
+mismo punto: si la colisión se ha resuelto en el eje Y y el
+objeto se movía hacia abajo, está apoyado. Esta bandera la
+usa después el sistema de física del jugador para activar el
+salto y el tiempo de coyote.
+
+
+Funcionalidad 3 — Auto-tick de objetos en escena
+
+El motor utiliza un mecanismo de "tick automático" para que
+los prefabs se actualicen sin que la escena tenga que
+gestionarlos uno a uno. La idea es que cualquier objeto
+colocado en la escena cuya clase defina un método tick() o
+pre_tick() recibirá esa llamada cada cuadro, con el jugador
+como argumento.
+
+    private _auto_tick(method: 'pre_tick' | 'tick',
+                       target: cobj): void {
+        for (const t of this._tile_objs) {
+            const fn = (t as any)[method]
+            if (typeof fn === 'function') {
+                fn.call(t, target)
+            }
+        }
+        for (const o of this._placed_objs) {
+            const fn = (o as any)[method]
+            if (typeof fn === 'function') {
+                fn.call(o, target)
+            }
+        }
+    }
+
+    (src/system.ts líneas 1593–1606, método Scene._auto_tick)
+
+Esto desacopla por completo el motor del comportamiento
+concreto de cada prefab. Por ejemplo, una zona de
+teletransporte (ActionZone) implementa su lógica así:
+
+    tick(player: cobj) {
+        if (player.overlaps(this) && this.on_hit) {
+            this.on_hit()
+        }
+    }
+
+    (src/prefabs.ts líneas 216–220, método ActionZone.tick)
+
+El diseñador de niveles, al colocar una ActionZone en la
+escena, no tiene que escribir ningún código de actualización
+adicional: el motor ya sabe que cada cuadro tiene que llamar
+a tick() en todos los objetos que lo tengan definido. Esto
+reduce el código de las escenas a la mera composición de
+piezas, lo que es exactamente el objetivo arquitectónico
+descrito en el apartado 4.2.
+
+La distinción entre pre_tick y tick es deliberada. pre_tick
+se ejecuta antes que la lógica del jugador (lo utilizan las
+zonas de fuerza, que necesitan modificar la velocidad antes
+de que el jugador la integre), y tick se ejecuta después
+(para zonas de acción, plataformas que se desmoronan,
+etcétera, que reaccionan a la posición ya actualizada del
+jugador).
+
+
+Funcionalidad 4 — Cámara con interpolación, deadzone y
+look-ahead
+
+La cámara del motor sigue al jugador con tres ajustes
+combinados: interpolación lineal (lerp), zona muerta
+(deadzone) y anticipación direccional (look-ahead). Cada uno
+resuelve un problema específico de la cámara en juegos de
+plataformas:
+
+- La interpolación lineal evita que la cámara salte
+bruscamente cuando el jugador se mueve. En su lugar, la
+posición de la cámara se acerca cada cuadro a la posición
+objetivo en una fracción configurable (típicamente entre
+0,05 y 0,2). El resultado es un movimiento suave que se
+acelera al inicio y se frena al final.
+
+- La zona muerta es una región alrededor del jugador en la
+que la cámara no se mueve. Sin ella, la cámara reacciona a
+los más mínimos movimientos del jugador, lo que produce una
+sensación de mareo. Con ella, el jugador puede moverse en
+una pequeña ventana sin que la cámara reaccione, y la cámara
+sólo empieza a seguirle cuando se acerca al borde.
+
+- El look-ahead desplaza la cámara unos píxeles en la
+dirección hacia la que mira el jugador, anticipando el
+terreno. Cuando el jugador gira, el look-ahead se interpola
+suavemente al lado contrario.
+
+El cálculo combinado se implementa en el método
+Scene._update_camera (src/system.ts líneas 1642–1719). El
+fragmento más característico es el manejo del look-ahead:
+
+    if (this._cam_look_ahead > 0
+        && 'facing' in (this._cam_target as any)) {
+        const desired = (this._cam_target as any).facing
+                        * this._cam_look_ahead
+        this._cam_look_x += (desired - this._cam_look_x) * 0.05
+    }
+
+    (src/system.ts líneas 1647–1650)
+
+La cámara no consulta directamente el campo "facing" del
+jugador, sino que comprueba si el objeto seguido tiene ese
+campo. Esta comprobación dinámica permite usar cámara con
+look-ahead sobre cualquier objeto que tenga la convención
+del campo facing, no sólo el jugador. La interpolación con
+factor 0,05 hace que el desplazamiento del look-ahead sea
+sensiblemente más lento que el seguimiento principal de la
+cámara, lo que produce una sensación de "respiración" cuando
+el jugador cambia de dirección.
+
+
+Funcionalidad 5 — Sistema de escenas con tilemaps ASCII
+
+Cada nivel del juego se define como una matriz de cadenas
+de texto en JavaScript, donde cada carácter representa un
+tipo de elemento. Por ejemplo, este es el comienzo del
+nivel s1 del primer mundo:
+
+    scene.tiles(10, 10, {
+        'x': inviz,
+        'S': spawn,
+        'n': tp_bottom
+    }, [
+        "                               x",
+        "                               x",
+        "                               x",
+        "   x                           x",
+        "   x  S                        x",
+        "xxxxxxxxxxxxxxxxxxxxx          x",
+        "xxxxxxxxxxxxxxxxxxxxxnnnnnnnnnnx",
+    ])
+
+    (pages/world0/s1.js, fragmento del nivel)
+
+La primera y segunda columna del método tiles() son el
+tamaño en píxeles de cada celda (10 por 10). El tercer
+argumento es un diccionario que mapea cada carácter al
+prefab que ese carácter representa: la 'x' es una pared
+invisible, la 'S' es el punto de aparición del jugador, la
+'n' es una zona de teletransporte hacia el siguiente nivel.
+El cuarto argumento es la matriz que dibuja el nivel.
+
+Esta forma de definir niveles tiene varias ventajas para un
+equipo pequeño. Un diseñador de niveles puede iterar sobre
+el diseño abriendo el archivo .js y modificando la matriz
+directamente, sin necesidad de un editor visual. El resultado
+es legible para cualquier persona del equipo, queda en el
+control de versiones de la misma manera que el código y se
+puede revisar como cualquier otro archivo. Para un proyecto
+de plataformas con habitaciones pequeñas (en este caso,
+matrices de 32 columnas por 18 filas) este formato es más
+productivo que un editor visual.
+
+El motor procesa la matriz en dos pasos. El primero genera
+un cobj independiente por cada celda con un carácter no
+vacío. El segundo fusiona los azulejos contiguos del mismo
+tipo en uno solo: una fila de treinta paredes contiguas se
+convierte en un único cobj de 300 píxeles de ancho. Esto
+reduce drásticamente el número de elementos del DOM y, con
+él, el coste del renderizado y de la detección de
+colisiones. Esta optimización está en el método
+Scene._build_tiles (src/system.ts líneas 1399–1484).
+
+
+
+Funcionalidad 6 — Parallax de doble modo
+
+El efecto de parallax (capas de fondo que se desplazan a
+distinta velocidad para producir sensación de profundidad)
+se implementa de dos formas distintas dentro del mismo
+motor, según el factor de parallax solicitado por la escena.
+
+Cuando el factor es menor que 1 (capas de fondo y midground),
+la capa se mantiene fija en pantalla y se desplaza la imagen
+dentro de la capa mediante background-position. Cuando el
+factor es mayor o igual que 1 (capa principal del mundo o
+elementos cercanos al jugador), la capa se desplaza con la
+cámara mediante un transform: translate. La distinción está
+en el método Scene._update_camera, fragmento:
+
+    for (const l of this._layer_entries) {
+        if (l.px < 1.0 || l.py < 1.0) {
+            l.el.style.transform = ''
+            const bx = -(this._cam_target.x / world_w)
+                       * game.width  * l.px
+            const by = -(this._cam_target.y / world_h)
+                       * game.height * l.py
+            for (const lo of this._layer_objs) {
+                if (lo.z === l.z) {
+                    lo.obj.graphic.style.backgroundPositionX
+                        = bx + 'px'
+                    lo.obj.graphic.style.backgroundPositionY
+                        = by + 'px'
+                }
+            }
+        } else {
+            l.el.style.transform =
+                `translate(${-(this._cam_x * l.px)}px,
+                           ${-(this._cam_y * l.py)}px)`
+        }
+    }
+
+    (src/system.ts líneas 1698–1714)
+
+Las dos modalidades resuelven problemas distintos. El modo
+de pantalla (px < 1) evita que aparezcan bordes negros
+cuando la cámara llega al borde del nivel: como la capa
+ocupa siempre toda la pantalla, no hay vacío que rellenar.
+Es la técnica que usa Celeste y, en general, los juegos
+2D de habitaciones pequeñas. El modo de mundo (px >= 1) es
+más sencillo y se usa para capas que deben tracear el
+nivel exactamente (por ejemplo, una capa de "primer plano"
+con elementos pintados sobre el escenario que deben moverse
+con él).
+
+Que ambos modos convivan en el mismo método permite que cada
+escena escoja la combinación adecuada con una sola línea
+declarativa por capa. El nivel s1, por ejemplo, declara
+tres capas con factores 0, 0 y 0 (las tres son fondo
+estático), mientras que las demos de partículas pueden usar
+factores intermedios para conseguir profundidad real.
+
+
+Funcionalidad 7 — Persistencia y service worker
+
+El juego guarda dos cosas en el almacenamiento local del
+navegador: el último nivel alcanzado por el jugador (para
+poder retomar la partida) y la lista de coleccionables ya
+recogidos. Las funciones son simples y se apoyan en
+localStorage:
+
+    static save_transport() {
+        localStorage.setItem("last_level",
+                             window.location.pathname)
+    }
+
+    static load_transport() {
+        if (localStorage.getItem("last_level") === null) {
+            window.location.href = "/pages/world0/s0.html"
+        } else {
+            window.location.href =
+                localStorage.getItem("last_level")
+        }
+    }
+
+    (src/system.ts líneas 138–148)
+
+Esta forma de gestionar la progresión es especialmente
+adecuada para una arquitectura sin servidor. No hay nombres
+de partida, ni cuentas, ni archivos de guardado: el
+navegador del jugador es la única fuente de verdad sobre el
+estado de su progreso. Esto simplifica enormemente el código
+y, como se argumentó en el apartado 4.1, respeta la
+privacidad por diseño.
+
+El service worker complementa esta arquitectura cacheando
+todos los recursos del juego en la primera visita y
+sirviéndolos desde la caché en visitas posteriores:
+
+    self.addEventListener("fetch", (event) => {
+        const url = new URL(event.request.url)
+
+        if (url.origin !== self.location.origin) { return }
+        if (BYPASS.some(p => url.pathname === p)) { return }
+        if (event.request.method !== "GET") { return }
+
+        event.respondWith(
+            caches.open(CACHE).then(cache =>
+                cache.match(event.request).then(cached => {
+                    if (cached) { return cached }
+                    return fetch(event.request)
+                })
+            )
+        )
+    })
+
+    (service-worker.js líneas 11–36)
+
+El listado BYPASS contiene los archivos que NO se sirven
+desde la caché (la pantalla de carga, el index, y la lista
+de assets), porque son los que detectan si hay una nueva
+versión del juego publicada. La estrategia es,
+deliberadamente, "cache first": el rendimiento prevalece
+sobre la frescura, ya que el motor de detección de versiones
+se encarga de invalidar la caché cuando hace falta.
+
+La pantalla de carga (pages/loading/loading.js) consulta la
+API de GitHub para obtener el SHA del último commit en main
+y lo compara con el SHA almacenado localmente. Si difieren,
+descarga todos los assets de nuevo y guarda el SHA nuevo.
+Esto convierte el repositorio en la fuente de la verdad
+sobre la versión del juego y elimina la necesidad de un
+sistema de versionado manual:
+
+    const remoteVersion = await fetchVersion()
+    const localVersion  = localStorage.getItem(VERSION_KEY)
+
+    if (localVersion === remoteVersion) {
+        navigateToGame()
+        return
+    }
+
+    await cacheAssets()
+    localStorage.setItem(VERSION_KEY, remoteVersion)
+    navigateToGame()
+
+    (pages/loading/loading.js, fragmento de la función main)
+
+
+Funcionalidad 8 — Secuenciador de animaciones
+
+Las secuencias cinemáticas del juego (la introducción
+inicial, las animaciones de aterrizaje del personaje al
+empezar un nivel, los efectos del menú principal) se
+implementan con una clase Sequencer que permite encadenar
+acciones temporizadas con una API declarativa. La clase
+soporta cuatro tipos de pasos:
+
+    seq.wait(60)
+       .call(() => { dog.graphic.classList.add("falling_in") })
+       .wait(192)
+       .wait_until(() => player.just_landed)
+       .tween(camera, "offset_y", -50, 30)
+
+El método tick() del secuenciador se llama cada cuadro y
+avanza por los pasos:
+
+    tick(): void {
+        while (this._i < this._steps.length) {
+            const step = this._steps[this._i]
+
+            if (!this._started) {
+                this._started = true
+                this._elapsed = 0
+                if (step.kind === 'tween') {
+                    this._tween_from = step.obj[step.prop]
+                }
+            }
+
+            switch (step.kind) {
+                case 'call':
+                    step.fn(); this._advance(); continue
+                case 'wait':
+                    if (this._elapsed >= step.frames) {
+                        this._advance(); continue
+                    }
+                    this._elapsed++; return
+                case 'tween': {
+                    if (this._elapsed >= step.frames) {
+                        this._advance(); continue
+                    }
+                    this._elapsed++
+                    const t = this._elapsed / step.frames
+                    step.obj[step.prop] =
+                        this._tween_from
+                        + (step.to - this._tween_from) * t
+                    return
+                }
+                case 'wait_until':
+                    if (step.pred()) {
+                        this._advance(); continue
+                    }
+                    return
+            }
+        }
+    }
+
+    (src/prefabs.ts líneas 144–186)
+
+La elección de implementar las secuencias con un objeto de
+pasos en lugar de con código imperativo (con timers o
+contadores) responde a una observación práctica: las
+secuencias de eventos animados son frágiles cuando se
+escriben con código imperativo (un cambio en uno de los
+tiempos rompe el resto del orden), pero robustas cuando se
+escriben como una lista de pasos. La animación de aterrizaje
+del personaje en el nivel s1, por ejemplo, se reduce a unas
+pocas líneas declarativas que cualquier persona del equipo
+puede leer y modificar sin romper el resto.
+
+
+Otras funcionalidades del motor
+
+Por extensión se omite aquí el detalle de código de otras
+funcionalidades del motor cuyo código completo está en el
+repositorio:
+
+- Sistema de partículas con dos modos de renderizado
+(canvas compartido para coste bajo, divs del DOM para
+sprites individuales), con soporte para gravedad, fundido,
+encogimiento y rotación. Implementación en src/system.ts
+(clase emitter, líneas 984–1167). Aún no se utiliza en el
+juego principal; está previsto integrarlo para los efectos
+visuales descritos en el apartado 4.4.
+
+- Modo depuración accesible con la tecla P, que muestra los
+contornos de colisión de todos los elementos con colores
+diferenciados por tipo (paleta DEBUG_COLORS en
+src/prefabs.ts líneas 3–17). Ha sido una herramienta
+fundamental durante el desarrollo, especialmente para
+elementos intencionalmente invisibles como paredes de
+contorno y zonas de teletransporte.
+
+
+Uso de inteligencia artificial durante el desarrollo
+
+A lo largo del proyecto el equipo ha utilizado modelos de
+lenguaje grande (principalmente Claude de Anthropic) como
+herramienta de asistencia al programador en tres casos de
+uso concretos: revisión crítica de fragmentos del motor con
+detalles sutiles (la detección de colisiones por barrido,
+el bucle con acumulador), apoyo en refactorizaciones
+extensas que afectan a múltiples archivos a la vez, y
+elaboración de la documentación de la API a partir del
+código real. El equipo considera que el uso responsable de
+IA en desarrollo de software es, en 2026, una competencia
+profesional indispensable: amplifica el trabajo humano, pero
+no sustituye la comprensión técnica de lo que se entrega.
+Esa será la posición del estudio en sus próximos proyectos.
+
+
+
+------------------------------------------------------------
+4.4 Futuras mejoras
+------------------------------------------------------------
+
+To The Core en su estado actual cubre los objetivos
+declarados en el apartado 2.1: el primer mundo está
+completo y jugable, el motor es estable, la persistencia
+funciona, y la distribución como aplicación web progresiva
+está operativa. No obstante, el equipo considera que el
+juego está lejos de su forma final. La intención de Paper
+Wings Studio es continuar el desarrollo más allá del marco
+académico hasta convertir To The Core en su primera obra
+publicada comercialmente. Las siguientes mejoras están
+identificadas y priorizadas:
+
+
+Diseño de sonido y música
+
+Es la mejora pendiente más visible. A fecha de cierre de
+esta memoria el juego se publica sin sonido, salvo una
+primera pista de música del menú de inicio que está lista
+para integrarse. La hoja de ruta contempla efectos de sonido
+para las acciones básicas del jugador (salto, aterrizaje,
+recogida de coleccionable), música de cada mundo, sonidos
+de ambientación, y un gestor de audio integrado en la
+cadena de cacheado del service worker. Liderará la mejora
+Joan, responsable de la música del proyecto.
+
+
+Pulido y producción de contenido
+
+Aunque los nueve niveles del primer mundo son funcionales,
+hay margen de mejora en el pulido visual: retroalimentación
+de partículas al recoger un coleccionable (el motor ya
+soporta el sistema), transiciones de cámara más cuidadas
+entre niveles adyacentes y pequeños detalles ambientales.
+En paralelo, el segundo mundo (world1, iniciado en el commit
+0.3.9) debe completarse a un tamaño comparable al primero,
+con su propia paleta visual y sus propias mecánicas.
+
+
+Interfaz de usuario y guardado
+
+El juego carece actualmente de menú de pausa, panel de
+coleccionables y selector de mundo. La clase Button del
+motor está preparada para soportar todos estos elementos.
+El sistema de guardado, automático pero invisible para el
+jugador, se ampliará con múltiples partidas con nombre,
+borrado con confirmación y exportación/importación de
+partida como archivo JSON, lo que permite llevar el progreso
+entre dispositivos sin cuenta de usuario.
+
+
+Extensiones a largo plazo
+
+A más largo plazo, el motor puede crecer con un sistema de
+animación por keyframes y, sobre esa base, enemigos que
+conviertan To The Core en un plataformas de acción. También
+se contempla una pasada completa de internacionalización
+(los pocos textos existentes están en una mezcla de inglés
+y castellano), reasignación de teclas, modo daltónico para
+el modo depuración y soporte de mando de juego. Estas
+direcciones están en el plan del estudio, pero no
+condicionan la primera versión publicable.
+
+
+
 ============================================================
-[FIN DEL BORRADOR ACTUAL — 2026-04-28]
+5. CONCLUSIONES
+============================================================
 
-Próxima sección a redactar: 4.3 Implementación de
-funcionalidades. Esta es la sección donde van los
-fragmentos de código real (la rúbrica lo pide
-explícitamente).
+To The Core ha cumplido los objetivos declarados al inicio
+del proyecto. El juego es jugable de principio a fin en su
+primer mundo, está publicado en una URL pública estable, se
+puede instalar como aplicación web progresiva y carga sin
+fricción en cualquier navegador moderno. El motor sobre el
+que se ha construido es propio del estudio, no depende de
+herramientas externas más allá del compilador de TypeScript,
+y está documentado tanto en código como en este documento.
 
-Avísame cuando hayas revisado §4.2 y continúo.
+Más allá de los entregables, el proyecto ha cumplido
+también los objetivos de aprendizaje del equipo. Cada
+miembro ha trabajado de forma sostenida en su área de
+especialidad y ha cerrado el ciclo de su perfil profesional
+sobre un proyecto real con usuarios reales. El motor se ha
+desarrollado iterativamente, con periodos de exploración
+seguidos de pasadas de refactorización; los niveles se han
+diseñado con criterios de ritmo y dificultad explícitos; la
+documentación académica se ha gestionado en paralelo al
+desarrollo. Esta forma de trabajar es la que el estudio
+mantendrá en sus próximos proyectos.
+
+El proyecto ha integrado de forma natural varias dimensiones
+no técnicas que la rúbrica del Trabajo Fin de Grado
+contempla. La elección del stack técnico (sin motor
+comercial, sin servidor, distribución estática) constituye
+un ejercicio de ecodiseño que reduce la huella de cómputo y
+de descarga del producto, alineado con los Objetivos de
+Desarrollo Sostenible 12 y 13. La asignación de tareas por
+especialidad es un ejercicio aplicado de marca personal y
+de planificación de un equipo pequeño. El propio
+planteamiento de Paper Wings Studio como iniciativa de
+emprendimiento real, no hipotética, traslada las decisiones
+del proyecto al terreno de la viabilidad de un estudio
+independiente, no sólo al de la viabilidad técnica de un
+videojuego. El uso de inteligencia artificial generativa
+como herramienta de asistencia, descrito en el apartado 4.3,
+documenta una práctica profesional que se considera
+indispensable para los perfiles formados en el ciclo en el
+momento actual.
+
+Las limitaciones del proyecto son conocidas y se han
+documentado en el apartado 4.4. La falta de sonido es la más
+visible, y se prioriza por encima del segundo mundo en la
+hoja de ruta posterior a la entrega. El segundo mundo, los
+enemigos y los sistemas de interfaz más ricos son
+extensiones naturales que el motor actual soporta sin
+necesidad de cambios estructurales: están en el plan, pero
+no condicionan la entregabilidad de la versión actual.
+
+A título de equipo, los autores valoran como aprendizaje
+principal del proyecto la diferencia entre construir algo
+suficientemente bueno para una entrega y construir algo
+suficientemente bueno para que merezca la pena seguir
+construyéndolo. To The Core, en su estado actual, ya
+satisface la primera definición; la intención del estudio es
+llevar el proyecto hasta la segunda durante los próximos
+meses.
+
+
+
+============================================================
+6. ANEXOS
+============================================================
+
+Los anexos recogen materiales complementarios que apoyan el
+contenido del documento sin formar parte del cuerpo
+principal. Se incluyen aquí los listados de archivos del
+proyecto, los fragmentos de código extensos que en el
+cuerpo se han abreviado, las figuras del diagrama UML y del
+cronograma, y la documentación de la API del motor.
+
+
+A.1 — Estructura de archivos del repositorio
+
+El repositorio público (https://github.com/NicoNicoCip/
+To-The-Core) se organiza así:
+
+    /
+    ├── index.html                     Punto de entrada (redirige a loading)
+    ├── service-worker.js              Cacheado offline
+    ├── package.json                   Dependencia única: TypeScript
+    ├── tsconfig.json                  Configuración del compilador
+    ├── CNAME                          ttcore.paperwing.studio
+    ├── Documentation.txt              Documentación interna del motor
+    ├── TODO.md                        Lista de pendientes del proyecto
+    ├── src/
+    │   ├── system.ts / .js            Motor principal (1.719 líneas)
+    │   ├── prefabs.ts / .js           Prefabs reutilizables (534 líneas)
+    │   └── assets.js                  Lista de recursos a cachear
+    ├── pages/
+    │   ├── index.css                  Estilos comunes
+    │   ├── loading/                   Pantalla de carga
+    │   ├── start/                     Menú principal
+    │   ├── test/                      Demos técnicas (cámara, partículas, etc.)
+    │   ├── world0/                    Mundo 0: s0 a s8 + s2_EXT
+    │   ├── world1/level1/             Mundo 1, nivel 1: s1 a s3
+    │   └── assets/                    Sprites, fondos y archivos .aseprite
+    ├── tfg/                           Esta memoria y materiales académicos
+    └── org/                           Bocetos de organización
+
+
+A.2 — Cronograma del proyecto (Figura 1 ampliada)
+
+    [Aquí se inserta la captura de pantalla del archivo
+     tfg/gantt.html. Asegúrate de pegarla a tamaño completo
+     en este anexo, además de la versión más pequeña que
+     aparece en el cuerpo en §3.1.]
+
+
+A.3 — Diagrama UML de clases del motor (Figura 2 ampliada)
+
+    [Aquí se inserta la captura de pantalla del archivo
+     tfg/uml.html. Misma indicación: tamaño completo, el
+     diagrama necesita espacio para leerse.]
+
+
+A.4 — Listado de niveles del juego
+
+Mundo 0 (world0):
+    s0      Secuencia introductoria (sin jugabilidad)
+    s1      Primer nivel jugable, animación de aterrizaje
+    s2      Bifurcación principal con secreto
+    s2_EXT  Nivel secreto accesible desde s2
+    s3      Plataformas verticales
+    s4      Plataformas movidas y jumper
+    s5      Coleccionable s5 (hueso dorado), thin walls
+    s6      Final del mundo
+    s7      Reservado / experimental
+    s8      Reservado / experimental
+
+Mundo 1, nivel 1 (world1/level1):
+    s1      Habitación principal del primer nivel del mundo 1
+    s2      Continuación
+    s3      Continuación
+
+
+A.5 — Documentación de la API del motor
+
+La documentación completa de la API del motor (clases Scene,
+obj/cobj/pobj, prefabs reutilizables, sistema de partículas,
+convenciones de niveles, controles, etc.) está en el archivo
+Documentation.txt en la raíz del repositorio. Por extensión
+(unas 800 líneas) no se reproduce íntegramente aquí; se
+incluye sólo a modo de referencia que los anexos recogen
+una versión consultable del mismo material.
+
+
+A.6 — Fragmentos de código extensos referenciados
+
+Los fragmentos de código que aparecen en el cuerpo de la
+memoria están abreviados por legibilidad. La versión
+completa de cada función referenciada se puede consultar
+directamente en el repositorio público en la URL indicada
+para cada uno. Los archivos más relevantes son
+src/system.ts (motor) y src/prefabs.ts (prefabs).
+
+
+A.7 — Capturas del juego
+
+    [Insertar 3-5 capturas representativas del juego: el
+     menú de inicio, una escena característica del mundo 0
+     (sugerencia: s1 o s5), una captura con el modo
+     depuración activado (tecla P), y una captura del
+     nivel actualmente en desarrollo en world1.]
+
+
+
+============================================================
+7. REFERENCIAS BIBLIOGRÁFICAS
+============================================================
+
+[Las referencias siguen el estilo APA 7. Las URLs se
+verifican y se mantienen accesibles a fecha de la entrega.]
+
+Asociación Española de Videojuegos. (2025). Anuario de la
+    industria del videojuego. AEVI.
+    https://www.aevi.org.es/
+
+Berry, N. y Thorson, M. (2018). Celeste [Videojuego].
+    Maddy Makes Games / Extremely OK Games.
+
+Brown, M. (2014). Game Maker's Toolkit [Canal de YouTube
+    sobre diseño de videojuegos]. https://gmtk.com
+
+Fiedler, G. (2004). Fix Your Timestep! Gaffer On Games.
+    https://gafferongames.com/post/fix_your_timestep/
+
+Fox, T. (2015). Undertale [Videojuego]. tobyfox.
+
+Fundación de la Industria Multimedia. (2025). Libro Blanco
+    del Desarrollo Español de Videojuegos. DEV.
+    https://dev.org.es/
+
+Gamma, E., Helm, R., Johnson, R. y Vlissides, J. (1994).
+    Design patterns: Elements of reusable object-oriented
+    software. Addison-Wesley.
+
+Microsoft. (2026). TypeScript handbook (versión 5.9).
+    https://www.typescriptlang.org/docs/
+
+Mozilla Developer Network. (2026). Web Storage API.
+    https://developer.mozilla.org/docs/Web/API/Web_Storage_API
+
+Mozilla Developer Network. (2026). Service Worker API.
+    https://developer.mozilla.org/docs/Web/API/Service_Worker_API
+
+Naciones Unidas. (2015). Transformar nuestro mundo: la
+    Agenda 2030 para el Desarrollo Sostenible. ONU.
+    https://www.un.org/sustainabledevelopment/es/
+
+Nystrom, R. (2014). Game programming patterns. Genever
+    Benning. https://gameprogrammingpatterns.com/
+
+Skipper Studios. (s. f.). Aseprite [Software de pixel art].
+    https://www.aseprite.org/
+
+Thorson, M. (2020, 4 de marzo). A short thread on a few
+    Celeste game-feel things [Hilo de Twitter / X].
+    https://x.com/maddythorson/status/1238338574220546049
+
+WebP. (2026). A new image format for the web. Google.
+    https://developers.google.com/speed/webp
+
+
+
+============================================================
+[FIN DEL BORRADOR — 2026-04-28]
+
+El documento está completo en su estructura. Pendientes
+para tu revisión final antes de pegar en Google Docs:
+
+1. Capturas del juego (Anexo A.7) — todavía no añadidas;
+   sacar 3-5 capturas representativas y describirlas.
+2. Insertar las imágenes del Gantt (gantt.html) y del UML
+   (uml.html) en §3.1, §4.2 y los anexos A.2, A.3.
+3. Discutir con Joan y Manel la cita de Toby Fox y la
+   traducción al castellano.
+4. Comprobar que el repositorio
+   https://github.com/NicoNicoCip/To-The-Core es público y
+   que https://ttcore.paperwing.studio es accesible.
+5. Aplicar los estilos "Título 1" y "Título 2" en Google
+   Docs a las secciones (los nombres en MAYÚSCULAS son
+   Título 1; los apartados X.Y son Título 2).
+6. Generar el índice automático con Insertar > Índice.
+7. Recuento final: el documento está dimensionado para
+   ocupar entre 30 y 35 páginas según tipografía e
+   interlineado. La rúbrica pide 30-40, así que estamos
+   dentro del rango.
 ============================================================
