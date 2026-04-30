@@ -44,6 +44,8 @@ scene.tiles(10, 10, {
     "xxxxDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ])
 
+tp_right.shift(8,0)
+
 function respawn() {
     if (come_from("s3.html")) {
         player.move(spawn_right.x, spawn_right.y);
