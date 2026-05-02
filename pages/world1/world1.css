@@ -14,93 +14,28 @@
     background-image: url("/pages/assets/dog_rising.webp") !important;
 }
 
-#wall {
-    background-image: url("/pages/assets/ground.webp");
-}
-
 #bone {
     background-image: url("/pages/assets/golden_bone.webp");
 }
 
-#background1 {
-    background-image: url("/pages/assets/background1.webp");
-    animation: fall 1s linear infinite;
+#background {
+    background-image: url("/pages/assets/w1_l1_background.webp");
 }
 
-#background2 {
-    background-image: url("/pages/assets/background2.webp");
-    animation: slow_raise 1800s linear;
+#l1_s1_midground {
+    background-image: url("/pages/assets/world1/w1_l1_s1_midground.webp");
 }
 
-#background2_transit {
-    background-image: url("/pages/assets/background0.webp");
-    z-index: -100;
-    animation: fall 1s linear infinite;
-}
-
-#background3 {
-    background-image: url("/pages/assets/background3.webp");
-}
-
-#midground_s1 {
-    background-image: url("/pages/assets/world0/s1_midground.webp");
-}
-
-#midground_s4 {
-    background-image: url("/pages/assets/world0/s4_midground.webp");
-}
-
-#midground_s5 {
-    background-image: url("/pages/assets/world0/s5_midground.webp");
-}
-
-#scene_s1 {
-    background-image: url("/pages/assets/world0/s1.webp");
-}
-
-#scene_s2 {
-    background-image: url("/pages/assets/world0/s2.webp");
-}
-
-#scene_s2_ext {
-    background-image: url("/pages/assets/world0/s2_EXT.webp");
-}
-
-#scene_s3 {
-    background-image: url("/pages/assets/world0/s3.webp");
-}
-
-#scene_s4 {
-    background-image: url("/pages/assets/world0/s4.webp");
-}
-
-#scene_s5 {
-    background-image: url("/pages/assets/world0/s5.webp");
+#l1_s2_midground {
+    background-image: url("/pages/assets/world1/w1_l1_s2_midground.webp");
 }
 
 
 
-#splash {
-    font-size: 8px;
+#l1_s1_foreground {
+    background-image: url("/pages/assets/world1/w1_l1_s1.webp");
 }
 
-@keyframes fall {
-    0% {
-        background-position-y: 0px;
-    }
-
-    100% {
-        background-position-y: -3600px;
-    }
+#l1_s2_foreground {
+    background-image: url("/pages/assets/world1/w1_l1_s2.webp");
 }
-
-@keyframes slow_raise {
-    0% {
-        background-position-y: 0px;
-    }
-
-    100% {
-        background-position-y: -3600px;
-    }
-}
-

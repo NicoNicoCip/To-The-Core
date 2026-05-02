@@ -4,6 +4,9 @@ import { bobj, cobj, game, Scene } from "../../../src/system.js"
 boil_the_plate()
 
 const player = new Player(60, 50, false)
+const background = new bobj({ name: "background" })
+const midground = new bobj({ name: "l1_s1_midground" })
+const foreground = new bobj({ name: "l1_s1_foreground" })
 
 const inviz = invisible_wall_tile()
 const spawn = spawn_tile()
@@ -47,6 +50,10 @@ scene.tiles(10, 10, {
 ])
 
 tp_right.shift(8,0)
+
+scene.layer(background, -5, 0)
+scene.layer(midground, -3, 0)
+scene.layer(foreground, 2, 0)
 
 scene.spawn(player, spawn_left, () => come_from("s1_EXT.html"))
 scene.spawn(player, spawn_right, () => come_from("s2.html"), () => { player.facing = -1 })

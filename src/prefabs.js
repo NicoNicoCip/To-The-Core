@@ -48,12 +48,18 @@ export function boil_the_plate() {
     game.register_world(document.getElementById("world"), 320, 180);
     input.init();
 }
-export function send_to(url) {
+export function send_to(url, entry = null) {
     game.save_transport();
+    if (entry !== null) {
+        localStorage.setItem("last_entry", entry);
+    }
+    else {
+        localStorage.removeItem("last_entry");
+    }
     window.location.href = url;
 }
 export function come_from(html) {
-    const res = localStorage.getItem("last_level");
+    const res = localStorage.getItem("last_origin");
     if (res === null) {
         return false;
     }

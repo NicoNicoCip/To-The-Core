@@ -105,6 +105,41 @@ scene.spawn(player, at, when, on_spawn)
         scene.spawn(player, spawn_left,  () => come_from("s2.html"))
         scene.spawn(player, spawn_right, () => true)   // fallback
 
+scene.entry(player, name, at, opts)
+    Newer, more solid alternative to the come_from()-based spawn pattern. The
+    paired call to send_to(url, "entry_name") on the way out tells this scene
+    which named entry to use on arrival. Pass name = null for the "no entry
+    name was given" case (direct loads, or arrival from old scenes that still
+    use send_to without a second argument). opts is optional:
+    { facing, on_spawn }.
+
+        // s2.js
+        scene.entry(player, "from_west", spawn_left)
+        scene.entry(player, "from_east", spawn_right, { facing: -1 })
+        scene.entry(player, null,        spawn_left)   // fallback
+
+        // a teleport zone in s2 sending the player into s3:
+        const tp_right = new ActionZone({ width: 2, height: 10,
+            on_hit: () => send_to("./s3.html", "from_west") })
+
+    entry() internally registers a spawn rule whose condition is "the entry
+    name passed to send_to matches mine", so it composes cleanly with normal
+    scene.spawn() rules — first match wins, in registration order. Old scenes
+    that don't use entry() are unaffected.
+
+scene.respawn(opts)
+    Re-applies whichever spawn rule originally placed the player when the scene
+    loaded — works for both scene.spawn() and scene.entry() spawns. Resets x/y
+    speed and re-runs the on_spawn callback. opts is optional: { delay } in
+    frames before the respawn fires (default 0 = immediate). Subsequent calls
+    while a delayed respawn is pending are ignored.
+
+        const death = new ActionZone({ width: 10, height: 10,
+            on_hit: () => scene.respawn({ delay: 30 }) })
+
+    This replaces the hand-rolled "let timer = -1; start_timer(); ..." pattern
+    that used to live in every scene tick.
+
 scene.collectable(obj, id)
     Registers a collectable. id format is "worldName/itemName". If already
     saved in localStorage, the tile is removed before the scene starts.
@@ -557,12 +592,19 @@ The update loop for a scene with a player always looks like this:
     Navigation
 ================================================================
 
-send_to(url)
+send_to(url, entry)
     Saves the current page as the navigation checkpoint, then goes to url.
     Use this whenever the player exits a scene:
 
         if (player.x > game.width)  send_to("./s2.html")
         if (player.y > game.height) send_to("./s4.html")
+
+    The optional second argument names the entry point that the destination
+    scene should use to spawn the player. Pair it with scene.entry() in the
+    destination — see "scene.entry" above. Omit it (or pass null) for the
+    classic come_from() flow:
+
+        send_to("./s3.html", "from_west")   // s3 will pick its "from_west" entry
 
 come_from(html)
     Returns true if the player arrived from that specific scene. Use it as
@@ -570,6 +612,11 @@ come_from(html)
 
         scene.spawn(player, spawn_left,  () => come_from("s2.html"))
         scene.spawn(player, spawn_right, () => true)
+
+    The check is stable for the entire lifetime of the scene — calling it from
+    a respawn handler (after the player has been alive for a while) returns
+    the same answer as during scene start. This is what makes the hand-rolled
+    respawn() pattern work, and what the new scene.respawn() builds on.
 
 boil_the_plate()
     Registers the world canvas and keyboard input. Call it at the very top of

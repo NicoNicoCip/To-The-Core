@@ -139,6 +139,19 @@ export class game {
         localStorage.setItem("last_level", window.location.pathname)
     }
 
+    static save_origin() {
+        const prev = localStorage.getItem("last_level")
+        if (prev !== null) {
+            localStorage.setItem("last_origin", prev)
+        } else {
+            localStorage.removeItem("last_origin")
+        }
+    }
+
+    static last_entry(): string | null {
+        return localStorage.getItem("last_entry")
+    }
+
     static load_transport() {
         if (localStorage.getItem("last_level") === null) {
             window.location.href = "/pages/world0/s0.html"
@@ -1203,6 +1216,8 @@ export class Scene {
     private _update_fn: (() => void) | null = null
     private _debug_visible = false
     private _tick_target: cobj | null = null
+    private _resolved_spawn: { obj: pobj, at: cobj | { x: number, y: number }, on_spawn?: () => void } | null = null
+    private _respawn_timer: number = -1
 
     layer(visual_obj: obj, z: number, parallax: number | { x?: number, y?: number } = 1.0): Scene {
         this._ensure_layer(z, parallax)
@@ -1238,6 +1253,42 @@ export class Scene {
             this._spawn_markers.add(at)
         }
         return this
+    }
+
+    entry(obj: pobj, name: string, at: cobj | { x: number, y: number }, opts: { facing?: number, on_spawn?: () => void } = {}): Scene {
+        const wrapped = () => {
+            if (opts.facing !== undefined) {
+                (obj as any).facing = opts.facing
+            }
+            if (opts.on_spawn) {
+                opts.on_spawn()
+            }
+        }
+        return this.spawn(obj, at, () => game.last_entry() === name, wrapped)
+    }
+
+    respawn(opts: { delay?: number } = {}): void {
+        const delay = opts.delay ?? 0
+        if (delay > 0) {
+            if (this._respawn_timer === -1) {
+                this._respawn_timer = delay
+            }
+            return
+        }
+        this._do_respawn()
+    }
+
+    private _do_respawn(): void {
+        const s = this._resolved_spawn
+        if (!s) {
+            return
+        }
+        s.obj.move(s.at.x, s.at.y)
+        s.obj.x_speed = 0
+        s.obj.y_speed = 0
+        if (s.on_spawn) {
+            s.on_spawn()
+        }
     }
 
     layer_visible(z: number, visible: boolean): Scene {
@@ -1373,6 +1424,7 @@ export class Scene {
     }
 
     run({ save_transport = true }: { save_transport?: boolean } = {}): void {
+        game.save_origin()
         this._setup_dom()
         this.cam_snap()
         if (save_transport) {
@@ -1524,6 +1576,7 @@ export class Scene {
                 this._dynamic_objs.push(s.obj)
             }
             this._spawned_objs.push(s.obj)
+            this._resolved_spawn = { obj: s.obj, at: s.at, on_spawn: s.on_spawn }
             if (s.on_spawn) {
                 s.on_spawn()
             }
@@ -1588,6 +1641,12 @@ export class Scene {
         }
         this._check_collectables()
         this._update_camera()
+        if (this._respawn_timer > 0) {
+            this._respawn_timer--
+        } else if (this._respawn_timer === 0) {
+            this._do_respawn()
+            this._respawn_timer = -1
+        }
     }
 
     private _auto_tick(method: 'pre_tick' | 'tick', target: cobj): void {

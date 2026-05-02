@@ -113,6 +113,18 @@ export class game {
     static save_transport() {
         localStorage.setItem("last_level", window.location.pathname);
     }
+    static save_origin() {
+        const prev = localStorage.getItem("last_level");
+        if (prev !== null) {
+            localStorage.setItem("last_origin", prev);
+        }
+        else {
+            localStorage.removeItem("last_origin");
+        }
+    }
+    static last_entry() {
+        return localStorage.getItem("last_entry");
+    }
     static load_transport() {
         if (localStorage.getItem("last_level") === null) {
             window.location.href = "/pages/world0/s0.html";
@@ -1004,6 +1016,8 @@ export class Scene {
     _update_fn = null;
     _debug_visible = false;
     _tick_target = null;
+    _resolved_spawn = null;
+    _respawn_timer = -1;
     layer(visual_obj, z, parallax = 1.0) {
         this._ensure_layer(z, parallax);
         this._layer_objs.push({ obj: visual_obj, z });
@@ -1034,6 +1048,39 @@ export class Scene {
             this._spawn_markers.add(at);
         }
         return this;
+    }
+    entry(obj, name, at, opts = {}) {
+        const wrapped = () => {
+            if (opts.facing !== undefined) {
+                obj.facing = opts.facing;
+            }
+            if (opts.on_spawn) {
+                opts.on_spawn();
+            }
+        };
+        return this.spawn(obj, at, () => game.last_entry() === name, wrapped);
+    }
+    respawn(opts = {}) {
+        const delay = opts.delay ?? 0;
+        if (delay > 0) {
+            if (this._respawn_timer === -1) {
+                this._respawn_timer = delay;
+            }
+            return;
+        }
+        this._do_respawn();
+    }
+    _do_respawn() {
+        const s = this._resolved_spawn;
+        if (!s) {
+            return;
+        }
+        s.obj.move(s.at.x, s.at.y);
+        s.obj.x_speed = 0;
+        s.obj.y_speed = 0;
+        if (s.on_spawn) {
+            s.on_spawn();
+        }
     }
     layer_visible(z, visible) {
         const entry = this._layer_entries.find(l => l.z === z);
@@ -1150,6 +1197,7 @@ export class Scene {
         }
     }
     run({ save_transport = true } = {}) {
+        game.save_origin();
         this._setup_dom();
         this.cam_snap();
         if (save_transport) {
@@ -1294,6 +1342,7 @@ export class Scene {
                 this._dynamic_objs.push(s.obj);
             }
             this._spawned_objs.push(s.obj);
+            this._resolved_spawn = { obj: s.obj, at: s.at, on_spawn: s.on_spawn };
             if (s.on_spawn) {
                 s.on_spawn();
             }
@@ -1351,6 +1400,13 @@ export class Scene {
         }
         this._check_collectables();
         this._update_camera();
+        if (this._respawn_timer > 0) {
+            this._respawn_timer--;
+        }
+        else if (this._respawn_timer === 0) {
+            this._do_respawn();
+            this._respawn_timer = -1;
+        }
     }
     _auto_tick(method, target) {
         for (const t of this._tile_objs) {

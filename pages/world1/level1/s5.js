@@ -15,6 +15,7 @@ const crumble_a = new CrumblePlatform({ width: 30, height: 4, stay_frames: 15, r
 const death   = new ActionZone({ name: "death",   height: 10, width: 10, on_hit: start_timer })
 const tp_top  = new ActionZone({ name: "tp_top",  height: 2,  width: 10, on_hit: () => { send_to("./s4.html") } })
 const tp_left = new ActionZone({ name: "tp_left", height: 10, width: 2,  on_hit: () => { send_to("./s5_EXT.html") } })
+const tp_right = new ActionZone({ name: "tp_right", height: 10, width: 2,  on_hit: () => { send_to("./s6.html") } })
 
 const scene = new Scene()
 
@@ -27,6 +28,7 @@ scene.tiles(10, 10, {
     '1': crumble_a,
     't': tp_top,
     'n': tp_left,
+    'm': tp_right
 }, [
     "xxttxxx       xxx   xxx        x",
     "x L            x     x         x",
@@ -40,13 +42,15 @@ scene.tiles(10, 10, {
     "n                    x         x",
     "n                1   x  1      x",
     "nd                   x         x",
-    "xxxxx          D     x          ",
-    "xx             x 1   x  1       ",
-    "x        1     x     x          ",
-    "x              x     x       R  ",
+    "xxxxx          D     x         m",
+    "xx             x 1   x  1      m",
+    "x        1     x     x         m",
+    "x              x     x       R m",
     "x             DxD   DxD   xxxxxx",
     "DDDDDDDDDDDDDDxxxDDDxxxDDDDDDDDD",
 ])
+
+tp_right.shift(8,0)
 
 scene.spawn(player, spawn_right, () => come_from("s6.html"), () => true)
 scene.spawn(player, spawn_down,  () => come_from("s5_EXT.html"), () => true)

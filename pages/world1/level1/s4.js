@@ -46,6 +46,8 @@ scene.tiles(10, 10, {
     "xxbbbxxDDDDDDDDDDDDDDDDDDDDDDDDD",
 ])
 
+tp_bottom.shift(0,8)
+
 scene.spawn(player, spawn_right, () => come_from("s5.html"), () => true)
 scene.spawn(player, spawn_left, () => true)
 scene.camera(player, { lerp: 0.1 })
