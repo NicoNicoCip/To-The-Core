@@ -1,4 +1,4 @@
-import { cobj, game, input, level, obj, pobj } from "./system.js"
+import { cobj, emitter, game, input, level, obj, pobj } from "./system.js"
 
 export const DEBUG_COLORS = {
     wall:           "#888888",

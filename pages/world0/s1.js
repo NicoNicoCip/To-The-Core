@@ -12,7 +12,7 @@ const foreground   = new bobj({ name: "scene_s1" })
 
 const tp_bottom = new ActionZone({ name: "tp_bottom", height: 2, width: 10, on_hit: () => { send_to("./s2.html") } })
 
-const tutorial = new Text({name: "tutorial", text: "[A]=◀  [D]=▶  [___]=▲", align: "center"})
+const tutorial = new Text({name: "tutorial", text: "[A]=◀ [D]=▶ [___]=▲", align: "center"})
 
 let landing = false
 
@@ -65,6 +65,7 @@ const shaker = new Shaker()
 const intro  = new Sequencer()
 
 if (intro_played) {
+    tutorial.hide()
     intro.wait_until(() => player.just_landed)
     intro.call(() => {
         landing = true
@@ -77,6 +78,7 @@ if (intro_played) {
         landing = false
         player.graphic.classList.remove("falling_in")
         player.graphic.style.backgroundImage = ""
+        tutorial.show()
     })
 }
 

@@ -73,6 +73,7 @@ scene.spawn(player, spawn_left, () => come_from("s5.html"))
 scene.spawn(player, spawn_right, () => true, () => { player.facing = -1 })
 
 scene.camera(player, { lerp: 0.1 })
+tutorial2.hide()
 
 const jumper_force = 4
 
@@ -88,6 +89,7 @@ function respawn() {
 
 let timer = -1
 function start_timer() {
+    tutorial2.show()
     timer = 30
 }
 
