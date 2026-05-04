@@ -1,4 +1,4 @@
-import { ActionZone, boil_the_plate, invisible_wall_tile, Player, send_to, Sequencer, Shaker, spawn_tile } from "../../src/prefabs.js"
+import { ActionZone, boil_the_plate, invisible_wall_tile, Player, send_to, Sequencer, Shaker, spawn_tile, Text } from "../../src/prefabs.js"
 import { bobj, game, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -11,6 +11,8 @@ const midground    = new bobj({ name: "midground_s1" })
 const foreground   = new bobj({ name: "scene_s1" })
 
 const tp_bottom = new ActionZone({ name: "tp_bottom", height: 2, width: 10, on_hit: () => { send_to("./s2.html") } })
+
+const tutorial = new Text({name: "tutorial", text: "[A]=◀  [D]=▶  [___]=▲", align: "center"})
 
 let landing = false
 
@@ -26,10 +28,11 @@ scene.layer(foreground,  2, 0)
 scene.tiles(10, 10, {
     'x': inviz,
     'S': spawn,
-    'n': tp_bottom
+    'n': tp_bottom,
+    'T': tutorial,
 }, [
     "                               x",
-    "                               x",
+    " T                             x",
     "                               x",
     "                               x",
     "                               x",

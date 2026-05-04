@@ -51,3 +51,14 @@ body {
 .debug {
     z-index: -1000;
 }
+
+@keyframes bob {
+    0%, 100% { top: 0; }
+    25%      { top: -1px; }
+    50%      { top: -2px; }
+    75%      { top: -1px; }
+}
+
+.bob {
+    animation: bob 2s step-end infinite;
+}

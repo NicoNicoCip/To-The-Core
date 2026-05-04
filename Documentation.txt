@@ -539,6 +539,68 @@ This is what DeathZone.check() uses internally. Also useful for custom triggers,
 dialogue zones, checkpoints, etc.
 
 ================================================================
+
+TEXT LABELS
+
+Draw text at a position in the world — tutorial prompts, signs, dialogue,
+debug callouts, etc. Inherits the project's pixel font (press_start) from
+the global stylesheet, so no per-scene CSS needed.
+
+    import { Text } from "../../src/prefabs.js"
+
+    const hint = new Text({
+        x: 60, y: 30,
+        text: "press SPACE to jump",
+        size: 6,
+        color: "#ffffff",
+    })
+    scene.place(hint)
+
+Constructor options (all optional):
+    name         CSS id for the underlying div. Default "text".
+    x, y         World position in pixels.
+    text         Initial string to render.
+    color        Any CSS color. Default "#ffffff".
+    size         Font size in pixels. Default 6 (5–8 reads cleanly at 320×180).
+    line_height  Pixel line-height. Default size + 2.
+    width        Box width in pixels. Omit it to auto-size to the text content
+                 (whitespace stays as-is, only explicit \n breaks lines). Pass
+                 a number to fix the box width and enable wrap.
+    height       Box height in pixels. Omit it to auto-size to the rendered
+                 line count.
+    align        "left" | "center" | "right". Default "left".
+
+Methods:
+    label.set("new content")    Replaces the displayed text.
+    label.text                  Read-only getter for the current string.
+    label.move(x, y)            Same as any other obj — repositions the label.
+    label.show() / label.hide() Toggle visibility — useful for tutorial reveals.
+
+WORLD-SPACE vs SCREEN-SPACE
+
+scene.place(label) puts the label in the world layer (z=0), so it scrolls
+with the camera and stays attached to its level coordinates — the right
+choice for in-world signs and tutorial hints near specific spots.
+
+For HUD-style text that stays glued to the screen regardless of camera
+position, drop the label into a fixed layer instead:
+
+    const hud = new Text({ x: 4, y: 4, text: "0 / 5 bones", size: 6 })
+    scene.layer(hud, 50, 0)        // z=50 (on top), parallax=0 (screen-fixed)
+
+Tutorial reveal example — a label that only shows up when the player walks
+into a trigger zone:
+
+    const hint = new Text({ x: 70, y: 40, text: "hold S to drop through", size: 6 })
+    hint.hide()
+    scene.place(hint)
+
+    const trigger = new ActionZone({ width: 40, height: 30,
+        on_hit: () => hint.show() })
+    scene.place(trigger)
+    trigger.move(60, 30)
+
+================================================================
     The Player
 ================================================================
 

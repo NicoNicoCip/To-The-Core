@@ -65,6 +65,51 @@ export function come_from(html) {
     }
     return res.endsWith(html);
 }
+export class Text extends cobj {
+    _text;
+    constructor({ name = "text", x = 0, y = 0, text = "", color = "#ffffff", size = 6, width = null, height = null, align = "left", line_height = null, } = {}) {
+        const lh = line_height ?? size + 2;
+        super({
+            name, x, y,
+            width: width ?? 0,
+            height: height ?? 0,
+            collides: false,
+            shows_debug_col: false,
+        });
+        this._text = text;
+        this.graphic.classList.add("text_label");
+        this.graphic.style.fontSize = size + "px";
+        this.graphic.style.lineHeight = lh + "px";
+        this.graphic.style.color = color;
+        this.graphic.style.textAlign = align;
+        this.graphic.style.whiteSpace = width === null ? "pre" : "pre-wrap";
+        this.graphic.style.pointerEvents = "none";
+        this.graphic.style.userSelect = "none";
+        if (width === null) {
+            this.graphic.style.width = "auto";
+        }
+        if (height === null) {
+            this.graphic.style.height = "auto";
+        }
+        this.graphic.textContent = text;
+    }
+    set(text) {
+        this._text = text;
+        this.graphic.textContent = text;
+        return this;
+    }
+    get text() {
+        return this._text;
+    }
+    show() {
+        this.graphic.style.display = "";
+        return this;
+    }
+    hide() {
+        this.graphic.style.display = "none";
+        return this;
+    }
+}
 export class Shaker {
     shake_intensity = 0;
     shake_timer = 0;

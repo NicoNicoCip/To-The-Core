@@ -16,6 +16,7 @@
 
 #bone {
     background-image: url("/pages/assets/golden_bone.webp");
+    animation: bob 2s step-end infinite;
 }
 
 #background {

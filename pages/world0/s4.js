@@ -1,4 +1,4 @@
-import { ActionZone, boil_the_plate, come_from, invisible_wall_tile, Player, send_to } from "../../src/prefabs.js"
+import { ActionZone, boil_the_plate, come_from, invisible_wall_tile, Player, send_to, Text } from "../../src/prefabs.js"
 import { bobj, cobj, game, input, Scene } from "../../src/system.js"
 
 boil_the_plate()
@@ -19,6 +19,9 @@ const death = new ActionZone({ name: "death", height: 10, width: 10, on_hit: sta
 const tp_right = new ActionZone({ name: "tp_right", height: 10, width: 2, on_hit: () => { send_to("./s3.html") } })
 const tp_top = new ActionZone({ name: "tp_top", height: 2, width: 10, on_hit: () => { send_to("./s5.html") } })
 
+const tutorial = new Text({name: "tutorial", text: "[S]=▲▲\n▼", align: "center"})
+const tutorial2 = new Text({name: "tutorial", text: " \\(XoX)/ \n▼", align: "center"})
+
 const scene = new Scene()
 
 scene.layer(background, -5, 0)
@@ -34,7 +37,9 @@ scene.tiles(10, 10, {
     'R': spawn_right,
     'n': tp_top,
     'm': tp_right,
-    'D': death
+    'D': death,
+    'T': tutorial,
+    '2': tutorial2
 }, [
     "hnnnnnnnnnnn                    ",
     "h    L                          ",
@@ -43,7 +48,7 @@ scene.tiles(10, 10, {
     "h                              m",
     "h                              m",
     "hvvvv                          m",
-    "h                              m",
+    "h                 T            m",
     "h                              m",
     "xxxxxxxxxx         jjj         m",
     "D                            R m",
@@ -51,7 +56,7 @@ scene.tiles(10, 10, {
     "D                         xxxxxx",
     "D                         xxxxxx",
     "D                         xxxxxx",
-    "D                              D",
+    "D             2                D",
     "D                              D",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ])
